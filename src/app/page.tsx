@@ -18,8 +18,9 @@ import { GameSettingsForm } from "@/components/game/GameSettingsForm";
 import { generateRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { DEFAULT_SETTINGS } from "@/lib/game/state";
-import { Bot, ScrollText, Skull, Users } from "lucide-react";
+import { Bot, ScrollText, Skull, Trophy, Users } from "lucide-react";
 import { Flourish } from "@/components/game/Flourish";
+import { ThemePicker } from "@/components/game/ThemePicker";
 import Link from "next/link";
 
 const NAME_KEY = "chamber-seven:name";
@@ -72,6 +73,10 @@ export default function HomePage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden px-4 py-16">
+      <div className="absolute top-4 right-4 z-10">
+        <ThemePicker />
+      </div>
+
       <Skull
         className="pointer-events-none absolute -top-16 left-1/2 size-[22rem] -translate-x-1/2 text-primary/[0.05] blur-[1px]"
         strokeWidth={0.4}
@@ -217,13 +222,22 @@ export default function HomePage() {
         <p className="text-[0.7rem] tracking-widest text-muted-foreground/70 uppercase">
           House rules apply. Good luck.
         </p>
-        <Link
-          href="/changelog"
-          className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
-        >
-          <ScrollText className="size-3.5" />
-          Patch notes
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/leaderboard"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
+          >
+            <Trophy className="size-3.5" />
+            Leaderboard
+          </Link>
+          <Link
+            href="/changelog"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
+          >
+            <ScrollText className="size-3.5" />
+            Patch notes
+          </Link>
+        </div>
       </div>
     </main>
   );

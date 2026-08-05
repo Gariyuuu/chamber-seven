@@ -22,6 +22,8 @@ export const ITEM_CATEGORY: Record<ItemId, ItemCategory> = {
   riot_vest: "defense",
   scapegoat: "defense",
   second_wind: "defense",
+  patch_kit: "defense",
+  overdose: "defense",
 
   loupe: "info",
   counterfeit_chip: "info",

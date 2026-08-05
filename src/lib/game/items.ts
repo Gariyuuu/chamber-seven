@@ -23,7 +23,11 @@ export const ITEM_POOL_WEIGHTS: Record<ItemId, number> = {
   last_rites: 1,
   scapegoat: 2,
   magnum_load: 1.5,
+  patch_kit: 4,
+  overdose: 2,
 };
+
+export const ALL_ITEM_IDS = Object.keys(ITEM_POOL_WEIGHTS) as ItemId[];
 
 export interface ItemInfo {
   name: string;
@@ -161,10 +165,24 @@ export const ITEM_INFO: Record<ItemId, ItemInfo> = {
     usable: true,
     requiresTarget: false,
   },
+  patch_kit: {
+    name: "Patch Kit",
+    description: "Heal 1 HP. Costs you a random other item from your hand, if you have one.",
+    usable: true,
+    requiresTarget: false,
+  },
+  overdose: {
+    name: "Overdose",
+    description: "Heal 2 HP, but your next shell is forced live no matter what it really was.",
+    usable: true,
+    requiresTarget: false,
+  },
 };
 
-export function weightedRandomItem(): ItemId {
-  const entries = Object.entries(ITEM_POOL_WEIGHTS) as [ItemId, number][];
+/** Weighted random draw. Pass `allowed` to restrict the pool (e.g. a match's enabled-item settings). */
+export function weightedRandomItem(allowed?: ItemId[]): ItemId {
+  const pool = allowed && allowed.length > 0 ? allowed : ALL_ITEM_IDS;
+  const entries = pool.map((item) => [item, ITEM_POOL_WEIGHTS[item]] as [ItemId, number]);
   const total = entries.reduce((sum, [, w]) => sum + w, 0);
   let roll = Math.random() * total;
   for (const [item, weight] of entries) {

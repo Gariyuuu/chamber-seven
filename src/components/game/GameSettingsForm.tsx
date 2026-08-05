@@ -1,6 +1,8 @@
 "use client";
 
 import { GameSettings } from "@/lib/game/types";
+import { ALL_ITEM_IDS, ITEM_INFO } from "@/lib/game/items";
+import { itemColor, COLOR_BORDER, COLOR_BG_SOFT, COLOR_TEXT } from "@/lib/game/colors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -99,6 +101,58 @@ export function GameSettingsForm({
       <div>
         <p className="mb-2 text-sm font-medium text-muted-foreground">Items per reload</p>
         <OptionRow options={ITEMS_OPTIONS} value={settings.itemsPerReload} onSelect={(v) => set("itemsPerReload", v)} />
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-sm font-medium text-muted-foreground">
+            Item pool ({settings.enabledItems.length}/{ALL_ITEM_IDS.length})
+          </p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="text-xs text-accent hover:underline"
+              onClick={() => set("enabledItems", ALL_ITEM_IDS)}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:underline"
+              onClick={() => set("enabledItems", [ALL_ITEM_IDS[0]])}
+            >
+              None
+            </button>
+          </div>
+        </div>
+        <div className="grid max-h-48 grid-cols-2 gap-1.5 overflow-y-auto rounded-md border border-border/60 p-2 sm:grid-cols-3">
+          {ALL_ITEM_IDS.map((item) => {
+            const enabled = settings.enabledItems.includes(item);
+            const color = itemColor(item);
+            function toggle() {
+              const next = enabled
+                ? settings.enabledItems.filter((i) => i !== item)
+                : [...settings.enabledItems, item];
+              set("enabledItems", next.length > 0 ? next : settings.enabledItems);
+            }
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={toggle}
+                title={ITEM_INFO[item].description}
+                className={cn(
+                  "truncate rounded-md border px-2 py-1 text-left text-xs transition-colors",
+                  enabled
+                    ? cn(COLOR_BORDER[color], COLOR_BG_SOFT[color], COLOR_TEXT[color])
+                    : "border-border/40 text-muted-foreground/40 line-through",
+                )}
+              >
+                {ITEM_INFO[item].name}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

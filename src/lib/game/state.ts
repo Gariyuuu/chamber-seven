@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { weightedRandomItem } from "./items";
+import { ALL_ITEM_IDS, weightedRandomItem } from "./items";
 import {
   ALL_SEATS,
   GameSettings,
@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   hpMin: 4,
   hpMax: 12,
   itemsPerReload: 3,
+  enabledItems: ALL_ITEM_IDS,
 };
 
 export const HAND_CAP = 10;
@@ -54,7 +55,12 @@ export function clampSettings(input: Partial<GameSettings>): GameSettings {
   hpMax = Math.min(Math.max(hpMax, 2), 20);
   if (hpMin > hpMax) [hpMin, hpMax] = [hpMax, hpMin];
   const itemsPerReload = Math.min(Math.max(Math.round(input.itemsPerReload ?? DEFAULT_SETTINGS.itemsPerReload), 1), 5);
-  return { playerCount, roundsToWin, hpMin, hpMax, itemsPerReload };
+  const validItems = new Set(ALL_ITEM_IDS);
+  const requestedItems = Array.isArray(input.enabledItems)
+    ? input.enabledItems.filter((item): item is ItemId => validItems.has(item))
+    : [];
+  const enabledItems = requestedItems.length > 0 ? Array.from(new Set(requestedItems)) : ALL_ITEM_IDS;
+  return { playerCount, roundsToWin, hpMin, hpMax, itemsPerReload, enabledItems };
 }
 
 function makePlayer(seat: SeatId): PlayerState {
@@ -108,6 +114,7 @@ export function createRoom(roomId: string): RoomState {
     peekedShell: {},
     bonusDrawFor: null,
     scapegoatEverDrawn: false,
+    winnerRecorded: false,
     winner: null,
     createdAt: now,
     updatedAt: now,
@@ -215,7 +222,7 @@ function drawItems(room: RoomState, seat: SeatId, count: number) {
   for (let i = 0; i < count && p.items.length < HAND_CAP; i++) {
     let item: ItemId | null = null;
     for (let attempt = 0; attempt < DRAW_REROLL_ATTEMPTS; attempt++) {
-      const candidate = weightedRandomItem();
+      const candidate = weightedRandomItem(room.settings.enabledItems);
       if (canHoldAnother(room, seat, candidate)) {
         item = candidate;
         break;
@@ -280,6 +287,7 @@ export function startGame(room: RoomState) {
   for (const seat of ALL_SEATS) room.roundWins[seat] = 0;
   room.winner = null;
   room.scapegoatEverDrawn = false;
+  room.winnerRecorded = false;
   beginRound(room, activeSeats(room)[0]);
 }
 
@@ -656,6 +664,27 @@ function applyItemEffect(
       log(room, actingSeat, `${actor.name} chambers a Magnum Load. Next live shot deals triple damage.`);
       return { ok: true };
     }
+    case "patch_kit": {
+      const before = actor.hp;
+      actor.hp = Math.min(actor.maxHp, actor.hp + 1);
+      const healed = actor.hp - before;
+      if (actor.items.length > 0) {
+        const idx = randomInt(0, actor.items.length - 1);
+        const cost = actor.items.splice(idx, 1)[0];
+        log(room, actingSeat, `${actor.name} uses a Patch Kit, healing ${healed} HP but losing their ${cost}.`);
+      } else {
+        log(room, actingSeat, `${actor.name} uses a Patch Kit, healing ${healed} HP.`);
+      }
+      return { ok: true };
+    }
+    case "overdose": {
+      const before = actor.hp;
+      actor.hp = Math.min(actor.maxHp, actor.hp + 2);
+      const healed = actor.hp - before;
+      actor.forceLiveNext = true;
+      log(room, actingSeat, `${actor.name} takes an Overdose, healing ${healed} HP — but the next shell is forced live.`);
+      return { ok: true };
+    }
     case "second_wind":
       return { ok: false, error: "Second Wind triggers automatically and can't be used directly." };
   }
@@ -770,6 +799,14 @@ export function runBotStep(room: RoomState, botSeat: SeatId): "used_item" | "fir
   }
   if (!peeked && lowHp && bot.items.includes("flask")) {
     playItem(room, botSeat, "flask");
+    return "used_item";
+  }
+  if (lowHp && bot.items.includes("overdose")) {
+    playItem(room, botSeat, "overdose");
+    return "used_item";
+  }
+  if (bot.hp < bot.maxHp && bot.items.includes("patch_kit") && bot.items.length > 1) {
+    playItem(room, botSeat, "patch_kit");
     return "used_item";
   }
 

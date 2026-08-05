@@ -1,4 +1,5 @@
 import { routePartykitRequest, Server, type Connection, type WSMessage } from "partyserver";
+import { Leaderboard } from "./leaderboard";
 import {
   activeSeats,
   addSystemLog,
@@ -20,6 +21,8 @@ import {
 } from "../src/lib/game/state";
 import { ALL_SEATS, ClientMessage, RoomState, SeatId } from "../src/lib/game/types";
 
+export { Leaderboard };
+
 const STORAGE_KEY = "room";
 
 export class Main extends Server<Env> {
@@ -33,6 +36,19 @@ export class Main extends Server<Env> {
 
   private async saveState(state: RoomState) {
     state.updatedAt = Date.now();
+    if (state.phase === "match_end" && state.winner && !state.winnerRecorded) {
+      state.winnerRecorded = true;
+      const winner = state.players[state.winner];
+      if (!winner.isBot) {
+        try {
+          const id = this.env.LEADERBOARD.idFromName("global");
+          const stub = this.env.LEADERBOARD.get(id) as DurableObjectStub<Leaderboard>;
+          await stub.recordWin(winner.name);
+        } catch {
+          // Leaderboard is best-effort — never let it block saving match state.
+        }
+      }
+    }
     await this.ctx.storage.put(STORAGE_KEY, state);
   }
 
@@ -187,8 +203,25 @@ export class Main extends Server<Env> {
   }
 }
 
+const CORS_HEADERS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, OPTIONS",
+};
+
 export default {
   async fetch(request: Request, env: Env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/leaderboard") {
+      if (request.method === "OPTIONS") {
+        return new Response(null, { headers: CORS_HEADERS });
+      }
+      const id = env.LEADERBOARD.idFromName("global");
+      const stub = env.LEADERBOARD.get(id) as DurableObjectStub<Leaderboard>;
+      const top = await stub.getTop(20);
+      return new Response(JSON.stringify(top), {
+        headers: { "content-type": "application/json", ...CORS_HEADERS },
+      });
+    }
     return (
       (await routePartykitRequest(request, env)) ?? new Response("Not found", { status: 404 })
     );

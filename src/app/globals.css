@@ -67,7 +67,7 @@
   --destructive: oklch(0.6 0.24 27);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.55 0.22 25 / 0.6);
+  --ring: color-mix(in oklch, var(--primary) 60%, transparent);
   /* A qualitative 5-hue palette (red/amber/blue/green/purple), used for
      per-item categories and per-seat player colors throughout the game. */
   --chart-1: oklch(0.55 0.22 25);
@@ -86,6 +86,49 @@
   --sidebar-ring: oklch(0.55 0.22 25 / 0.6);
 }
 
+/* Table vibe presets — selected via the palette picker, persisted client-side,
+   applied as a data-theme attribute on <html>. Higher specificity than the
+   base :root block (an attribute selector stacked on :root) so these reliably
+   win regardless of source order. */
+:root[data-theme="neon"] {
+  --background: oklch(0.13 0.025 300);
+  --card: oklch(0.18 0.03 300);
+  --popover: oklch(0.18 0.03 300);
+  --primary: oklch(0.64 0.25 345);
+  --accent: oklch(0.78 0.16 195);
+  --accent-foreground: oklch(0.15 0.02 300);
+  --secondary: oklch(0.26 0.05 290);
+  --muted: oklch(0.21 0.025 300);
+  --chart-1: oklch(0.64 0.25 345);
+  --chart-2: oklch(0.78 0.16 195);
+  --chart-3: oklch(0.62 0.19 250);
+  --chart-4: oklch(0.72 0.19 155);
+  --chart-5: oklch(0.65 0.22 320);
+}
+
+:root[data-theme="emerald"] {
+  --primary: oklch(0.62 0.19 150);
+  --accent: oklch(0.78 0.15 85);
+  --chart-1: oklch(0.62 0.19 150);
+  --chart-2: oklch(0.78 0.15 85);
+}
+
+:root[data-theme="sapphire"] {
+  --primary: oklch(0.6 0.19 250);
+  --accent: oklch(0.72 0.18 340);
+  --accent-foreground: oklch(0.15 0.01 30);
+  --chart-1: oklch(0.6 0.19 250);
+  --chart-2: oklch(0.72 0.18 340);
+}
+
+:root[data-theme="violet"] {
+  --primary: oklch(0.6 0.22 300);
+  --accent: oklch(0.75 0.16 130);
+  --accent-foreground: oklch(0.15 0.01 30);
+  --chart-1: oklch(0.6 0.22 300);
+  --chart-2: oklch(0.75 0.16 130);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -93,12 +136,33 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse 70% 45% at 50% -8%, color-mix(in oklch, var(--primary) 16%, transparent), transparent 60%),
+      radial-gradient(ellipse 45% 30% at 12% 12%, color-mix(in oklch, var(--chart-3) 16%, transparent), transparent 60%),
+      radial-gradient(ellipse 45% 30% at 88% 18%, color-mix(in oklch, var(--chart-5) 14%, transparent), transparent 60%),
+      radial-gradient(ellipse 70% 45% at 50% -8%, color-mix(in oklch, var(--primary) 18%, transparent), transparent 60%),
+      radial-gradient(ellipse 50% 30% at 85% 85%, color-mix(in oklch, var(--accent) 12%, transparent), transparent 65%),
       radial-gradient(ellipse 90% 60% at 50% 108%, color-mix(in oklch, black 60%, transparent), transparent 70%),
       radial-gradient(ellipse 140% 100% at 50% 50%, transparent 55%, color-mix(in oklch, black 45%, transparent) 100%);
     background-attachment: fixed;
     background-repeat: no-repeat;
     position: relative;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: auto 0 0 0;
+    height: 14vh;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: repeating-linear-gradient(
+      90deg,
+      color-mix(in oklch, black 70%, transparent) 0,
+      color-mix(in oklch, black 70%, transparent) 3vw,
+      transparent 3vw,
+      transparent 3.2vw
+    );
+    -webkit-mask-image: linear-gradient(to top, black, transparent);
+    mask-image: linear-gradient(to top, black, transparent);
   }
   body::before {
     content: "";

@@ -7,6 +7,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.5",
+    date: "2026-08-05",
+    title: "Neon Tokyo vibes, healing, custom item pools & a leaderboard",
+    changes: [
+      "New table vibe picker (🎨 icon, top corner) — 5 background color presets including 🌃 Neon Tokyo, persisted per browser, no reload needed.",
+      "Ambient neon-city glow behind every page plus a faint skyline silhouette, regardless of which vibe is active.",
+      "2 new heal items, both with a catch: Patch Kit heals 1 HP but costs you a random other item; Overdose heals 2 HP but forces your next shell live.",
+      "Item pool is now customizable per table: pick exactly which of the 22 items are in play before you start, right in the settings menu.",
+      "New cross-match leaderboard (🏆 Leaderboard link) tracking match wins by name across every table — AI wins don't count.",
+      "This patch note.",
+    ],
+  },
+  {
     version: "1.4",
     date: "2026-08-05",
     title: "Colorful redesign & patch notes",

@@ -7,8 +7,9 @@ import { useGameRoom } from "@/hooks/useGameRoom";
 import { Lobby } from "./Lobby";
 import { PlayingView } from "./PlayingView";
 import { MatchEndView } from "./MatchEndView";
-import { Loader2, ScrollText, Skull } from "lucide-react";
+import { Loader2, ScrollText, Skull, Trophy } from "lucide-react";
 import { GameSettings } from "@/lib/game/types";
+import { ThemePicker } from "./ThemePicker";
 
 const NAME_KEY = "chamber-seven:name";
 const PENDING_SETTINGS_KEY = "chamber-seven:pending-settings";
@@ -82,12 +83,20 @@ function ConnectedRoom({
             Table <span className="font-medium text-foreground">{state.roomId}</span>
           </span>
           <Link
+            href="/leaderboard"
+            className="hidden items-center gap-1 text-muted-foreground transition-colors hover:text-accent sm:flex"
+          >
+            <Trophy className="size-3.5" />
+            Leaderboard
+          </Link>
+          <Link
             href="/changelog"
             className="hidden items-center gap-1 text-muted-foreground transition-colors hover:text-accent sm:flex"
           >
             <ScrollText className="size-3.5" />
             Patch notes
           </Link>
+          <ThemePicker />
         </div>
       </header>
 

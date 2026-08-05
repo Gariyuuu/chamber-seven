@@ -21,7 +21,9 @@ export type ItemId =
   | "sleight_of_hand"
   | "last_rites"
   | "scapegoat"
-  | "magnum_load";
+  | "magnum_load"
+  | "patch_kit"
+  | "overdose";
 
 export type SeatId = "p1" | "p2" | "p3" | "p4";
 export const ALL_SEATS: SeatId[] = ["p1", "p2", "p3", "p4"];
@@ -35,6 +37,8 @@ export interface GameSettings {
   hpMin: number;
   hpMax: number;
   itemsPerReload: number;
+  /** Which items can be drawn this match. Must be non-empty. */
+  enabledItems: ItemId[];
 }
 
 export interface PlayerState {
@@ -90,6 +94,8 @@ export interface RoomState {
   bonusDrawFor: SeatId | null;
   /** Whether a Scapegoat has ever been drawn this match — capped at one per game, not per round. */
   scapegoatEverDrawn: boolean;
+  /** Guards against recording the same match_end to the leaderboard more than once. */
+  winnerRecorded: boolean;
   winner: SeatId | null;
   createdAt: number;
   updatedAt: number;
