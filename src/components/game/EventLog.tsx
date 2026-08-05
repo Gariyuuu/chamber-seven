@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { LogEntry, PrivateReveal } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
+import { ScrollText } from "lucide-react";
 
 type FeedItem =
   | { kind: "public"; id: string; ts: number; content: string }
@@ -20,20 +21,23 @@ export function EventLog({ log, privateLog }: { log: LogEntry[]; privateLog: Pri
   }, [items.length]);
 
   return (
-    <div className="flex h-full flex-col rounded-lg border border-border bg-card">
-      <p className="border-b border-border px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="flex h-full flex-col rounded-lg border border-border/80 bg-[oklch(0.1_0.01_30)] shadow-inner">
+      <p className="flex items-center gap-1.5 border-b border-border/80 px-3 py-2 text-xs font-medium tracking-widest text-muted-foreground uppercase">
+        <ScrollText className="size-3.5 text-primary/70" />
         Table talk
       </p>
-      <div className="flex-1 space-y-1.5 overflow-y-auto px-3 py-2 text-sm">
+      <div className="flex-1 space-y-1.5 overflow-y-auto px-3 py-2 font-mono text-[0.8rem] leading-relaxed">
         {items.map((item) => (
           <p
             key={item.id}
             className={cn(
+              "animate-in fade-in duration-300",
               item.kind === "private"
-                ? "rounded border border-accent/40 bg-accent/10 px-2 py-1 text-accent-foreground/90"
+                ? "rounded border-l-2 border-accent bg-accent/10 px-2 py-1 text-accent-foreground/90"
                 : "text-muted-foreground",
             )}
           >
+            {item.kind === "public" && <span className="text-primary/50">›&nbsp;</span>}
             {item.content}
           </p>
         ))}

@@ -18,7 +18,8 @@ import { GameSettingsForm } from "@/components/game/GameSettingsForm";
 import { generateRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { DEFAULT_SETTINGS } from "@/lib/game/state";
-import { Bot } from "lucide-react";
+import { Bot, Skull, Users } from "lucide-react";
+import { Flourish } from "@/components/game/Flourish";
 
 const NAME_KEY = "chamber-seven:name";
 const PENDING_SETTINGS_KEY = "chamber-seven:pending-settings";
@@ -69,8 +70,17 @@ export default function HomePage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-10 px-4 py-16">
-      <div className="text-center animate-in fade-in slide-in-from-top-4 duration-700">
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden px-4 py-16">
+      <Skull
+        className="pointer-events-none absolute -top-16 left-1/2 size-[22rem] -translate-x-1/2 text-primary/[0.05] blur-[1px]"
+        strokeWidth={0.4}
+        aria-hidden="true"
+      />
+
+      <div className="relative text-center animate-in fade-in slide-in-from-top-4 duration-700">
+        <p className="mb-1 text-xs font-medium tracking-[0.4em] text-muted-foreground uppercase">
+          An underground table game
+        </p>
         <h1 className="font-display text-7xl tracking-wide text-primary drop-shadow-[0_0_28px_color-mix(in_oklch,var(--primary)_45%,transparent)] sm:text-8xl">
           CHAMBER&nbsp;SEVEN
         </h1>
@@ -78,9 +88,10 @@ export default function HomePage() {
           One shotgun. A hidden order of live and blank shells. A pocket full of dirty tricks.
           Up to four players, one survivor.
         </p>
+        <Flourish className="mx-auto mt-5 max-w-40" />
       </div>
 
-      <div className="w-full max-w-sm">
+      <div className="relative w-full max-w-sm">
         <label className="mb-2 block text-sm font-medium text-muted-foreground" htmlFor="name">
           Your name
         </label>
@@ -93,9 +104,12 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="grid w-full max-w-4xl gap-6 sm:grid-cols-3">
+      <div className="relative grid w-full max-w-4xl gap-6 sm:grid-cols-3">
         <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--primary)_35%,transparent)]">
           <CardHeader>
+            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/20">
+              <Skull className="size-4.5" />
+            </div>
             <CardTitle>Host a Table</CardTitle>
             <CardDescription>Open a new room and send the code to your friends.</CardDescription>
           </CardHeader>
@@ -108,7 +122,10 @@ export default function HomePage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Table settings</DialogTitle>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Skull className="size-4 text-primary" />
+                    Table settings
+                  </DialogTitle>
                   <DialogDescription>Everyone at this table plays by these rules.</DialogDescription>
                 </DialogHeader>
                 <GameSettingsForm settings={hostSettings} onChange={setHostSettings} />
@@ -124,6 +141,9 @@ export default function HomePage() {
 
         <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--primary)_35%,transparent)]">
           <CardHeader>
+            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-accent/15 text-accent ring-1 ring-accent/25">
+              <Users className="size-4.5" />
+            </div>
             <CardTitle>Join a Table</CardTitle>
             <CardDescription>Enter the code your host sent you.</CardDescription>
           </CardHeader>
@@ -144,6 +164,9 @@ export default function HomePage() {
 
         <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--primary)_35%,transparent)]">
           <CardHeader>
+            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-secondary text-foreground ring-1 ring-border">
+              <Bot className="size-4.5" />
+            </div>
             <CardTitle>Face the Dealer</CardTitle>
             <CardDescription>Practice against AI opponents. No second player needed.</CardDescription>
           </CardHeader>
@@ -157,7 +180,10 @@ export default function HomePage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Match settings</DialogTitle>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Bot className="size-4 text-primary" />
+                    Match settings
+                  </DialogTitle>
                   <DialogDescription>AI opponents fill every seat but yours.</DialogDescription>
                 </DialogHeader>
                 <GameSettingsForm settings={aiSettings} onChange={setAiSettings} playerCountLabel="Table size (you + AI)" />
@@ -173,7 +199,16 @@ export default function HomePage() {
         </Card>
       </div>
 
-      {joinError && <p className="text-sm text-destructive">{joinError}</p>}
+      {joinError && (
+        <p className="animate-in fade-in text-sm text-destructive duration-200">{joinError}</p>
+      )}
+
+      <div className="mt-4 flex w-full max-w-xs flex-col items-center gap-3">
+        <Flourish className="w-full" />
+        <p className="text-[0.7rem] tracking-widest text-muted-foreground/70 uppercase">
+          House rules apply. Good luck.
+        </p>
+      </div>
     </main>
   );
 }

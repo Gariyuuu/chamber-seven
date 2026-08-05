@@ -7,7 +7,7 @@ import { useGameRoom } from "@/hooks/useGameRoom";
 import { Lobby } from "./Lobby";
 import { PlayingView } from "./PlayingView";
 import { MatchEndView } from "./MatchEndView";
-import { Loader2 } from "lucide-react";
+import { Loader2, Skull } from "lucide-react";
 import { GameSettings } from "@/lib/game/types";
 
 const NAME_KEY = "chamber-seven:name";
@@ -72,11 +72,14 @@ function ConnectedRoom({
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between border-b border-border/70 bg-background/80 px-4 py-2.5 text-sm backdrop-blur">
-        <Link href="/" className="font-display tracking-wide text-primary">
+      <header className="flex items-center justify-between border-b border-border/70 bg-background/80 px-4 py-2.5 text-sm shadow-[0_1px_0_0_color-mix(in_oklch,var(--primary)_15%,transparent)] backdrop-blur">
+        <Link href="/" className="flex items-center gap-1.5 font-display tracking-wide text-primary">
+          <Skull className="size-4" />
           CHAMBER SEVEN
         </Link>
-        <span className="text-muted-foreground">Table {state.roomId}</span>
+        <span className="text-muted-foreground">
+          Table <span className="font-medium text-foreground">{state.roomId}</span>
+        </span>
       </header>
 
       {error && (
