@@ -2,6 +2,7 @@ import {
   ArrowLeftRight,
   Axe,
   Bird,
+  Bomb,
   CloudFog,
   CornerUpRight,
   Cross,
@@ -44,4 +45,5 @@ export const ITEM_ICONS: Record<ItemId, LucideIcon> = {
   sleight_of_hand: ArrowLeftRight,
   last_rites: Cross,
   scapegoat: CornerUpRight,
+  magnum_load: Bomb,
 };

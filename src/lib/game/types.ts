@@ -20,7 +20,8 @@ export type ItemId =
   | "point_blank"
   | "sleight_of_hand"
   | "last_rites"
-  | "scapegoat";
+  | "scapegoat"
+  | "magnum_load";
 
 export type SeatId = "p1" | "p2" | "p3" | "p4";
 export const ALL_SEATS: SeatId[] = ["p1", "p2", "p3", "p4"];
@@ -46,6 +47,7 @@ export interface PlayerState {
   items: ItemId[];
   skipNextTurn: boolean;
   doubleDamageNext: boolean;
+  tripleDamageNext: boolean;
   forceLiveNext: boolean;
   shieldedNext: boolean;
   molotovNext: boolean;
@@ -86,6 +88,8 @@ export interface RoomState {
   privateLog: Record<SeatId, PrivateReveal[]>;
   peekedShell: Partial<Record<SeatId, ShellType>>;
   bonusDrawFor: SeatId | null;
+  /** Whether a Scapegoat has ever been drawn this match — capped at one per game, not per round. */
+  scapegoatEverDrawn: boolean;
   winner: SeatId | null;
   createdAt: number;
   updatedAt: number;

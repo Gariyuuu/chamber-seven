@@ -2,7 +2,8 @@ import { ItemId } from "./types";
 
 export const ITEM_POOL_WEIGHTS: Record<ItemId, number> = {
   loupe: 5,
-  irons: 4,
+  // Kept below every other item's weight on purpose — Irons is strong crowd control.
+  irons: 0.5,
   hacksaw: 4,
   flask: 4,
   adrenal_shot: 3,
@@ -21,6 +22,7 @@ export const ITEM_POOL_WEIGHTS: Record<ItemId, number> = {
   sleight_of_hand: 2,
   last_rites: 1,
   scapegoat: 2,
+  magnum_load: 1.5,
 };
 
 export interface ItemInfo {
@@ -41,7 +43,7 @@ export const ITEM_INFO: Record<ItemId, ItemInfo> = {
   },
   irons: {
     name: "Irons",
-    description: "Lock a chosen player out of their next turn.",
+    description: "Lock a chosen player out of their next turn. Rare — and you can only hold one at a time.",
     usable: true,
     requiresTarget: true,
   },
@@ -107,7 +109,7 @@ export const ITEM_INFO: Record<ItemId, ItemInfo> = {
   },
   vultures_due: {
     name: "Vulture's Due",
-    description: "Drain 1 HP from a chosen player and take it for yourself.",
+    description: "Drain 1 HP from a chosen player and take it for yourself. You can only hold one at a time.",
     usable: true,
     requiresTarget: true,
   },
@@ -149,9 +151,15 @@ export const ITEM_INFO: Record<ItemId, ItemInfo> = {
   },
   scapegoat: {
     name: "Scapegoat",
-    description: "The next live shot that would hit you is redirected onto a chosen player instead.",
+    description: "The next live shot that would hit you is redirected onto a chosen player instead. Only one exists per match.",
     usable: true,
     requiresTarget: true,
+  },
+  magnum_load: {
+    name: "Magnum Load",
+    description: "Your next live shot deals triple damage.",
+    usable: true,
+    requiresTarget: false,
   },
 };
 

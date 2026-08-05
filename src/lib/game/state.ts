@@ -68,6 +68,7 @@ function makePlayer(seat: SeatId): PlayerState {
     items: [],
     skipNextTurn: false,
     doubleDamageNext: false,
+    tripleDamageNext: false,
     forceLiveNext: false,
     shieldedNext: false,
     molotovNext: false,
@@ -106,6 +107,7 @@ export function createRoom(roomId: string): RoomState {
     privateLog,
     peekedShell: {},
     bonusDrawFor: null,
+    scapegoatEverDrawn: false,
     winner: null,
     createdAt: now,
     updatedAt: now,
@@ -195,10 +197,33 @@ export function isBotTurn(room: RoomState): boolean {
   return room.players[room.turn].isBot;
 }
 
+const DRAW_REROLL_ATTEMPTS = 20;
+
+/** Items capped at holding one per player at a time (per round, since hands reset each round). */
+function canHoldAnother(room: RoomState, seat: SeatId, item: ItemId): boolean {
+  if (item === "irons" || item === "vultures_due") {
+    return !room.players[seat].items.includes(item);
+  }
+  if (item === "scapegoat") {
+    return !room.scapegoatEverDrawn;
+  }
+  return true;
+}
+
 function drawItems(room: RoomState, seat: SeatId, count: number) {
   const p = room.players[seat];
   for (let i = 0; i < count && p.items.length < HAND_CAP; i++) {
-    p.items.push(weightedRandomItem());
+    let item: ItemId | null = null;
+    for (let attempt = 0; attempt < DRAW_REROLL_ATTEMPTS; attempt++) {
+      const candidate = weightedRandomItem();
+      if (canHoldAnother(room, seat, candidate)) {
+        item = candidate;
+        break;
+      }
+    }
+    if (!item) continue;
+    p.items.push(item);
+    if (item === "scapegoat") room.scapegoatEverDrawn = true;
   }
 }
 
@@ -233,6 +258,7 @@ function beginRound(room: RoomState, startingSeat: SeatId) {
     p.items = [];
     p.skipNextTurn = false;
     p.doubleDamageNext = false;
+    p.tripleDamageNext = false;
     p.forceLiveNext = false;
     p.shieldedNext = false;
     p.molotovNext = false;
@@ -253,6 +279,7 @@ export function startGame(room: RoomState) {
   room.round = 1;
   for (const seat of ALL_SEATS) room.roundWins[seat] = 0;
   room.winner = null;
+  room.scapegoatEverDrawn = false;
   beginRound(room, activeSeats(room)[0]);
 }
 
@@ -397,8 +424,9 @@ export function fire(room: RoomState, actingSeat: SeatId, targetSeat: SeatId): A
     actor.forceLiveNext = false;
   }
 
-  const damage = actor.doubleDamageNext ? 2 : 1;
+  const damage = actor.tripleDamageNext ? 3 : actor.doubleDamageNext ? 2 : 1;
   actor.doubleDamageNext = false;
+  actor.tripleDamageNext = false;
   const molotov = actor.molotovNext;
   actor.molotovNext = false;
 
@@ -623,6 +651,11 @@ function applyItemEffect(
       log(room, actingSeat, `${actor.name} sets up a Scapegoat — the next hit lands on ${target.name}.`);
       return { ok: true };
     }
+    case "magnum_load": {
+      actor.tripleDamageNext = true;
+      log(room, actingSeat, `${actor.name} chambers a Magnum Load. Next live shot deals triple damage.`);
+      return { ok: true };
+    }
     case "second_wind":
       return { ok: false, error: "Second Wind triggers automatically and can't be used directly." };
   }
@@ -720,7 +753,12 @@ export function runBotStep(room: RoomState, botSeat: SeatId): "used_item" | "fir
     return "used_item";
   }
 
-  if (peeked === "live" && bot.items.includes("hacksaw") && !bot.doubleDamageNext) {
+  if (peeked === "live" && bot.items.includes("magnum_load") && !bot.tripleDamageNext && !bot.doubleDamageNext) {
+    playItem(room, botSeat, "magnum_load");
+    return "used_item";
+  }
+
+  if (peeked === "live" && bot.items.includes("hacksaw") && !bot.doubleDamageNext && !bot.tripleDamageNext) {
     playItem(room, botSeat, "hacksaw");
     return "used_item";
   }
