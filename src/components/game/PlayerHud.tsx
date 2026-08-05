@@ -2,6 +2,7 @@ import { RedactedPlayer } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
 import { Bot, Skull, WifiOff } from "lucide-react";
 import { HealthBar } from "./HealthBar";
+import { SEAT_COLOR, COLOR_BORDER_L, COLOR_TEXT } from "@/lib/game/colors";
 
 export function PlayerHud({
   player,
@@ -12,20 +13,21 @@ export function PlayerHud({
   isYou: boolean;
   isTurn: boolean;
 }) {
+  const color = SEAT_COLOR[player.seat];
+
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-all",
-        isTurn && !player.eliminated
-          ? "border-accent bg-accent/10 shadow-[0_0_0_1px_var(--accent),0_0_16px_color-mix(in_oklch,var(--accent)_35%,transparent)]"
-          : "border-border bg-card",
+        "flex items-center justify-between gap-3 rounded-lg border border-l-4 border-border bg-card px-4 py-3 transition-all",
+        !player.eliminated && COLOR_BORDER_L[color],
+        isTurn && !player.eliminated && "bg-accent/10 shadow-[0_0_0_1px_var(--accent),0_0_16px_color-mix(in_oklch,var(--accent)_35%,transparent)]",
         player.eliminated && "opacity-50",
       )}
     >
       <div>
         <div className="flex items-center gap-2">
           <p className={cn("font-medium", player.eliminated && "line-through")}>
-            {player.name}
+            <span className={cn(!player.eliminated && COLOR_TEXT[color])}>{player.name}</span>
             {isYou && <span className="text-muted-foreground"> (you)</span>}
           </p>
           {player.isBot && <Bot className="size-3.5 text-muted-foreground" />}

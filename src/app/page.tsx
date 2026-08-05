@@ -18,8 +18,9 @@ import { GameSettingsForm } from "@/components/game/GameSettingsForm";
 import { generateRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { DEFAULT_SETTINGS } from "@/lib/game/state";
-import { Bot, Skull, Users } from "lucide-react";
+import { Bot, ScrollText, Skull, Users } from "lucide-react";
 import { Flourish } from "@/components/game/Flourish";
+import Link from "next/link";
 
 const NAME_KEY = "chamber-seven:name";
 const PENDING_SETTINGS_KEY = "chamber-seven:pending-settings";
@@ -81,7 +82,7 @@ export default function HomePage() {
         <p className="mb-1 text-xs font-medium tracking-[0.4em] text-muted-foreground uppercase">
           An underground table game
         </p>
-        <h1 className="font-display text-7xl tracking-wide text-primary drop-shadow-[0_0_28px_color-mix(in_oklch,var(--primary)_45%,transparent)] sm:text-8xl">
+        <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-7xl tracking-wide text-transparent drop-shadow-[0_0_28px_color-mix(in_oklch,var(--primary)_45%,transparent)] sm:text-8xl">
           CHAMBER&nbsp;SEVEN
         </h1>
         <p className="mt-3 max-w-md text-balance text-muted-foreground">
@@ -139,9 +140,9 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--primary)_35%,transparent)]">
+        <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-chart-3/50 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--chart-3)_35%,transparent)]">
           <CardHeader>
-            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-accent/15 text-accent ring-1 ring-accent/25">
+            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-chart-3/15 text-chart-3 ring-1 ring-chart-3/25">
               <Users className="size-4.5" />
             </div>
             <CardTitle>Join a Table</CardTitle>
@@ -156,15 +157,19 @@ export default function HomePage() {
               onChange={(e) => setJoinCode(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleJoin()}
             />
-            <Button size="lg" onClick={handleJoin}>
+            <Button
+              size="lg"
+              className="glossy bg-chart-3 text-white hover:bg-chart-3/80"
+              onClick={handleJoin}
+            >
               Join
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--primary)_35%,transparent)]">
+        <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-chart-5/50 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--chart-5)_35%,transparent)]">
           <CardHeader>
-            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-secondary text-foreground ring-1 ring-border">
+            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-chart-5/15 text-chart-5 ring-1 ring-chart-5/25">
               <Bot className="size-4.5" />
             </div>
             <CardTitle>Face the Dealer</CardTitle>
@@ -173,7 +178,11 @@ export default function HomePage() {
           <CardContent>
             <Dialog open={aiOpen} onOpenChange={setAiOpen}>
               <DialogTrigger asChild>
-                <Button className="w-full gap-2" size="lg" variant="secondary" onClick={handleAiOpen}>
+                <Button
+                  className="glossy w-full gap-2 bg-chart-5 text-white hover:bg-chart-5/80"
+                  size="lg"
+                  onClick={handleAiOpen}
+                >
                   <Bot className="size-4" />
                   Play vs AI
                 </Button>
@@ -181,7 +190,7 @@ export default function HomePage() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Bot className="size-4 text-primary" />
+                    <Bot className="size-4 text-chart-5" />
                     Match settings
                   </DialogTitle>
                   <DialogDescription>AI opponents fill every seat but yours.</DialogDescription>
@@ -208,6 +217,13 @@ export default function HomePage() {
         <p className="text-[0.7rem] tracking-widest text-muted-foreground/70 uppercase">
           House rules apply. Good luck.
         </p>
+        <Link
+          href="/changelog"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
+        >
+          <ScrollText className="size-3.5" />
+          Patch notes
+        </Link>
       </div>
     </main>
   );

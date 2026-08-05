@@ -8,11 +8,21 @@ import { ActionBar } from "./ActionBar";
 import { ItemCard } from "./ItemCard";
 import { TargetSelector } from "./TargetSelector";
 import { LayoutGrid, Radiation, type LucideIcon } from "lucide-react";
+import { SEAT_COLOR, COLOR_TEXT } from "@/lib/game/colors";
+import { cn } from "@/lib/utils";
 
-function SectionLabel({ icon: Icon, children }: { icon: LucideIcon; children: React.ReactNode }) {
+function SectionLabel({
+  icon: Icon,
+  iconClassName,
+  children,
+}: {
+  icon: LucideIcon;
+  iconClassName?: string;
+  children: React.ReactNode;
+}) {
   return (
     <p className="flex items-center gap-1.5 text-xs font-medium tracking-widest text-muted-foreground uppercase">
-      <Icon className="size-3.5 text-primary/70" />
+      <Icon className={cn("size-3.5", iconClassName ?? "text-primary/70")} />
       {children}
     </p>
   );
@@ -54,7 +64,7 @@ export function PlayingView({
         </p>
         <div className="flex gap-3">
           {state.players.map((p) => (
-            <span key={p.seat} className={p.seat === state.you ? "text-foreground" : undefined}>
+            <span key={p.seat} className={cn("font-medium", COLOR_TEXT[SEAT_COLOR[p.seat]])}>
               {p.seat === state.you ? "you" : p.name}: {state.roundWins[p.seat]}
             </span>
           ))}
@@ -69,7 +79,9 @@ export function PlayingView({
         </div>
 
         <div className="space-y-1.5">
-          <SectionLabel icon={Radiation}>The Chamber</SectionLabel>
+          <SectionLabel icon={Radiation} iconClassName="text-chart-1">
+            The Chamber
+          </SectionLabel>
           <ChamberBar
             remaining={state.chamberRemaining}
             liveTotal={state.chamberLiveTotal}
@@ -89,7 +101,9 @@ export function PlayingView({
         )}
 
         <div className="space-y-1.5">
-          <SectionLabel icon={LayoutGrid}>Your Hand</SectionLabel>
+          <SectionLabel icon={LayoutGrid} iconClassName="text-chart-2">
+            Your Hand
+          </SectionLabel>
           <div className="flex flex-wrap justify-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 py-2">
             {(you.items ?? []).map((item, i) => {
               const info = ITEM_INFO[item];

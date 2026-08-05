@@ -7,7 +7,7 @@ import { useGameRoom } from "@/hooks/useGameRoom";
 import { Lobby } from "./Lobby";
 import { PlayingView } from "./PlayingView";
 import { MatchEndView } from "./MatchEndView";
-import { Loader2, Skull } from "lucide-react";
+import { Loader2, ScrollText, Skull } from "lucide-react";
 import { GameSettings } from "@/lib/game/types";
 
 const NAME_KEY = "chamber-seven:name";
@@ -77,9 +77,18 @@ function ConnectedRoom({
           <Skull className="size-4" />
           CHAMBER SEVEN
         </Link>
-        <span className="text-muted-foreground">
-          Table <span className="font-medium text-foreground">{state.roomId}</span>
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-muted-foreground">
+            Table <span className="font-medium text-foreground">{state.roomId}</span>
+          </span>
+          <Link
+            href="/changelog"
+            className="hidden items-center gap-1 text-muted-foreground transition-colors hover:text-accent sm:flex"
+          >
+            <ScrollText className="size-3.5" />
+            Patch notes
+          </Link>
+        </div>
       </header>
 
       {error && (
