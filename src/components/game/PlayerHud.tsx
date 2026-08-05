@@ -1,6 +1,6 @@
 import { RedactedPlayer } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
-import { WifiOff } from "lucide-react";
+import { Bot, WifiOff } from "lucide-react";
 
 export function PlayerHud({
   player,
@@ -24,6 +24,7 @@ export function PlayerHud({
             {player.name}
             {isYou && <span className="text-muted-foreground"> (you)</span>}
           </p>
+          {player.isBot && <Bot className="size-3.5 text-muted-foreground" />}
           {!player.connected && <WifiOff className="size-3.5 text-destructive" />}
         </div>
         <div className="mt-1 flex gap-1">

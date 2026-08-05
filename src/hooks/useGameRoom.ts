@@ -10,15 +10,17 @@ function tokenKey(roomId: string) {
   return `chamber-seven:token:${roomId}`;
 }
 
-export function useGameRoom(roomId: string, name: string) {
+export function useGameRoom(roomId: string, name: string, vsAI = false) {
   const [seat, setSeat] = useState<SeatId | null>(null);
   const [state, setState] = useState<RedactedState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
   const nameRef = useRef(name);
+  const vsAIRef = useRef(vsAI);
   useEffect(() => {
     nameRef.current = name;
-  }, [name]);
+    vsAIRef.current = vsAI;
+  }, [name, vsAI]);
 
   const socket = usePartySocket({
     host: PARTYKIT_HOST,
@@ -26,7 +28,7 @@ export function useGameRoom(roomId: string, name: string) {
     onOpen() {
       setConnected(true);
       const token = typeof window !== "undefined" ? localStorage.getItem(tokenKey(roomId)) ?? undefined : undefined;
-      send({ type: "join", name: nameRef.current, token });
+      send({ type: "join", name: nameRef.current, token, vsAI: vsAIRef.current });
     },
     onClose() {
       setConnected(false);

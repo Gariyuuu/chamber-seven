@@ -1,14 +1,19 @@
 import { routePartykitRequest, Server, type Connection, type WSMessage } from "partyserver";
 import {
   addSystemLog,
+  BOT_STEP_LIMIT,
+  botActionDelayMs,
   claimSeat,
   createRoom,
+  fillBotSeat,
   fire,
+  isBotTurn,
   markDisconnected,
   RECONNECT_GRACE_MS,
   redact,
+  runBotStep,
   startGame,
-  useItem as applyItem,
+  playItem as applyItem,
 } from "../src/lib/game/state";
 import { ClientMessage, otherSeat, RoomState, SeatId } from "../src/lib/game/types";
 
@@ -66,6 +71,9 @@ export class Main extends Server<Env> {
       }
       const seat = result.seat;
       addSystemLog(state, `${state.players[seat].name} joined the room.`);
+      if (msg.vsAI && seat === "p1" && !state.players.p2.isBot && !state.players.p2.connected) {
+        fillBotSeat(state);
+      }
       await this.saveState(state);
       this.send(sender, { type: "welcome", seat, token: state.players[seat].token });
       this.broadcastState(state);
@@ -125,6 +133,17 @@ export class Main extends Server<Env> {
 
     await this.saveState(state);
     this.broadcastState(state);
+    await this.runBotIfNeeded(state);
+  }
+
+  private async runBotIfNeeded(state: RoomState) {
+    let steps = 0;
+    while (state.phase === "playing" && isBotTurn(state) && steps++ < BOT_STEP_LIMIT) {
+      await new Promise((resolve) => setTimeout(resolve, botActionDelayMs()));
+      runBotStep(state, state.turn);
+      await this.saveState(state);
+      this.broadcastState(state);
+    }
   }
 
   async onClose(conn: Connection) {

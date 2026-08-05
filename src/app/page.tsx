@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { generateRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Bot } from "lucide-react";
 
 const NAME_KEY = "chamber-seven:name";
 
@@ -41,6 +42,12 @@ export default function HomePage() {
     router.push(`/room/${code}`);
   }
 
+  function handleVsAI() {
+    if (!requireName()) return;
+    const code = generateRoomCode();
+    router.push(`/room/${code}?ai=1`);
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-10 px-4 py-16">
       <div className="text-center">
@@ -66,7 +73,7 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="grid w-full max-w-3xl gap-6 sm:grid-cols-2">
+      <div className="grid w-full max-w-4xl gap-6 sm:grid-cols-3">
         <Card className="border-border/60">
           <CardHeader>
             <CardTitle>Host a Table</CardTitle>
@@ -95,6 +102,19 @@ export default function HomePage() {
             />
             <Button size="lg" onClick={handleJoin}>
               Join
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60">
+          <CardHeader>
+            <CardTitle>Face the Dealer</CardTitle>
+            <CardDescription>Practice against an AI opponent. No second player needed.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full gap-2" size="lg" variant="secondary" onClick={handleVsAI}>
+              <Bot className="size-4" />
+              Play vs AI
             </Button>
           </CardContent>
         </Card>

@@ -45,7 +45,33 @@ function makePlayer(seat: SeatId): PlayerState {
     doubleDamageNext: false,
     connected: false,
     disconnectedAt: null,
+    isBot: false,
   };
+}
+
+export const BOT_NAME = "The Dealer";
+const BOT_MIN_ACTION_DELAY_MS = 550;
+const BOT_MAX_ACTION_DELAY_MS = 1050;
+const BOT_STEP_SAFETY_CAP = 25;
+
+export function botActionDelayMs(): number {
+  return BOT_MIN_ACTION_DELAY_MS + Math.random() * (BOT_MAX_ACTION_DELAY_MS - BOT_MIN_ACTION_DELAY_MS);
+}
+
+export const BOT_STEP_LIMIT = BOT_STEP_SAFETY_CAP;
+
+/** Seats the given seat (default p2) as an AI opponent. Call once, in the lobby, before startGame. */
+export function fillBotSeat(room: RoomState, seat: SeatId = "p2") {
+  const p = room.players[seat];
+  p.isBot = true;
+  p.name = BOT_NAME;
+  p.connected = true;
+  p.connId = null;
+  addSystemLog(room, `${p.name} sits down across the table.`);
+}
+
+export function isBotTurn(room: RoomState): boolean {
+  return room.players[room.turn].isBot;
 }
 
 export function createRoom(roomId: string): RoomState {
@@ -102,6 +128,7 @@ export function claimSeat(
   }
   for (const seat of ["p1", "p2"] as SeatId[]) {
     const p = room.players[seat];
+    if (p.isBot) continue;
     if (!p.connected && p.connId === null && (room.phase === "lobby" || p.disconnectedAt !== null)) {
       p.connId = connId;
       p.connected = true;
@@ -161,7 +188,7 @@ export function startGame(room: RoomState) {
     p.skipNextTurn = false;
     p.doubleDamageNext = false;
   }
-  room.turn = Math.random() < 0.5 ? "p1" : "p2";
+  room.turn = room.players.p2.isBot ? "p1" : Math.random() < 0.5 ? "p1" : "p2";
   reload(room);
   log(room, null, `Round 1 begins. ${room.turn === "p1" ? room.players.p1.name : room.players.p2.name} goes first.`);
 }
@@ -356,7 +383,7 @@ function applyItemEffect(room: RoomState, actingSeat: SeatId, item: ItemId): Act
   }
 }
 
-export function useItem(room: RoomState, actingSeat: SeatId, item: ItemId): ActionResult {
+export function playItem(room: RoomState, actingSeat: SeatId, item: ItemId): ActionResult {
   if (room.phase !== "playing") return { ok: false, error: "Game is not in progress." };
   if (room.turn !== actingSeat) return { ok: false, error: "It's not your turn." };
   const actor = room.players[actingSeat];
@@ -371,6 +398,66 @@ export function useItem(room: RoomState, actingSeat: SeatId, item: ItemId): Acti
 
 export function addSystemLog(room: RoomState, message: string) {
   log(room, null, message);
+}
+
+/**
+ * Live/blank counts still left in the chamber. This is arithmetic any attentive
+ * player could reconstruct from the public log (loaded totals minus fired shells),
+ * so exposing it to the bot isn't unfair — it just skips the bookkeeping.
+ */
+function remainingComposition(room: RoomState): { live: number; blank: number } {
+  let live = 0;
+  let blank = 0;
+  for (const shell of room.chamber) {
+    if (shell === "live") live++;
+    else blank++;
+  }
+  return { live, blank };
+}
+
+/**
+ * Performs exactly one bot micro-action (an item use, or a shot) and returns which.
+ * Callers should keep invoking this in a loop, broadcasting state between calls,
+ * while it's still the bot's turn — a blank self-shot legitimately keeps the turn.
+ */
+export function runBotStep(room: RoomState, botSeat: SeatId): "used_item" | "fired" {
+  const bot = room.players[botSeat];
+  const opponentSeat = otherSeat(botSeat);
+  const opponent = room.players[opponentSeat];
+
+  if (bot.items.includes("irons") && !opponent.skipNextTurn) {
+    playItem(room, botSeat, "irons");
+    return "used_item";
+  }
+
+  const peeked = room.peekedShell[botSeat] ?? null;
+
+  if (!peeked && bot.items.includes("loupe")) {
+    playItem(room, botSeat, "loupe");
+    return "used_item";
+  }
+
+  if (peeked === "live" && bot.items.includes("hacksaw") && !bot.doubleDamageNext) {
+    playItem(room, botSeat, "hacksaw");
+    return "used_item";
+  }
+
+  if (!peeked && bot.hp === 1 && bot.items.includes("flask")) {
+    playItem(room, botSeat, "flask");
+    return "used_item";
+  }
+
+  let fireLive: boolean;
+  if (peeked) {
+    fireLive = peeked === "live";
+  } else {
+    const { live, blank } = remainingComposition(room);
+    const total = live + blank;
+    fireLive = total > 0 && live / total > 0.5;
+  }
+
+  fire(room, botSeat, fireLive ? "opponent" : "self");
+  return "fired";
 }
 
 export function redact(room: RoomState, forSeat: SeatId): RedactedState {
@@ -390,6 +477,7 @@ export function redact(room: RoomState, forSeat: SeatId): RedactedState {
         itemCount: you.items.length,
         items: you.items,
         connected: you.connected,
+        isBot: you.isBot,
       },
       [otherSeat(forSeat)]: {
         seat: otherSeat(forSeat),
@@ -399,6 +487,7 @@ export function redact(room: RoomState, forSeat: SeatId): RedactedState {
         itemCount: opp.items.length,
         items: null,
         connected: opp.connected,
+        isBot: opp.isBot,
       },
     } as RedactedState["players"],
     chamberRemaining: room.chamber.length,

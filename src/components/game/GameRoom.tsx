@@ -15,7 +15,7 @@ function readStoredName(): string | null {
   return typeof window === "undefined" ? null : localStorage.getItem(NAME_KEY);
 }
 
-export function GameRoom({ roomId }: { roomId: string }) {
+export function GameRoom({ roomId, vsAI = false }: { roomId: string; vsAI?: boolean }) {
   const router = useRouter();
   const [name] = useState(readStoredName);
 
@@ -23,13 +23,14 @@ export function GameRoom({ roomId }: { roomId: string }) {
     if (name === null) router.replace("/");
   }, [name, router]);
 
-  return name ? <ConnectedRoom roomId={roomId} name={name} /> : null;
+  return name ? <ConnectedRoom roomId={roomId} name={name} vsAI={vsAI} /> : null;
 }
 
-function ConnectedRoom({ roomId, name }: { roomId: string; name: string }) {
+function ConnectedRoom({ roomId, name, vsAI }: { roomId: string; name: string; vsAI: boolean }) {
   const { seat, state, error, connected, startGame, fireAt, useItem, rematch } = useGameRoom(
     roomId,
     name,
+    vsAI,
   );
 
   if (!connected || !state || !seat) {

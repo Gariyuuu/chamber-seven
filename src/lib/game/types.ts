@@ -28,6 +28,7 @@ export interface PlayerState {
   doubleDamageNext: boolean;
   connected: boolean;
   disconnectedAt: number | null;
+  isBot: boolean;
 }
 
 export interface LogEntry {
@@ -72,6 +73,7 @@ export interface RedactedPlayer {
   itemCount: number;
   items: ItemId[] | null;
   connected: boolean;
+  isBot: boolean;
 }
 
 export interface RedactedState {
@@ -94,7 +96,7 @@ export interface RedactedState {
 }
 
 export type ClientMessage =
-  | { type: "join"; name: string; token?: string }
+  | { type: "join"; name: string; token?: string; vsAI?: boolean }
   | { type: "start_game" }
   | { type: "use_item"; item: ItemId }
   | { type: "fire"; target: "self" | "opponent" }

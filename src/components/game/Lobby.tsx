@@ -10,6 +10,7 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
   const [copied, setCopied] = useState(false);
   const players = Object.values(state.players);
   const bothConnected = players.every((p) => p.connected);
+  const vsAI = players.some((p) => p.isBot);
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.href);
@@ -24,10 +25,12 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
         <p className="font-display text-6xl tracking-widest text-primary">{state.roomId}</p>
       </div>
 
-      <Button variant="outline" size="sm" onClick={copyLink} className="gap-2">
-        {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        {copied ? "Copied" : "Copy invite link"}
-      </Button>
+      {!vsAI && (
+        <Button variant="outline" size="sm" onClick={copyLink} className="gap-2">
+          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+          {copied ? "Copied" : "Copy invite link"}
+        </Button>
+      )}
 
       <Card className="w-full">
         <CardHeader>
