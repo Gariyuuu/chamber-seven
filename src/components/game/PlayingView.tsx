@@ -1,9 +1,12 @@
-import { ItemId, otherSeat, RedactedState } from "@/lib/game/types";
+import { useState } from "react";
+import { ItemId, RedactedState, SeatId } from "@/lib/game/types";
+import { ITEM_INFO } from "@/lib/game/items";
 import { PlayerHud } from "./PlayerHud";
 import { ChamberBar } from "./ChamberBar";
 import { EventLog } from "./EventLog";
 import { ActionBar } from "./ActionBar";
 import { ItemCard } from "./ItemCard";
+import { TargetSelector } from "./TargetSelector";
 
 export function PlayingView({
   state,
@@ -11,33 +14,47 @@ export function PlayingView({
   onUseItem,
 }: {
   state: RedactedState;
-  onFire: (target: "self" | "opponent") => void;
-  onUseItem: (item: ItemId) => void;
+  onFire: (target: SeatId) => void;
+  onUseItem: (item: ItemId, target?: SeatId) => void;
 }) {
-  const you = state.players[state.you];
-  const opponent = state.players[otherSeat(state.you)];
+  const you = state.players.find((p) => p.seat === state.you)!;
+  const others = state.players.filter((p) => p.seat !== state.you);
   const isYourTurn = state.turn === state.you && state.phase === "playing";
+
+  const [target, setTarget] = useState<SeatId>(state.you);
+  // Reset the target back to yourself whenever a fresh turn of yours begins,
+  // using React's "adjust state during render" pattern instead of an effect.
+  const [prevTurn, setPrevTurn] = useState(state.turn);
+  if (state.turn !== prevTurn) {
+    setPrevTurn(state.turn);
+    if (state.turn === state.you) setTarget(state.you);
+  }
+
+  const targetPlayer = state.players.find((p) => p.seat === target);
+  const isSelfTarget = target === state.you;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-y-1 text-sm text-muted-foreground">
         <p>
-          Round {state.round} · first to {state.roundsToWin} wins the table
+          Round {state.round} ·{" "}
+          {state.settings.roundsToWin === 1
+            ? "single round"
+            : `first to ${state.settings.roundsToWin} wins the table`}
         </p>
-        <p>
-          {state.roundWins[state.you]} - {state.roundWins[otherSeat(state.you)]}
-        </p>
+        <div className="flex gap-3">
+          {state.players.map((p) => (
+            <span key={p.seat} className={p.seat === state.you ? "text-foreground" : undefined}>
+              {p.seat === state.you ? "you" : p.name}: {state.roundWins[p.seat]}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <PlayerHud player={opponent} isYou={false} isTurn={state.turn === opponent.seat} />
-
-      <div className="flex flex-wrap justify-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 py-2">
-        {Array.from({ length: opponent.itemCount }).map((_, i) => (
-          <ItemCard key={i} item="loupe" faceDown />
+      <div className="grid gap-2 sm:grid-cols-2">
+        {others.map((p) => (
+          <PlayerHud key={p.seat} player={p} isYou={false} isTurn={state.turn === p.seat} />
         ))}
-        {opponent.itemCount === 0 && (
-          <p className="py-2 text-xs text-muted-foreground">No items</p>
-        )}
       </div>
 
       <ChamberBar
@@ -53,28 +70,36 @@ export function PlayingView({
 
       <PlayerHud player={you} isYou={true} isTurn={state.turn === you.seat} />
 
+      {isYourTurn && (
+        <TargetSelector players={state.players} you={state.you} selected={target} onSelect={setTarget} />
+      )}
+
       <div className="flex flex-wrap justify-center gap-2 rounded-lg border border-border/60 bg-card/50 px-3 py-2">
-        {(you.items ?? []).map((item, i) => (
-          <ItemCard
-            key={`${item}-${i}`}
-            item={item}
-            disabled={!isYourTurn}
-            onUse={() => onUseItem(item)}
-          />
-        ))}
+        {(you.items ?? []).map((item, i) => {
+          const info = ITEM_INFO[item];
+          const needsValidTarget = info.requiresTarget && isSelfTarget;
+          return (
+            <ItemCard
+              key={`${item}-${i}`}
+              item={item}
+              disabled={!isYourTurn || !info.usable || needsValidTarget}
+              onUse={info.usable ? () => onUseItem(item, info.requiresTarget ? target : undefined) : undefined}
+            />
+          );
+        })}
         {you.itemCount === 0 && <p className="py-2 text-xs text-muted-foreground">No items</p>}
       </div>
 
       <ActionBar
         disabled={!isYourTurn}
-        opponentName={opponent.name}
-        onFireSelf={() => onFire("self")}
-        onFireOpponent={() => onFire("opponent")}
+        isSelf={isSelfTarget}
+        targetName={targetPlayer?.name ?? ""}
+        onFire={() => onFire(target)}
       />
 
       {!isYourTurn && state.phase === "playing" && (
         <p className="text-center text-sm text-muted-foreground">
-          Waiting on {opponent.name}...
+          Waiting on {state.players.find((p) => p.seat === state.turn)?.name}...
         </p>
       )}
     </div>

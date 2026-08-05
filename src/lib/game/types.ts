@@ -10,11 +10,31 @@ export type ItemId =
   | "counterfeit_chip"
   | "smoke_bomb"
   | "second_wind"
-  | "silver_tongue";
+  | "silver_tongue"
+  | "riot_vest"
+  | "molotov"
+  | "vultures_due"
+  | "false_confession"
+  | "loaded_dice"
+  | "bribe"
+  | "point_blank"
+  | "sleight_of_hand"
+  | "last_rites"
+  | "scapegoat";
 
-export type SeatId = "p1" | "p2";
+export type SeatId = "p1" | "p2" | "p3" | "p4";
+export const ALL_SEATS: SeatId[] = ["p1", "p2", "p3", "p4"];
 
 export type GamePhase = "lobby" | "playing" | "match_end";
+
+export interface GameSettings {
+  playerCount: 2 | 3 | 4;
+  /** Round wins needed to take the match: 1 = best of 1, 2 = best of 3, 3 = best of 5. */
+  roundsToWin: 1 | 2 | 3;
+  hpMin: number;
+  hpMax: number;
+  itemsPerReload: number;
+}
 
 export interface PlayerState {
   seat: SeatId;
@@ -26,9 +46,14 @@ export interface PlayerState {
   items: ItemId[];
   skipNextTurn: boolean;
   doubleDamageNext: boolean;
+  forceLiveNext: boolean;
+  shieldedNext: boolean;
+  molotovNext: boolean;
+  redirectTo: SeatId | null;
   connected: boolean;
   disconnectedAt: number | null;
   isBot: boolean;
+  eliminated: boolean;
 }
 
 export interface LogEntry {
@@ -48,13 +73,14 @@ export interface RoomState {
   roomId: string;
   phase: GamePhase;
   hostSeat: SeatId;
+  settings: GameSettings;
+  settingsLocked: boolean;
   players: Record<SeatId, PlayerState>;
   chamber: ShellType[];
   chamberLiveTotal: number;
   chamberBlankTotal: number;
   turn: SeatId;
   round: number;
-  roundsToWin: number;
   roundWins: Record<SeatId, number>;
   log: LogEntry[];
   privateLog: Record<SeatId, PrivateReveal[]>;
@@ -74,6 +100,7 @@ export interface RedactedPlayer {
   items: ItemId[] | null;
   connected: boolean;
   isBot: boolean;
+  eliminated: boolean;
 }
 
 export interface RedactedState {
@@ -81,13 +108,13 @@ export interface RedactedState {
   phase: GamePhase;
   you: SeatId;
   hostSeat: SeatId;
-  players: Record<SeatId, RedactedPlayer>;
+  settings: GameSettings;
+  players: RedactedPlayer[];
   chamberRemaining: number;
   chamberLiveTotal: number;
   chamberBlankTotal: number;
   turn: SeatId;
   round: number;
-  roundsToWin: number;
   roundWins: Record<SeatId, number>;
   log: LogEntry[];
   privateLog: PrivateReveal[];
@@ -96,10 +123,10 @@ export interface RedactedState {
 }
 
 export type ClientMessage =
-  | { type: "join"; name: string; token?: string; vsAI?: boolean }
+  | { type: "join"; name: string; token?: string; vsAI?: boolean; settings?: GameSettings }
   | { type: "start_game" }
-  | { type: "use_item"; item: ItemId }
-  | { type: "fire"; target: "self" | "opponent" }
+  | { type: "use_item"; item: ItemId; target?: SeatId }
+  | { type: "fire"; target: SeatId }
   | { type: "rematch" }
   | { type: "leave" };
 
@@ -107,7 +134,3 @@ export type ServerMessage =
   | { type: "welcome"; seat: SeatId; token: string }
   | { type: "state"; state: RedactedState }
   | { type: "error"; message: string };
-
-export function otherSeat(seat: SeatId): SeatId {
-  return seat === "p1" ? "p2" : "p1";
-}

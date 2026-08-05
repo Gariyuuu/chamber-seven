@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RedactedState } from "@/lib/game/types";
-import { Check, Copy, Loader2, Users } from "lucide-react";
+import { Bot, Check, Copy, Loader2, Users } from "lucide-react";
 
 export function Lobby({ state, onStart }: { state: RedactedState; onStart: () => void }) {
   const [copied, setCopied] = useState(false);
-  const players = Object.values(state.players);
-  const bothConnected = players.every((p) => p.connected);
+  const players = state.players;
+  const allConnected = players.every((p) => p.connected);
   const vsAI = players.some((p) => p.isBot);
 
   function copyLink() {
@@ -22,7 +22,9 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
     <div className="mx-auto flex max-w-lg flex-col items-center gap-6 px-4 py-20 text-center">
       <div>
         <p className="text-sm text-muted-foreground">Table code</p>
-        <p className="font-display text-6xl tracking-widest text-primary">{state.roomId}</p>
+        <p className="font-display text-6xl tracking-widest text-primary drop-shadow-[0_0_20px_color-mix(in_oklch,var(--primary)_40%,transparent)]">
+          {state.roomId}
+        </p>
       </div>
 
       {!vsAI && (
@@ -36,7 +38,7 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
         <CardHeader>
           <CardTitle className="flex items-center justify-center gap-2 text-base">
             <Users className="size-4" />
-            Players
+            Players ({players.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -45,7 +47,10 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
               key={p.seat}
               className="flex items-center justify-between rounded-md border border-border px-3 py-2"
             >
-              <span>{p.name}</span>
+              <span className="flex items-center gap-1.5">
+                {p.isBot && <Bot className="size-3.5 text-muted-foreground" />}
+                {p.name}
+              </span>
               <span className="text-xs text-muted-foreground">
                 {p.connected ? "ready" : "waiting..."}
               </span>
@@ -54,9 +59,9 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
         </CardContent>
       </Card>
 
-      <Button size="lg" disabled={!bothConnected} onClick={onStart} className="w-full gap-2">
-        {bothConnected ? "Start the Game" : <Loader2 className="size-4 animate-spin" />}
-        {!bothConnected && "Waiting for opponent"}
+      <Button size="lg" disabled={!allConnected} onClick={onStart} className="w-full gap-2">
+        {allConnected ? "Start the Game" : <Loader2 className="size-4 animate-spin" />}
+        {!allConnected && "Waiting for players"}
       </Button>
     </div>
   );

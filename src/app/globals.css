@@ -124,8 +124,29 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 50% -8%, color-mix(in oklch, var(--primary) 14%, transparent), transparent 60%),
+      radial-gradient(ellipse 90% 60% at 50% 108%, color-mix(in oklch, black 55%, transparent), transparent 70%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 45%, transparent);
+  }
+}
+
+@layer utilities {
+  .shell-pip {
+    background: linear-gradient(180deg, color-mix(in oklch, var(--muted-foreground) 55%, transparent), var(--muted));
+  }
+  .shell-pip-live {
+    background: linear-gradient(180deg, color-mix(in oklch, var(--primary) 85%, white 10%), var(--primary));
+    box-shadow: 0 0 6px color-mix(in oklch, var(--primary) 55%, transparent);
+  }
+  .shell-pip-blank {
+    background: linear-gradient(180deg, color-mix(in oklch, var(--foreground) 70%, transparent), color-mix(in oklch, var(--foreground) 45%, transparent));
   }
 }

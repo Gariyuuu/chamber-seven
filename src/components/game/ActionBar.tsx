@@ -3,37 +3,25 @@ import { Crosshair, Target } from "lucide-react";
 
 export function ActionBar({
   disabled,
-  opponentName,
-  onFireSelf,
-  onFireOpponent,
+  isSelf,
+  targetName,
+  onFire,
 }: {
   disabled: boolean;
-  opponentName: string;
-  onFireSelf: () => void;
-  onFireOpponent: () => void;
+  isSelf: boolean;
+  targetName: string;
+  onFire: () => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
-      <Button
-        size="lg"
-        variant="secondary"
-        disabled={disabled}
-        onClick={onFireSelf}
-        className="h-14 gap-2 text-base"
-      >
-        <Target className="size-5" />
-        Turn it on yourself
-      </Button>
-      <Button
-        size="lg"
-        variant="destructive"
-        disabled={disabled}
-        onClick={onFireOpponent}
-        className="h-14 gap-2 text-base"
-      >
-        <Crosshair className="size-5" />
-        Aim at {opponentName}
-      </Button>
-    </div>
+    <Button
+      size="lg"
+      variant={isSelf ? "secondary" : "destructive"}
+      disabled={disabled}
+      onClick={onFire}
+      className="h-14 w-full gap-2 text-base"
+    >
+      {isSelf ? <Target className="size-5" /> : <Crosshair className="size-5" />}
+      {isSelf ? "Turn it on yourself" : `Aim at ${targetName}`}
+    </Button>
   );
 }

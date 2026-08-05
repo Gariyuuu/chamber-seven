@@ -26,11 +26,11 @@ export function ItemCard({
       disabled={disabled || faceDown || !onUse}
       onClick={onUse}
       className={cn(
-        "flex h-20 w-16 flex-col items-center justify-center gap-1 rounded-md border text-center transition-colors",
+        "flex h-20 w-16 flex-col items-center justify-center gap-1 rounded-md border text-center transition-all duration-150",
         faceDown
           ? "border-border/60 bg-muted text-muted-foreground"
-          : "border-border bg-card text-card-foreground hover:border-accent hover:bg-accent/10",
-        disabled && !faceDown && "opacity-40 cursor-not-allowed hover:border-border hover:bg-card",
+          : "border-border bg-card text-card-foreground hover:-translate-y-0.5 hover:border-accent hover:bg-accent/10 hover:shadow-[0_4px_16px_-4px_color-mix(in_oklch,var(--accent)_50%,transparent)]",
+        disabled && !faceDown && "opacity-40 cursor-not-allowed hover:translate-y-0 hover:border-border hover:bg-card hover:shadow-none",
       )}
     >
       {faceDown ? (

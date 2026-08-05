@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import usePartySocket from "partysocket/react";
-import { ClientMessage, ItemId, RedactedState, SeatId, ServerMessage } from "@/lib/game/types";
+import { ClientMessage, GameSettings, ItemId, RedactedState, SeatId, ServerMessage } from "@/lib/game/types";
 
 const PARTYKIT_HOST = process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? "127.0.0.1:1999";
 
@@ -10,17 +10,24 @@ function tokenKey(roomId: string) {
   return `chamber-seven:token:${roomId}`;
 }
 
-export function useGameRoom(roomId: string, name: string, vsAI = false) {
+export function useGameRoom(
+  roomId: string,
+  name: string,
+  vsAI = false,
+  initialSettings?: GameSettings,
+) {
   const [seat, setSeat] = useState<SeatId | null>(null);
   const [state, setState] = useState<RedactedState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
   const nameRef = useRef(name);
   const vsAIRef = useRef(vsAI);
+  const settingsRef = useRef(initialSettings);
   useEffect(() => {
     nameRef.current = name;
     vsAIRef.current = vsAI;
-  }, [name, vsAI]);
+    settingsRef.current = initialSettings;
+  }, [name, vsAI, initialSettings]);
 
   const socket = usePartySocket({
     host: PARTYKIT_HOST,
@@ -28,7 +35,7 @@ export function useGameRoom(roomId: string, name: string, vsAI = false) {
     onOpen() {
       setConnected(true);
       const token = typeof window !== "undefined" ? localStorage.getItem(tokenKey(roomId)) ?? undefined : undefined;
-      send({ type: "join", name: nameRef.current, token, vsAI: vsAIRef.current });
+      send({ type: "join", name: nameRef.current, token, vsAI: vsAIRef.current, settings: settingsRef.current });
     },
     onClose() {
       setConnected(false);
@@ -74,8 +81,8 @@ export function useGameRoom(roomId: string, name: string, vsAI = false) {
     error,
     connected,
     startGame: () => send({ type: "start_game" }),
-    fireAt: (target: "self" | "opponent") => send({ type: "fire", target }),
-    useItem: (item: ItemId) => send({ type: "use_item", item }),
+    fireAt: (target: SeatId) => send({ type: "fire", target }),
+    useItem: (item: ItemId, target?: SeatId) => send({ type: "use_item", item, target }),
     rematch: () => send({ type: "rematch" }),
     leave: () => send({ type: "leave" }),
   };

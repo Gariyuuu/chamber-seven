@@ -1,12 +1,15 @@
 import { routePartykitRequest, Server, type Connection, type WSMessage } from "partyserver";
 import {
+  activeSeats,
   addSystemLog,
   BOT_STEP_LIMIT,
   botActionDelayMs,
+  clampSettings,
   claimSeat,
   createRoom,
-  fillBotSeat,
+  fillRemainingSeatsWithBots,
   fire,
+  forfeitSeat,
   isBotTurn,
   markDisconnected,
   RECONNECT_GRACE_MS,
@@ -15,7 +18,7 @@ import {
   startGame,
   playItem as applyItem,
 } from "../src/lib/game/state";
-import { ClientMessage, otherSeat, RoomState, SeatId } from "../src/lib/game/types";
+import { ALL_SEATS, ClientMessage, RoomState, SeatId } from "../src/lib/game/types";
 
 const STORAGE_KEY = "room";
 
@@ -34,8 +37,9 @@ export class Main extends Server<Env> {
   }
 
   private seatFor(state: RoomState, connId: string): SeatId | null {
-    if (state.players.p1.connId === connId) return "p1";
-    if (state.players.p2.connId === connId) return "p2";
+    for (const seat of ALL_SEATS) {
+      if (state.players[seat].connId === connId) return seat;
+    }
     return null;
   }
 
@@ -44,7 +48,7 @@ export class Main extends Server<Env> {
   }
 
   private broadcastState(state: RoomState) {
-    for (const seat of ["p1", "p2"] as SeatId[]) {
+    for (const seat of ALL_SEATS) {
       const connId = state.players[seat].connId;
       if (!connId) continue;
       const conn = this.getConnection(connId);
@@ -64,6 +68,10 @@ export class Main extends Server<Env> {
     const state = await this.getState();
 
     if (msg.type === "join") {
+      if (msg.settings && !state.settingsLocked && !state.players[state.hostSeat].connected) {
+        state.settings = clampSettings(msg.settings);
+        state.settingsLocked = true;
+      }
       const result = claimSeat(state, sender.id, msg.name, msg.token);
       if ("error" in result) {
         this.send(sender, { type: "error", message: result.error });
@@ -71,8 +79,8 @@ export class Main extends Server<Env> {
       }
       const seat = result.seat;
       addSystemLog(state, `${state.players[seat].name} joined the room.`);
-      if (msg.vsAI && seat === "p1" && !state.players.p2.isBot && !state.players.p2.connected) {
-        fillBotSeat(state);
+      if (msg.vsAI && seat === state.hostSeat) {
+        fillRemainingSeatsWithBots(state);
       }
       await this.saveState(state);
       this.send(sender, { type: "welcome", seat, token: state.players[seat].token });
@@ -92,8 +100,8 @@ export class Main extends Server<Env> {
           this.send(sender, { type: "error", message: "Game already started." });
           return;
         }
-        if (!state.players.p1.connected || !state.players.p2.connected) {
-          this.send(sender, { type: "error", message: "Waiting for both players." });
+        if (activeSeats(state).some((s) => !state.players[s].connected)) {
+          this.send(sender, { type: "error", message: "Waiting for all players." });
           return;
         }
         startGame(state);
@@ -108,7 +116,7 @@ export class Main extends Server<Env> {
         break;
       }
       case "use_item": {
-        const result = applyItem(state, seat, msg.item);
+        const result = applyItem(state, seat, msg.item, msg.target);
         if (!result.ok) {
           this.send(sender, { type: "error", message: result.error });
           return;
@@ -164,19 +172,17 @@ export class Main extends Server<Env> {
     const state = await this.getState();
     if (state.phase !== "playing") return;
     let changed = false;
-    for (const seat of ["p1", "p2"] as SeatId[]) {
+    for (const seat of activeSeats(state)) {
       const p = state.players[seat];
-      if (!p.connected && p.disconnectedAt && Date.now() - p.disconnectedAt >= RECONNECT_GRACE_MS) {
-        const winner = otherSeat(seat);
-        state.phase = "match_end";
-        state.winner = winner;
-        addSystemLog(state, `${p.name} did not reconnect in time. ${state.players[winner].name} wins by forfeit.`);
+      if (!p.connected && !p.isBot && !p.eliminated && p.disconnectedAt && Date.now() - p.disconnectedAt >= RECONNECT_GRACE_MS) {
+        forfeitSeat(state, seat);
         changed = true;
       }
     }
     if (changed) {
       await this.saveState(state);
       this.broadcastState(state);
+      await this.runBotIfNeeded(state);
     }
   }
 }
