@@ -2,7 +2,7 @@
 
 import { ItemId } from "@/lib/game/types";
 import { ITEM_INFO } from "@/lib/game/items";
-import { itemColor, COLOR_TEXT, COLOR_BORDER_T, COLOR_BG_SOFT } from "@/lib/game/colors";
+import { itemColor, COLOR_TEXT, COLOR_BORDER, COLOR_BG_SOFT, COLOR_BG_SOLID } from "@/lib/game/colors";
 import { ITEM_ICONS } from "./itemIcons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -28,24 +28,25 @@ export function ItemCard({
       disabled={disabled || faceDown || !onUse}
       onClick={onUse}
       className={cn(
-        "flex h-20 w-16 flex-col items-center justify-center gap-1 rounded-md border border-t-2 text-center transition-all duration-150",
+        "flex h-20 w-16 flex-col items-center justify-center gap-1 rounded-md border-2 text-center shadow-[0_2px_10px_-4px_rgba(0,0,0,0.6)] transition-all duration-150",
         faceDown
           ? "border-border/60 bg-muted text-muted-foreground"
           : cn(
-              "bg-card text-card-foreground hover:-translate-y-0.5 hover:bg-accent/10 hover:shadow-[0_4px_16px_-4px_color-mix(in_oklch,var(--accent)_50%,transparent)]",
-              COLOR_BORDER_T[color],
+              "text-card-foreground hover:-translate-y-0.5",
+              COLOR_BORDER[color],
+              COLOR_BG_SOFT[color],
             ),
-        disabled && !faceDown && "opacity-40 cursor-not-allowed hover:translate-y-0 hover:shadow-none",
+        disabled && !faceDown && "opacity-40 cursor-not-allowed hover:translate-y-0",
       )}
     >
       {faceDown ? (
         <span className="font-display text-2xl text-muted-foreground/60">?</span>
       ) : (
         <>
-          <div className={cn("flex size-7 items-center justify-center rounded-full", COLOR_BG_SOFT[color])}>
-            <Icon className={cn("size-4", COLOR_TEXT[color])} />
+          <div className={cn("flex size-7 items-center justify-center rounded-full text-white shadow-sm", COLOR_BG_SOLID[color])}>
+            <Icon className="size-4" />
           </div>
-          <span className="text-[10px] font-medium leading-tight">{info.name}</span>
+          <span className={cn("text-[10px] font-semibold leading-tight", COLOR_TEXT[color])}>{info.name}</span>
         </>
       )}
     </button>

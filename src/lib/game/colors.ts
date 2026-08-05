@@ -95,11 +95,11 @@ export const COLOR_BG_SOLID: Record<ColorToken, string> = {
 };
 
 export const COLOR_BG_SOFT: Record<ColorToken, string> = {
-  "chart-1": "bg-chart-1/12",
-  "chart-2": "bg-chart-2/12",
-  "chart-3": "bg-chart-3/12",
-  "chart-4": "bg-chart-4/12",
-  "chart-5": "bg-chart-5/12",
+  "chart-1": "bg-chart-1/20",
+  "chart-2": "bg-chart-2/20",
+  "chart-3": "bg-chart-3/20",
+  "chart-4": "bg-chart-4/20",
+  "chart-5": "bg-chart-5/20",
 };
 
 export const COLOR_RING: Record<ColorToken, string> = {

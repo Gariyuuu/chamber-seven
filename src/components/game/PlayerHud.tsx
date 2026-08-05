@@ -1,17 +1,22 @@
 import { RedactedPlayer } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
-import { Bot, Skull, WifiOff } from "lucide-react";
+import { Skull, WifiOff } from "lucide-react";
 import { HealthBar } from "./HealthBar";
+import { DealerAvatar, DealerAim } from "./DealerAvatar";
 import { SEAT_COLOR, COLOR_BORDER_L, COLOR_TEXT } from "@/lib/game/colors";
 
 export function PlayerHud({
   player,
   isYou,
   isTurn,
+  dealerAim,
+  dealerFiring,
 }: {
   player: RedactedPlayer;
   isYou: boolean;
   isTurn: boolean;
+  dealerAim?: DealerAim;
+  dealerFiring?: boolean;
 }) {
   const color = SEAT_COLOR[player.seat];
 
@@ -24,18 +29,27 @@ export function PlayerHud({
         player.eliminated && "opacity-50",
       )}
     >
-      <div>
-        <div className="flex items-center gap-2">
-          <p className={cn("font-medium", player.eliminated && "line-through")}>
-            <span className={cn(!player.eliminated && COLOR_TEXT[color])}>{player.name}</span>
-            {isYou && <span className="text-muted-foreground"> (you)</span>}
-          </p>
-          {player.isBot && <Bot className="size-3.5 text-muted-foreground" />}
-          {player.eliminated && <Skull className="size-3.5 text-destructive" />}
-          {!player.eliminated && !player.connected && <WifiOff className="size-3.5 text-destructive" />}
-        </div>
-        <div className="mt-1.5">
-          <HealthBar hp={player.hp} maxHp={player.maxHp} />
+      <div className="flex items-center gap-3">
+        {player.isBot && (
+          <DealerAvatar
+            color={`var(--${color})`}
+            aim={dealerAim ?? "side"}
+            firing={!!dealerFiring}
+            size={40}
+          />
+        )}
+        <div>
+          <div className="flex items-center gap-2">
+            <p className={cn("font-medium", player.eliminated && "line-through")}>
+              <span className={cn(!player.eliminated && COLOR_TEXT[color])}>{player.name}</span>
+              {isYou && <span className="text-muted-foreground"> (you)</span>}
+            </p>
+            {player.eliminated && <Skull className="size-3.5 text-destructive" />}
+            {!player.eliminated && !player.connected && <WifiOff className="size-3.5 text-destructive" />}
+          </div>
+          <div className="mt-1.5">
+            <HealthBar hp={player.hp} maxHp={player.maxHp} />
+          </div>
         </div>
       </div>
       <div className="text-right text-sm text-muted-foreground">

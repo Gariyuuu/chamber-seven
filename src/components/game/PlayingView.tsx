@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ItemId, RedactedState, SeatId } from "@/lib/game/types";
 import { ITEM_INFO } from "@/lib/game/items";
 import { PlayerHud } from "./PlayerHud";
@@ -7,9 +7,38 @@ import { EventLog } from "./EventLog";
 import { ActionBar } from "./ActionBar";
 import { ItemCard } from "./ItemCard";
 import { TargetSelector } from "./TargetSelector";
+import { DealerAim } from "./DealerAvatar";
 import { LayoutGrid, Radiation, type LucideIcon } from "lucide-react";
 import { SEAT_COLOR, COLOR_TEXT } from "@/lib/game/colors";
 import { cn } from "@/lib/utils";
+
+const DEALER_FX_DURATION_MS = 550;
+
+/** Detects a fresh "fired" log line from a bot seat and returns a brief visual cue. */
+function useDealerFx(log: RedactedState["log"], players: RedactedState["players"]) {
+  const [fx, setFx] = useState<{ seat: SeatId; aim: DealerAim } | null>(null);
+  const prevLenRef = useRef(log.length);
+
+  useEffect(() => {
+    const prevLen = prevLenRef.current;
+    prevLenRef.current = log.length;
+    if (log.length <= prevLen) return;
+
+    const fresh = log.slice(prevLen).find((entry) => {
+      if (!entry.seat) return false;
+      const player = players.find((p) => p.seat === entry.seat);
+      return player?.isBot && /fires at|points it at themselves|throws a Molotov/.test(entry.message);
+    });
+    if (!fresh || !fresh.seat) return;
+
+    const aim: DealerAim = /points it at themselves/.test(fresh.message) ? "viewer" : "side";
+    setFx({ seat: fresh.seat, aim });
+    const timer = setTimeout(() => setFx((cur) => (cur?.seat === fresh.seat ? null : cur)), DEALER_FX_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [log, players]);
+
+  return fx;
+}
 
 function SectionLabel({
   icon: Icon,
@@ -40,6 +69,7 @@ export function PlayingView({
   const you = state.players.find((p) => p.seat === state.you)!;
   const others = state.players.filter((p) => p.seat !== state.you);
   const isYourTurn = state.turn === state.you && state.phase === "playing";
+  const dealerFx = useDealerFx(state.log, state.players);
 
   const [target, setTarget] = useState<SeatId>(state.you);
   // Reset the target back to yourself whenever a fresh turn of yours begins,
@@ -74,7 +104,14 @@ export function PlayingView({
       <div className="felt-panel flex flex-col gap-4 rounded-2xl p-3 ring-1 ring-border/60 sm:p-5">
         <div className="grid gap-2 sm:grid-cols-2">
           {others.map((p) => (
-            <PlayerHud key={p.seat} player={p} isYou={false} isTurn={state.turn === p.seat} />
+            <PlayerHud
+              key={p.seat}
+              player={p}
+              isYou={false}
+              isTurn={state.turn === p.seat}
+              dealerAim={dealerFx?.seat === p.seat ? dealerFx.aim : "side"}
+              dealerFiring={dealerFx?.seat === p.seat}
+            />
           ))}
         </div>
 

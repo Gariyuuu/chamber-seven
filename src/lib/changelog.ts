@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.6",
+    date: "2026-08-05",
+    title: "Real background art, a living dealer, and bolder item colors",
+    changes: [
+      "Every table vibe now has a genuine hand-illustrated skyline as its background — a glowing moon, lit windows, neon signs — rendered as a real PNG per theme, not a CSS gradient.",
+      "Item cards got a real color pass: solid category-colored icon badges, tinted card fill, and colored names, not just a thin border.",
+      "New animated dealer character: AI opponents are now a 2D hooded figure with glowing eyes and a shotgun, idly swaying at the table. When they fire, the gun recoils and flashes — aimed at you if they turn it on themselves, aimed aside if they go for someone else.",
+    ],
+  },
+  {
     version: "1.5",
     date: "2026-08-05",
     title: "Neon Tokyo vibes, healing, custom item pools & a leaderboard",

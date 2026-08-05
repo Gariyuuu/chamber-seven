@@ -84,6 +84,7 @@
   --sidebar-accent-foreground: oklch(0.96 0.005 60);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.55 0.22 25 / 0.6);
+  --bg-image: url("/backgrounds/bg-crimson.png");
 }
 
 /* Table vibe presets — selected via the palette picker, persisted client-side,
@@ -104,6 +105,7 @@
   --chart-3: oklch(0.62 0.19 250);
   --chart-4: oklch(0.72 0.19 155);
   --chart-5: oklch(0.65 0.22 320);
+  --bg-image: url("/backgrounds/bg-neon.png");
 }
 
 :root[data-theme="emerald"] {
@@ -111,6 +113,7 @@
   --accent: oklch(0.78 0.15 85);
   --chart-1: oklch(0.62 0.19 150);
   --chart-2: oklch(0.78 0.15 85);
+  --bg-image: url("/backgrounds/bg-emerald.png");
 }
 
 :root[data-theme="sapphire"] {
@@ -119,6 +122,7 @@
   --accent-foreground: oklch(0.15 0.01 30);
   --chart-1: oklch(0.6 0.19 250);
   --chart-2: oklch(0.72 0.18 340);
+  --bg-image: url("/backgrounds/bg-sapphire.png");
 }
 
 :root[data-theme="violet"] {
@@ -127,6 +131,7 @@
   --accent-foreground: oklch(0.15 0.01 30);
   --chart-1: oklch(0.6 0.22 300);
   --chart-2: oklch(0.75 0.16 130);
+  --bg-image: url("/backgrounds/bg-violet.png");
 }
 
 @layer base {
@@ -136,33 +141,14 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse 45% 30% at 12% 12%, color-mix(in oklch, var(--chart-3) 16%, transparent), transparent 60%),
-      radial-gradient(ellipse 45% 30% at 88% 18%, color-mix(in oklch, var(--chart-5) 14%, transparent), transparent 60%),
-      radial-gradient(ellipse 70% 45% at 50% -8%, color-mix(in oklch, var(--primary) 18%, transparent), transparent 60%),
-      radial-gradient(ellipse 50% 30% at 85% 85%, color-mix(in oklch, var(--accent) 12%, transparent), transparent 65%),
-      radial-gradient(ellipse 90% 60% at 50% 108%, color-mix(in oklch, black 60%, transparent), transparent 70%),
-      radial-gradient(ellipse 140% 100% at 50% 50%, transparent 55%, color-mix(in oklch, black 45%, transparent) 100%);
+      linear-gradient(180deg, color-mix(in oklch, black 55%, transparent) 0%, transparent 22%, transparent 55%, color-mix(in oklch, black 75%, transparent) 100%),
+      radial-gradient(ellipse 100% 70% at 50% 40%, transparent 45%, color-mix(in oklch, black 50%, transparent) 100%),
+      var(--bg-image);
+    background-size: auto, auto, cover;
+    background-position: center, center, center bottom;
     background-attachment: fixed;
     background-repeat: no-repeat;
     position: relative;
-  }
-  body::after {
-    content: "";
-    position: fixed;
-    inset: auto 0 0 0;
-    height: 14vh;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.5;
-    background-image: repeating-linear-gradient(
-      90deg,
-      color-mix(in oklch, black 70%, transparent) 0,
-      color-mix(in oklch, black 70%, transparent) 3vw,
-      transparent 3vw,
-      transparent 3.2vw
-    );
-    -webkit-mask-image: linear-gradient(to top, black, transparent);
-    mask-image: linear-gradient(to top, black, transparent);
   }
   body::before {
     content: "";
@@ -233,5 +219,62 @@
       var(--foreground) 70deg 80deg
     );
     padding: 5px;
+  }
+
+  .dealer-avatar {
+    position: relative;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+  }
+  .dealer-avatar__figure {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    animation: dealer-idle 3.2s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .dealer-avatar__eyes {
+    animation: dealer-eye-pulse 2.4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+  .dealer-avatar__flash {
+    opacity: 0;
+    transform: scale(0.3);
+    transform-box: fill-box;
+    transform-origin: 100% 50%;
+    transition: opacity 0.08s ease, transform 0.08s ease;
+  }
+  .dealer-avatar__gun-recoil {
+    transform-box: fill-box;
+    transform-origin: 0% 50%;
+  }
+  .dealer-avatar--firing .dealer-avatar__flash {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .dealer-avatar--firing .dealer-avatar__gun-recoil {
+    animation: dealer-recoil 0.45s ease-out;
+  }
+  .dealer-avatar--firing .dealer-avatar__figure {
+    animation: dealer-kick 0.45s ease-out;
+  }
+  @keyframes dealer-idle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-2%) rotate(-1deg); }
+  }
+  @keyframes dealer-eye-pulse {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
+  @keyframes dealer-recoil {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-8%); }
+    100% { transform: translateX(0); }
+  }
+  @keyframes dealer-kick {
+    0% { transform: translateX(0) rotate(0deg); }
+    20% { transform: translateX(2%) rotate(1.5deg); }
+    100% { transform: translateX(0) rotate(0deg); }
   }
 }
