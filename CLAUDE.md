@@ -594,6 +594,17 @@ Headline items:
    not a "broken" state, but it means every change is currently verified
    by typecheck/lint/build plus manual/ad hoc browser testing only.
    Still unresolved — no test framework was introduced in this session.
+7a. **NEEDS USER DECISION — local `main` is 9 commits ahead of
+    `origin/main`.** Discovered 2026-08-06 during a checkpoint pass via a
+    read-only `git fetch origin`: everything from v1.8 (team modes)
+    onward — including this entire documentation system — is committed
+    locally and deployed live (Vercel/Cloudflare deploys run from the
+    local working tree, not from GitHub), but has never been `git push`ed.
+    `origin/main` on GitHub still reflects the pre-team-mode `3a26ab9`
+    (v1.7). No push was performed (out of scope for a docs-only
+    checkpoint) — see `PROJECT_STATE.md` and `HANDOFF.md` for the full
+    note. Ask the user before pushing, in case they want to review/reorder
+    commits first.
 7. **RESOLVED — `.env.example` was silently gitignored.** `.gitignore`'s
    broad `.env*` pattern was matching `.env.example` too, which would
    have silently prevented it from ever being committed. Fixed during

@@ -5,6 +5,73 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Final account-switch checkpoint (fifth pass this day; pure documentation re-verification)
+
+- **Account or agent:** unknown (not disclosed in-session)
+- **Goal:** User-requested "final account-switch checkpoint" — re-verify
+  the entire 17-file documentation system against the actual current
+  repo state (git state, code, docs) before a handoff, without doing any
+  new product work.
+- **Files inspected:** `git status`/`git log --oneline -20`/`git diff
+  --stat` (fresh, not trusted from memory), `git fetch origin` +
+  `git status -sb` (read-only), `PROJECT_STATE.md`, `TASKS.md`,
+  `HANDOFF.md`, `CLAUDE.md` in full, plus spot checks of `package.json`
+  (zustand absence confirmed), `.gitignore` (`.env.example` negation
+  line confirmed present), `.env.example` content, `wrangler.jsonc`
+  (`name`), `README.md` (first section), all `*.md` files (grepped for
+  secret/token/key patterns).
+- **Files changed:** `PROJECT_STATE.md` (added a new top status section
+  documenting the fresh git-state re-check and the new finding below;
+  labeled the old "Git state" section explicitly historical),
+  `HANDOFF.md` (added a "Something the user needs to confirm/decide"
+  section; updated the "Prompt for the next Claude Code account" block's
+  step 1 to also fetch/check origin sync), `CLAUDE.md` (added a new
+  "Known issues" item, `7a`), this `SESSION_LOG.md` entry. No product
+  code, `TASKS.md`, or any other memory file needed changes — everything
+  else re-verified as still accurate.
+- **Commands run:** `git status`, `git log --oneline -20`, `git diff
+  --stat`, `git fetch origin` (read-only — updates only the local
+  `origin/main` remote-tracking ref, never pushes/pulls/merges), `git
+  status -sb`, `npm run typecheck && npm run typecheck:party && npm run
+  lint` (re-run fresh, both clean, no output = no errors), assorted
+  read-only `grep`/`ls`/`cat` spot checks (no `npm run build` re-run this
+  pass — typecheck/lint already confirm health and a clean build was
+  already verified and recorded at this same commit in the prior
+  session's audit).
+- **Tests run:** No automated tests exist (unchanged — see `TESTING.md`).
+- **Results:** Working tree is **clean** — nothing uncommitted, nothing
+  untracked. Branch `main`, latest commit `1cb6c76`. `typecheck` ×2 and
+  `lint` all pass clean. No secrets/tokens/real env values found in any
+  `.md` file (grep for common key/token/password/JWT patterns across all
+  docs returned zero matches). `TASKS.md`'s "Current task: None" is
+  still accurate and consistent across `CLAUDE.md`/`PROJECT_STATE.md`/
+  `TASKS.md`/`HANDOFF.md` — no contradiction found.
+- **Decisions made:** Treated this strictly as a read-and-document pass
+  per the task's explicit instructions — no commit, push, deploy, reset,
+  or product-behavior change was made. The one new fact discovered
+  (local `main` 9 commits ahead of `origin/main`, i.e. unpushed) was
+  documented but **not acted on** (no `git push` run) — left as an
+  explicit decision for the user, flagged in three places
+  (`PROJECT_STATE.md`, `HANDOFF.md`, `CLAUDE.md`).
+- **Problems found:** One new, previously-undocumented fact: `main` is 9
+  commits ahead of `origin/main` (everything from v1.8 onward, including
+  this whole documentation system, is committed locally and deployed
+  live via CLI, but never `git push`ed to GitHub). No other drift found
+  between the docs and the actual repo state — the docs were written
+  very shortly before this checkpoint (same session, minutes apart) and
+  held up accurately against a fresh re-check.
+- **Work completed:** Full re-verification pass across all "must-check"
+  items in the task (git state, `PROJECT_STATE.md`, `TASKS.md`,
+  `HANDOFF.md`, `CLAUDE.md`, secret-scanning, cross-file task-description
+  consistency). Surfaced and documented the unpushed-commits finding.
+- **Work remaining:** Nothing queued (unchanged). The unpushed-to-GitHub
+  question is the one open item for the user to decide on.
+- **Recommended next action:** Ask the user whether/when to `git push`
+  the 9 pending commits to `origin/main`. Otherwise, wait for the user's
+  next direction — no task is in progress.
+
+---
+
 ## 2026-08-06 — Cleared the entire remaining backlog (TASK-004–TASK-008)
 
 - **Account or agent:** unknown (not disclosed in-session)

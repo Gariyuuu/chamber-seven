@@ -4,7 +4,38 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest): BACKLOG CLEARED
+## Status as of 2026-08-06 (latest of all): CHECKPOINT RE-CONFIRMED, ONE NEW FINDING
+
+A fifth pass this same day — a pure "final account-switch checkpoint" with
+no new product work requested. Re-ran `git status`/`git log`/`git diff
+--stat` and `git fetch origin` (read-only) fresh rather than trusting the
+section below. Result: **working tree clean, nothing uncommitted or
+untracked.** Local `main` is at `1cb6c76` ("Sync memory system: backlog
+cleared (TASK-004 through TASK-008)") — one commit newer than the
+`ea9728b` TASK-008 commit referenced in the "BACKLOG CLEARED" section
+below, because that section's own doc-sync commit landed after it was
+written.
+
+**New finding this pass — needs the user's attention:** `git fetch origin`
+confirms local `main` is **9 commits ahead of `origin/main`**, which is
+still sitting at `3a26ab9` (the pre-team-mode v1.7 commit). In other
+words, **none of this same-day session's work — v1.8 team modes, the
+post-v1.8 backlog cleanup, or the entire 17-file documentation system
+itself — has been pushed to GitHub.** It is deployed and live on Vercel/
+Cloudflare (deployed straight from the local working tree via the CLI,
+which doesn't require a GitHub push), and it is safely committed locally,
+but GitHub (`https://github.com/Gariyuuu/chamber-seven`) does not yet
+reflect any of it. This wasn't previously called out anywhere in this
+memory system. No `git push` was run during this checkpoint (out of scope
+for a docs-only pass, and potentially the user's call to make, e.g. if
+commits should be squashed/reordered first) — **flagging for the user to
+decide whether/when to push.**
+
+No other drift was found: `TASKS.md`'s "Current task: None" still holds,
+no code files changed, `npm run typecheck` / `typecheck:party` / `lint`
+were re-run fresh this pass and are still clean.
+
+## Status as of 2026-08-06 (prior pass): BACKLOG CLEARED
 
 Fourth pass this same day. The user asked to clear the entire remaining
 backlog (`TASK-004` through `TASK-008`) without checking in until every
@@ -98,11 +129,17 @@ state)
   this. This is the **only** file outside the pure-documentation set
   touched during either pass.
 
-## Git state
+## Git state (historical — describes the state at the very first audit,
+before v1.8 was even committed; see "Status as of 2026-08-06 (latest of
+all)" at the top of this file for the current, re-confirmed git state,
+including the now-documented fact that `main` is ahead of `origin/main`)
 
 - **Branch:** `main`
 - **Tracking:** `origin/main` (`https://github.com/Gariyuuu/chamber-seven.git`),
-  up to date with remote as of the last fetch this session
+  up to date with remote as of the last fetch this session (**stale
+  claim — no longer true; re-confirmed via a fresh `git fetch origin` at
+  the latest checkpoint that `main` is 9 commits ahead of `origin/main`,
+  see top of file**)
 - **Latest commit:** `3a26ab990f79be85e9ad539a236b395286543e12` —
   "Career Mode: a chess.com-style bot ladder, and 20 more illustrated
   images" (2026-08-05T21:05:48-07:00)

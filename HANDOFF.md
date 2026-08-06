@@ -39,6 +39,19 @@ have shipped and been verified live in production. `TASKS.md` →
 "Current task" says "None." Don't invent new work — wait for the user's
 next direction.
 
+## Something the user needs to confirm/decide
+
+A checkpoint pass on 2026-08-06 ran `git fetch origin` and found local
+`main` is **9 commits ahead of `origin/main`** — `origin/main` is still
+at the pre-team-mode `3a26ab9` (v1.7). Everything from v1.8 onward (team
+modes, the backlog cleanup, and this entire documentation system) is
+committed locally and deployed live via CLI (Vercel/Cloudflare deploys
+don't require a GitHub push), but **has never been pushed to GitHub.**
+No `push` was run to fix this (out of scope for a docs-only checkpoint,
+and the user may want to review/squash before pushing) — ask the user
+whether/how they want this pushed before assuming it's fine to leave as
+is.
+
 ## What was the previous agent doing?
 
 Five things, in order, across what reads as one continuous engagement:
@@ -142,10 +155,13 @@ Copy-paste this to start a new session cleanly:
 Read CLAUDE.md, PROJECT_STATE.md, and TASKS.md in full before doing
 anything else. Then:
 
-1. Run `git status` and `git log --oneline -5` and confirm the repo
-   state matches what PROJECT_STATE.md describes. If it doesn't
-   (someone else has committed/changed things since), stop and tell me
-   what's different before proceeding.
+1. Run `git status`, `git log --oneline -5`, and `git fetch origin`
+   (read-only) and confirm the repo state matches what PROJECT_STATE.md
+   describes — including that `main` is currently 9 commits ahead of
+   `origin/main` (unpushed, as of the 2026-08-06 checkpoint; confirm
+   whether that's still true or whether I've since pushed it myself). If
+   anything doesn't match, stop and tell me what's different before
+   proceeding.
 2. Run the verification suite: `npm run typecheck && npm run
    typecheck:party && npm run lint && npm run build`. Confirm all four
    still pass.
