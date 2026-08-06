@@ -5,6 +5,85 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Shipped v1.9: tutorial page + strategy lessons page
+
+- **Account or agent:** unknown (not disclosed in-session)
+- **Goal:** User asked to "add a tutorial to the game with all the
+  items described and add a lesson page to get better at the game" —
+  a new feature request, not a queued backlog item.
+- **Files inspected:** `src/lib/game/items.ts` (`ALL_ITEM_IDS`,
+  `ITEM_INFO`), `src/lib/game/colors.ts` (`ITEM_CATEGORY`,
+  `CATEGORY_COLOR`, color-token lookups), `src/components/game/itemIcons.tsx`
+  (`ITEM_ICONS`), `src/app/page.tsx` (footer link pattern),
+  `src/components/game/GameRoom.tsx` (in-game header link pattern),
+  `src/lib/changelog.ts` (existing entry format).
+- **Files changed:**
+  - **New:** `src/app/tutorial/page.tsx` (rules + full 23-item glossary,
+    grouped by category, generated from existing item data — no
+    duplicated item text), `src/app/lessons/page.tsx` (9 strategy
+    lessons, each tied to a specific real mechanic).
+  - **Modified:** `src/app/page.tsx` (added "How to play"/"Lessons"
+    footer links), `src/components/game/GameRoom.tsx` (added the same
+    two links to the in-game header), `src/lib/changelog.ts` (new
+    `v1.9` entry, also retroactively noting the prior session's
+    Career-venue fix which never got its own changelog line).
+  - **Docs sync:** `ARCHITECTURE.md` (route count 5→7), `CLAUDE.md`
+    (repo-structure tree, status section), `FEATURES.md` (new Tutorial/
+    Lessons feature entry, fixed two other stale references), `FILE_MAP.md`
+    (new page entries), `UI_SYSTEM.md` (route list, navigation note),
+    `TASKS.md`/`PROJECT_STATE.md`/`HANDOFF.md` (status), this
+    `SESSION_LOG.md` entry. Also committed a batch of pending checkpoint
+    doc edits from immediately prior in the session (git-state
+    re-verification, an unpushed-to-GitHub finding) that had been made
+    but not yet committed.
+- **Commands run:**
+  - `npm run typecheck && npm run typecheck:party && npm run lint &&
+    npm run build` — all four clean, both new routes built as static
+    pages (`○ /tutorial`, `○ /lessons`).
+  - A screenshot-based smoke test (local `next dev -p 3900` +
+    `wrangler dev --port 8787`): full-page capture of `/tutorial`
+    (visually confirmed all 23 items across all 4 categories, correct
+    icons/colors/descriptions, correct counts per category: 5 offense,
+    5 defense, 3 info, 10 utility), `/lessons` (all 9 lesson cards
+    render), and the landing page footer (all 4 secondary links present
+    and wrapping correctly).
+  - `git commit` × 3: the tutorial/lessons feature (`ae1219c`), the
+    pending checkpoint docs from earlier in the session (`7f84c7a`), and
+    (after this doc-sync) a final documentation commit.
+  - `npx vercel deploy --prod` — real production deploy. **No
+    `wrangler deploy`** this time — confirmed via `git diff --stat` that
+    nothing under `src/lib/game/` or `party/` changed, so the Worker
+    bundle is unaffected and redeploying it would have been a no-op.
+  - `curl` against `https://chamber-seven-omega.vercel.app/tutorial` and
+    `/lessons` — both `200`, both contain the expected content strings.
+  - A second screenshot, this time against the live production
+    `/tutorial` URL — pixel-identical to the local check.
+- **Tests run:** No automated test suite exists (unchanged). Screenshots
+  viewed directly were the verification method, consistent with this
+  session's established approach.
+- **Results:** Both pages shipped, verified correct via direct visual
+  inspection locally and in production, and are reachable from both of
+  the app's two main navigation surfaces (landing footer, in-game
+  header).
+- **Decisions made:** Generated the item glossary from existing data
+  modules rather than writing new item-description text, so the
+  glossary can never drift from the real `ITEM_INFO` used in actual
+  gameplay. Wrote the lessons page's strategy content by hand, but
+  grounded every claim in an actual, verifiable game mechanic (e.g. the
+  exact odds-math example, the peeked-shell-always-honored rule) rather
+  than generic genre-agnostic tips. Skipped the Worker deploy since
+  nothing backend-relevant changed — avoids an unnecessary production
+  deploy.
+- **Problems found:** None.
+- **Work completed:** Full feature: two new pages, navigation wiring, a
+  changelog entry, verification, deployment, and documentation sync.
+- **Work remaining:** Nothing queued. `TASKS.md` → "Current task" still
+  says "None."
+- **Recommended next action:** None pending — wait for the user's next
+  direction.
+
+---
+
 ## 2026-08-06 — Final account-switch checkpoint (fifth pass this day; pure documentation re-verification)
 
 - **Account or agent:** unknown (not disclosed in-session)

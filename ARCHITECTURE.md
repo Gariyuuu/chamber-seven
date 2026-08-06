@@ -59,12 +59,14 @@ flowchart TB
 
 ## Frontend structure
 
-- **Routing:** Next.js App Router, all routes under `src/app/`. Five
+- **Routing:** Next.js App Router, all routes under `src/app/`. Seven
   routes total: `/` (landing), `/room/[roomId]` (the game itself, driven
   by `?ai=1` and `?career=<botId>` query params), `/career`, `/leaderboard`,
-  `/changelog`.
-- **Rendering strategy:** `/`, `/career`, `/changelog`, `/leaderboard` are
-  effectively static/Server-Component pages (no `force-dynamic`, no
+  `/changelog`, `/tutorial` (rules + full item glossary), `/lessons`
+  (strategy tips).
+- **Rendering strategy:** `/`, `/career`, `/changelog`, `/leaderboard`,
+  `/tutorial`, `/lessons` are all effectively static/Server-Component
+  pages (no `force-dynamic`, no
   per-request server data fetching — `/leaderboard`'s data fetch happens
   **client-side** in a `useEffect`, not on the server, despite the route
   itself being statically generated per `next build`'s route table).

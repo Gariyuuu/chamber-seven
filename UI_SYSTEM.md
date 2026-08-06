@@ -5,15 +5,16 @@
 No shared layout component beyond `src/app/layout.tsx` (fonts + theme-init
 script + `TooltipProvider`, applied to every route). Each top-level page
 (`page.tsx`, `career/page.tsx`, `leaderboard/page.tsx`,
-`changelog/page.tsx`) repeats its own header JSX inline (logo link back
-to `/`, a "back" link, `ThemePicker` where relevant) — there is **no**
-extracted `<Header>`/`<Nav>` component. See `FILE_MAP.md` → "Where to
-make common changes" and `TASKS.md` → Technical debt.
+`changelog/page.tsx`, `tutorial/page.tsx`, `lessons/page.tsx`) repeats
+its own header JSX inline (logo link back to `/`, a "back" link,
+`ThemePicker` where relevant) — there is **no** extracted
+`<Header>`/`<Nav>` component. See `FILE_MAP.md` → "Where to make common
+changes" and `TASKS.md` → Technical debt.
 
 ## Navigation
 
-Flat, five routes, all reachable from the landing page or in-game
-header:
+Flat, seven routes, all reachable from the landing page footer or
+in-game header:
 
 ```
 /                     landing (name entry, host/join/vs-AI/career)
@@ -21,9 +22,17 @@ header:
 /career                Career Mode hub
 /leaderboard            global leaderboard
 /changelog               patch notes
+/tutorial                rules + full item glossary
+/lessons                 strategy tips
 ```
 
-No nested/dynamic sub-navigation beyond `[roomId]`.
+`/tutorial` and `/lessons` are linked from the landing page footer and
+the in-game header (next to Leaderboard/Patch notes); they are **not**
+cross-linked from `/career`, `/leaderboard`, or `/changelog`'s own
+headers, consistent with those pages' existing minimal-header
+convention (only the landing page and in-game header carry the full
+secondary-link set). No nested/dynamic sub-navigation beyond
+`[roomId]`.
 
 ## Page structure
 

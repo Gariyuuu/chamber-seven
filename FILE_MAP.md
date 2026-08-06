@@ -181,14 +181,19 @@ where noted.
   impact is low).
 
 ### `src/app/career/page.tsx`, `src/app/leaderboard/page.tsx`,
-`src/app/changelog/page.tsx`
+`src/app/changelog/page.tsx`, `src/app/tutorial/page.tsx`, `src/app/lessons/page.tsx`
 - **Purpose:** Self-contained pages for Career Mode hub, the global
-  leaderboard (client-fetches `LEADERBOARD_URL`), and rendered patch
-  notes (reads `src/lib/changelog.ts`).
+  leaderboard (client-fetches `LEADERBOARD_URL`), rendered patch notes
+  (reads `src/lib/changelog.ts`), the rules + item glossary
+  (`tutorial/page.tsx`, generated from `items.ts`/`itemIcons.tsx`/
+  `colors.ts` — never hand-duplicate item text here), and strategy tips
+  (`lessons/page.tsx`, hand-written content in a local `LESSONS` array).
 - **Edit when:** career hub layout changes; leaderboard display changes;
   **every release should add a new entry to `src/lib/changelog.ts`**,
-  which this page renders automatically — no page edit needed for a
-  normal release.
+  which the changelog page renders automatically — no page edit needed
+  for a normal release. Adding a new `ItemId` automatically appears in
+  `/tutorial`'s glossary with no edit needed there either — only add to
+  `/lessons` if the new item changes recommended strategy.
 
 ### `src/app/layout.tsx` / `src/app/globals.css`
 - **Purpose:** Root layout (fonts, flash-free theme-init script,

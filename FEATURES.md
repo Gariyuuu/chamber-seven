@@ -228,14 +228,48 @@ exist").
 
 ## Changelog / patch notes page
 
-- **Status:** Verified complete (as a *mechanism*) — but see the Career
-  Mode entry above for one specific factual claim in its *content* that
-  doesn't match the shipped implementation.
+- **Status:** Verified complete. Up to `v1.9` as of 2026-08-06; every
+  changelog claim currently matches the shipped implementation (the
+  Career Mode venue-backdrop discrepancy noted in earlier versions of
+  this file has been resolved — see Career Mode above).
 - **Frontend/data:** `src/lib/changelog.ts` (data), `src/app/changelog/page.tsx`
   (render). Purely static — no server involvement.
-- **Remaining work:** Add a `v1.8` entry once the team-mode work
-  (currently uncommitted) is confirmed working and deployed — a draft
-  entry already exists in the working tree, see `PROJECT_STATE.md`.
+- **Remaining work:** None. Add a new entry whenever a new version ships
+  — this is a standing process, not a one-off task.
+
+## Tutorial and Lessons pages (v1.9, shipped)
+
+- **Status:** Verified complete. Shipped and confirmed live in
+  production 2026-08-06, via screenshot (both local and production).
+- **Purpose:** `/tutorial` — the full rules, every game mode explained,
+  and a complete glossary of all 23 items grouped by category
+  (offense/defense/info/utility). `/lessons` — strategy tips tied
+  directly to the actual mechanics (reading chamber odds, when to shoot
+  yourself, item sequencing, mode-specific plays).
+- **Frontend:** `src/app/tutorial/page.tsx`, `src/app/lessons/page.tsx`
+  — both plain Server Components, no client state, no server
+  round-trip. The item glossary is generated from `ALL_ITEM_IDS` +
+  `ITEM_INFO` + `ITEM_ICONS` + `ITEM_CATEGORY`/`CATEGORY_COLOR` (the
+  same single source of truth used by `ItemCard.tsx` and
+  `GameSettingsForm.tsx`) rather than duplicating item text — a new
+  item added to `items.ts` automatically appears here with no further
+  edit needed.
+- **Navigation:** Linked from the landing page footer
+  (`src/app/page.tsx`) and the in-game header (`GameRoom.tsx`'s
+  `ConnectedRoom`), next to the existing Leaderboard/Patch notes links.
+- **Backend:** None — fully static content.
+- **Database dependency:** None.
+- **Validation / error / loading / empty states:** Not applicable —
+  static informational pages with no user input or async data.
+- **Tests:** None automated (no test suite exists in this repo). Verified
+  via screenshot: all 23 items render across all 4 categories with
+  correct colors/icons/descriptions; both pages confirmed live in
+  production.
+- **Known issues:** None.
+- **Remaining work:** None. (Optional, unrelated: neither page is
+  cross-linked from `/career`, `/leaderboard`, or `/changelog`'s own
+  headers, consistent with those pages' existing minimal-header
+  convention — see `UI_SYSTEM.md`.)
 
 ## Room / lobby / reconnect
 

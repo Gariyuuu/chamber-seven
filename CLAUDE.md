@@ -62,16 +62,15 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
 
 See `PROJECT_STATE.md` for the exact, timestamped snapshot. Summary:
 
-- **Latest deployed milestone:** Post-v1.8 backlog cleanup — Career Mode
-  venue backdrops + victory burst wired up, dev-host fallback fixed,
-  `zustand` removed, lobby team/boss preview added, `README.md`
-  updated. 5 commits (`51afb5e`, `6d55991`, `71c3956`, `83c6c3f`,
-  `ea9728b`), deployed to both targets and verified live in production
-  on 2026-08-06. v1.8 itself (2v2 Duos / Boss Battle team modes,
-  `47c651e`/`2a9c951`) shipped earlier the same day.
-- **Current blockers:** None. The entire backlog tracked in `TASKS.md`
-  as of the 2026-08-06 audit (`TASK-001` through `TASK-008`) is resolved
-  and closed.
+- **Latest deployed milestone:** v1.9 — `/tutorial` (rules + full
+  23-item glossary) and `/lessons` (mechanics-grounded strategy tips),
+  linked from the landing footer and in-game header. Committed
+  (`ae1219c`), deployed to Vercel (frontend-only change, no Worker
+  redeploy needed), verified live in production on 2026-08-06. Earlier
+  the same day: v1.8 (team modes, `47c651e`/`2a9c951`) and the post-v1.8
+  backlog cleanup (`51afb5e`, `6d55991`, `71c3956`, `83c6c3f`, `ea9728b`).
+- **Current blockers:** None. Nothing tracked in `TASKS.md` is
+  outstanding.
 - **Highest-priority next task:** None queued. `TASKS.md` → "Current
   task" says "None" — wait for user direction rather than inventing
   work.
@@ -194,7 +193,9 @@ chamber-seven/
 │   │   ├── room/[roomId]/page.tsx  # Reads roomId + ?ai=1 + ?career=<id> query params, renders GameRoom
 │   │   ├── career/page.tsx      # Career Mode hub: bot roster grid, rank/HP/items summary
 │   │   ├── leaderboard/page.tsx # Fetches and renders the global leaderboard (client component)
-│   │   └── changelog/page.tsx   # Renders `src/lib/changelog.ts` as patch notes
+│   │   ├── changelog/page.tsx   # Renders `src/lib/changelog.ts` as patch notes
+│   │   ├── tutorial/page.tsx    # Rules + full 23-item glossary, grouped by category
+│   │   └── lessons/page.tsx     # Strategy tips tied to the actual mechanics
 │   ├── components/
 │   │   ├── game/               # All game-specific UI (one component per concern —
 │   │   │                        # see FILE_MAP.md for the full list and what each does)

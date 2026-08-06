@@ -77,12 +77,13 @@ Five things, in order, across what reads as one continuous engagement:
 
 ## What works right now?
 
-Everything through the post-v1.8 backlog cleanup, confirmed live in
-production: core duel loop, 2–4 player FFA, vs-AI bots, all 23 items,
-customizable item pools, 5 cosmetic themes, Career Mode (12-bot ladder,
-now with escalating venue backdrops), the global leaderboard, reconnect
-handling, 2v2 Duos / Boss Battle team modes (now previewed in the
-lobby before the match starts). See `FEATURES.md` for the full,
+Everything through v1.9, confirmed live in production: core duel loop,
+2–4 player FFA, vs-AI bots, all 23 items, customizable item pools, 5
+cosmetic themes, Career Mode (12-bot ladder, with escalating venue
+backdrops), the global leaderboard, reconnect handling, 2v2 Duos / Boss
+Battle team modes (previewed in the lobby before the match starts), and
+now a `/tutorial` page (rules + full item glossary) and a `/lessons`
+page (strategy tips). See `FEATURES.md` for the full,
 individually-verified status of each.
 
 ## What is broken?

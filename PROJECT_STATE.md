@@ -4,7 +4,35 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest of all): CHECKPOINT RE-CONFIRMED, ONE NEW FINDING
+## Status as of 2026-08-06 (latest of all): v1.9 SHIPPED (tutorial + lessons)
+
+Sixth pass this same day. The user asked for a tutorial covering all the
+items, plus a lesson/strategy page. Built and shipped both:
+
+- **`/tutorial`** — full rules, every game mode, and a complete glossary
+  of all 23 items grouped by category (offense/defense/info/utility).
+  Generated from the existing `ALL_ITEM_IDS`/`ITEM_INFO`/`ITEM_ICONS`/
+  `ITEM_CATEGORY` data (same source of truth `ItemCard.tsx` uses) —
+  never hand-duplicated, so a future new item appears here automatically.
+- **`/lessons`** — 9 strategy lessons, each tied to a real, verifiable
+  mechanic (odds math from the chamber panel, why shooting yourself on
+  a likely-blank is correct, item sequencing around Loupe peeks,
+  mode-specific plays for 2v2 Duos/Boss Battle/Career Mode) — not
+  generic filler.
+- Both linked from the landing page footer and the in-game header.
+- Changelog bumped to `v1.9`, which also retroactively documents the
+  prior session's Career Mode venue-backdrop fix (that session shipped
+  the fix but never added a changelog line for it).
+
+Verified: `typecheck` × 2, `lint`, `build` all clean; screenshot-checked
+locally (all 23 items rendered correctly across all 4 categories) and
+against **production** after deploying. Committed as `ae1219c` (feature)
+— no backend/`party/`/`state.ts` changes were needed, so only the
+frontend (`vercel deploy --prod`) was redeployed, not the Worker.
+
+**No task remains queued.** `TASKS.md` → "Current task" still says "None."
+
+## Status as of 2026-08-06 (prior pass): CHECKPOINT RE-CONFIRMED, ONE NEW FINDING
 
 A fifth pass this same day — a pure "final account-switch checkpoint" with
 no new product work requested. Re-ran `git status`/`git log`/`git diff

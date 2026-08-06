@@ -287,6 +287,11 @@ below.
 ## Recently completed (terse history — see the detailed section above
 for the full v1.8 record)
 
+- v1.9 — `/tutorial` (rules + full 23-item glossary, generated from
+  `items.ts`/`itemIcons.tsx`/`colors.ts`) and `/lessons` (strategy tips
+  tied to the actual mechanics). Linked from the landing footer and
+  in-game header. Committed (`ae1219c`), deployed to Vercel (no backend
+  changes needed), verified live in production via screenshot.
 - Post-v1.8 backlog cleanup — Career Mode venue backdrops + victory
   burst wired up, local-dev host fallback fixed, `zustand` removed,
   lobby team/boss preview added, `README.md` updated. Committed as 5
