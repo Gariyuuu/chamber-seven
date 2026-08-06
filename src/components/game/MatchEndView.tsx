@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ItemId, RedactedState } from "@/lib/game/types";
 import { Crown, LogOut, RotateCcw, Sparkles, Swords, TrendingUp } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Flourish } from "./Flourish";
@@ -59,18 +60,27 @@ export function MatchEndView({
       </div>
 
       {isCareerMatch && youWon && careerReward && (
-        <div className="w-full space-y-2 rounded-lg border border-accent/40 bg-accent/10 p-4 text-left">
+        <div className="relative w-full space-y-2 overflow-hidden rounded-lg border border-accent/40 bg-accent/10 p-4 text-left">
+          {careerReward.leveledUp && (
+            <Image
+              src="/victory-burst.png"
+              alt=""
+              fill
+              aria-hidden="true"
+              className="pointer-events-none scale-150 object-contain opacity-20 mix-blend-plus-lighter animate-in fade-in zoom-in-90 duration-700"
+            />
+          )}
           {careerReward.leveledUp ? (
             <>
-              <p className="flex items-center gap-2 font-medium text-accent">
+              <p className="relative flex items-center gap-2 font-medium text-accent">
                 <TrendingUp className="size-4" />
                 Leveled up — rank {careerReward.newLevel}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="relative text-sm text-muted-foreground">
                 Health range is now {careerReward.newHp.hpMin}–{careerReward.newHp.hpMax} HP.
               </p>
               {careerReward.newItem && (
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <p className="relative flex items-center gap-2 text-sm text-muted-foreground">
                   <Sparkles className="size-3.5 text-accent" />
                   New item unlocked: <span className="font-medium text-foreground">{ITEM_INFO[careerReward.newItem].name}</span>
                 </p>

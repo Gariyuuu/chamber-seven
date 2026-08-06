@@ -40,6 +40,9 @@ export default function CareerPage() {
   const complete = isCareerComplete(career);
   const { hpMin, hpMax } = hpRangeForLevel(level);
   const items = unlockedItems(level);
+  // The venue backdrop escalates with the next opponent's tier — once the
+  // roster is cleared, settle on the final (tier 6) venue.
+  const venueTier = next?.tier ?? 6;
 
   function fight(bot: BotProfile) {
     if (!name.trim()) {
@@ -66,6 +69,13 @@ export default function CareerPage() {
       </header>
 
       <div className="relative h-44 w-full overflow-hidden sm:h-60">
+        <Image
+          src={`/venues/tier${venueTier}.png`}
+          alt=""
+          fill
+          priority
+          className="object-cover transition-opacity duration-500"
+        />
         <Image src="/career-hero.png" alt="" fill priority className="object-cover opacity-70" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-background/10" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-5 text-center">
