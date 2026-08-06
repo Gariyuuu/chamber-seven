@@ -7,6 +7,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.10",
+    date: "2026-08-06",
+    title: "New site icon, human avatars, real fonts, and a jump-scare",
+    changes: [
+      "New site icon: a 7-chamber revolver cylinder with one shell live, generated for the browser tab and home-screen bookmarks.",
+      "Fixed a real bug, not just a taste thing: the whole site's body font had been silently falling back to your browser's default font this whole time, because a CSS variable referenced itself. Now it actually renders the intended typeface — swapped to a grungier pairing while we were in there: a distressed horror-poster display face for headlines, a clean condensed sans for body text.",
+      "Human players now get their own animated table-side character — same idle sway and firing recoil the AI dealer has, but bare-headed and jacketed instead of hooded, so it reads as \"a person\" not \"a specter.\" Shows up in the lobby roster and the in-game HUD, including your own seat.",
+      "All 5 table-vibe backgrounds got replaced: gone is the glowing-moon-and-light-streaks skyline repeated in 5 colors, in with a genuinely different hand-drawn scene per theme — a rain-slicked brick alley, a flickering neon bar sign, a fire escape, and an overhead bulb, recolored per vibe.",
+      "Table talk now animates: each new line slides in instead of just appearing, private reveals get a little more flourish on entry.",
+      "New: a full-screen jump-scare on a live (damaging) shot. Fire at someone and a gunman pops up center-screen with a muzzle flash and a screen shake; get hit — by your own hand or someone else's — and the gun swings around to point straight at you instead. Only fires for shots involving you, so 3-4 player tables don't get spammed by every bot-on-bot shot.",
+    ],
+  },
+  {
     version: "1.9",
     date: "2026-08-06",
     title: "A tutorial and a strategy lessons page",

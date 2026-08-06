@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Crown, Skull, WifiOff } from "lucide-react";
 import { HealthBar } from "./HealthBar";
 import { DealerAvatar, DealerAim } from "./DealerAvatar";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { SEAT_COLOR, COLOR_BORDER_L, COLOR_TEXT } from "@/lib/game/colors";
 
 export function PlayerHud({
@@ -30,8 +31,15 @@ export function PlayerHud({
       )}
     >
       <div className="flex items-center gap-3">
-        {player.isBot && (
+        {player.isBot ? (
           <DealerAvatar
+            color={`var(--${color})`}
+            aim={dealerAim ?? "side"}
+            firing={!!dealerFiring}
+            size={40}
+          />
+        ) : (
+          <PlayerAvatar
             color={`var(--${color})`}
             aim={dealerAim ?? "side"}
             firing={!!dealerFiring}

@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-body);
   --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -84,7 +84,7 @@
   --sidebar-accent-foreground: oklch(0.96 0.005 60);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.55 0.22 25 / 0.6);
-  --bg-image: url("/backgrounds/bg-crimson.png");
+  --bg-image: url("/backgrounds/bg-crimson.svg");
 }
 
 /* Table vibe presets — selected via the palette picker, persisted client-side,
@@ -105,7 +105,7 @@
   --chart-3: oklch(0.62 0.19 250);
   --chart-4: oklch(0.72 0.19 155);
   --chart-5: oklch(0.65 0.22 320);
-  --bg-image: url("/backgrounds/bg-neon.png");
+  --bg-image: url("/backgrounds/bg-neon.svg");
 }
 
 :root[data-theme="emerald"] {
@@ -113,7 +113,7 @@
   --accent: oklch(0.78 0.15 85);
   --chart-1: oklch(0.62 0.19 150);
   --chart-2: oklch(0.78 0.15 85);
-  --bg-image: url("/backgrounds/bg-emerald.png");
+  --bg-image: url("/backgrounds/bg-emerald.svg");
 }
 
 :root[data-theme="sapphire"] {
@@ -122,7 +122,7 @@
   --accent-foreground: oklch(0.15 0.01 30);
   --chart-1: oklch(0.6 0.19 250);
   --chart-2: oklch(0.72 0.18 340);
-  --bg-image: url("/backgrounds/bg-sapphire.png");
+  --bg-image: url("/backgrounds/bg-sapphire.svg");
 }
 
 :root[data-theme="violet"] {
@@ -131,7 +131,7 @@
   --accent-foreground: oklch(0.15 0.01 30);
   --chart-1: oklch(0.6 0.22 300);
   --chart-2: oklch(0.75 0.16 130);
-  --bg-image: url("/backgrounds/bg-violet.png");
+  --bg-image: url("/backgrounds/bg-violet.svg");
 }
 
 @layer base {
@@ -221,60 +221,148 @@
     padding: 5px;
   }
 
-  .dealer-avatar {
+  .duel-avatar {
     position: relative;
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
   }
-  .dealer-avatar__figure {
+  .duel-avatar__figure {
     width: 100%;
     height: 100%;
     overflow: visible;
-    animation: dealer-idle 3.2s ease-in-out infinite;
+    animation: duel-idle 3.2s ease-in-out infinite;
     transform-box: fill-box;
     transform-origin: 50% 100%;
   }
-  .dealer-avatar__eyes {
-    animation: dealer-eye-pulse 2.4s ease-in-out infinite;
+  .duel-avatar__eyes {
+    animation: duel-eye-pulse 2.4s ease-in-out infinite;
     transform-box: fill-box;
     transform-origin: 50% 50%;
   }
-  .dealer-avatar__flash {
+  .duel-avatar__flash {
     opacity: 0;
     transform: scale(0.3);
     transform-box: fill-box;
     transform-origin: 100% 50%;
     transition: opacity 0.08s ease, transform 0.08s ease;
   }
-  .dealer-avatar__gun-recoil {
+  .duel-avatar__gun-recoil {
     transform-box: fill-box;
     transform-origin: 0% 50%;
   }
-  .dealer-avatar--firing .dealer-avatar__flash {
+  .duel-avatar--firing .duel-avatar__flash {
     opacity: 1;
     transform: scale(1);
   }
-  .dealer-avatar--firing .dealer-avatar__gun-recoil {
-    animation: dealer-recoil 0.45s ease-out;
+  .duel-avatar--firing .duel-avatar__gun-recoil {
+    animation: duel-recoil 0.45s ease-out;
   }
-  .dealer-avatar--firing .dealer-avatar__figure {
-    animation: dealer-kick 0.45s ease-out;
+  .duel-avatar--firing .duel-avatar__figure {
+    animation: duel-kick 0.45s ease-out;
   }
-  @keyframes dealer-idle {
+  @keyframes duel-idle {
     0%, 100% { transform: translateY(0) rotate(0deg); }
     50% { transform: translateY(-2%) rotate(-1deg); }
   }
-  @keyframes dealer-eye-pulse {
+  @keyframes duel-eye-pulse {
     0%, 100% { opacity: 0.75; }
     50% { opacity: 1; }
   }
-  @keyframes dealer-recoil {
+  @keyframes duel-recoil {
     0% { transform: translateX(0); }
     20% { transform: translateX(-8%); }
     100% { transform: translateX(0); }
   }
-  @keyframes dealer-kick {
+  @keyframes duel-kick {
     0% { transform: translateX(0) rotate(0deg); }
     20% { transform: translateX(2%) rotate(1.5deg); }
     100% { transform: translateX(0) rotate(0deg); }
+  }
+
+  /* Full-screen jump-scare overlay, shown for a live/damaging shot. */
+  .shoot-scare {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: scare-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  .shoot-scare__flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, color-mix(in oklch, var(--scare-color) 55%, white 35%), transparent 70%);
+    opacity: 0;
+    animation: scare-flash 0.5s ease-out;
+  }
+  .shoot-scare__figure {
+    position: relative;
+    width: min(60vw, 420px);
+    height: min(78vh, 540px);
+    filter: drop-shadow(0 0 30px color-mix(in oklch, var(--scare-color) 60%, transparent));
+    animation: scare-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  }
+  .shoot-scare__caption {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    translate: -50% 0;
+    font-family: var(--font-display);
+    letter-spacing: 0.08em;
+    color: color-mix(in oklch, var(--scare-color) 75%, white 25%);
+    text-shadow: 0 0 18px color-mix(in oklch, var(--scare-color) 70%, transparent), 0 2px 0 black;
+    animation: scare-caption 0.5s ease-out;
+    white-space: nowrap;
+  }
+  @keyframes scare-flash {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes scare-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    18% { transform: scale(1.06); opacity: 1; }
+    30% { transform: scale(1); }
+    82% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.04); opacity: 0; }
+  }
+  @keyframes scare-caption {
+    0%, 20% { opacity: 0; transform: translateY(6px); }
+    32%, 78% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; }
+  }
+  @keyframes scare-shake {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-1.2%, 0.6%); }
+    20% { transform: translate(1.4%, -0.8%); }
+    30% { transform: translate(-1%, 1%); }
+    40% { transform: translate(1%, -0.5%); }
+    50%, 100% { transform: translate(0, 0); }
+  }
+
+  /* Table talk (EventLog) message entrance + emphasis. */
+  .table-talk__row {
+    animation: table-talk-in 0.32s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+  .table-talk__row--private {
+    animation: table-talk-in-private 0.38s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  }
+  .table-talk__bullet {
+    display: inline-block;
+    animation: table-talk-bullet 0.32s ease-out both;
+  }
+  @keyframes table-talk-in {
+    0% { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes table-talk-in-private {
+    0% { opacity: 0; transform: translateX(-6px) scale(0.98); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes table-talk-bullet {
+    0% { opacity: 0; transform: translateX(-3px); }
+    100% { opacity: 1; transform: translateX(0); }
   }
 }

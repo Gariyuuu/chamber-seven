@@ -27,20 +27,25 @@ export function EventLog({ log, privateLog }: { log: LogEntry[]; privateLog: Pri
         Table talk
       </p>
       <div className="flex-1 space-y-1.5 overflow-y-auto px-3 py-2 font-mono text-[0.8rem] leading-relaxed">
-        {items.map((item) => (
-          <p
-            key={item.id}
-            className={cn(
-              "animate-in fade-in duration-300",
-              item.kind === "private"
-                ? "rounded border-l-2 border-accent bg-accent/10 px-2 py-1 text-accent-foreground/90"
-                : "text-muted-foreground",
-            )}
-          >
-            {item.kind === "public" && <span className="text-primary/50">›&nbsp;</span>}
-            {item.content}
-          </p>
-        ))}
+        {items.map((item, i) => {
+          const isNewest = i === items.length - 1;
+          return (
+            <p
+              key={item.id}
+              style={{ animationDelay: isNewest ? "0ms" : undefined }}
+              className={cn(
+                item.kind === "private" ? "table-talk__row--private" : "table-talk__row",
+                item.kind === "private"
+                  ? "rounded border-l-2 border-accent bg-accent/10 px-2 py-1 text-accent-foreground/90"
+                  : "text-muted-foreground",
+                isNewest && "text-foreground/90",
+              )}
+            >
+              {item.kind === "public" && <span className="table-talk__bullet text-primary/50">›&nbsp;</span>}
+              {item.content}
+            </p>
+          );
+        })}
         <div ref={bottomRef} />
       </div>
     </div>

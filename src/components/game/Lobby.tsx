@@ -7,6 +7,7 @@ import { RedactedState } from "@/lib/game/types";
 import { Check, Copy, Crown, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DealerAvatar } from "./DealerAvatar";
+import { PlayerAvatar } from "./PlayerAvatar";
 import { SEAT_COLOR } from "@/lib/game/colors";
 import { teamForSeatIndex } from "@/lib/game/state";
 
@@ -61,7 +62,11 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
                 className="flex animate-in fade-in slide-in-from-left-2 items-center justify-between rounded-md border border-border px-3 py-2 duration-300 fill-mode-both"
               >
                 <span className="flex items-center gap-2">
-                  {p.isBot && <DealerAvatar color={`var(--${SEAT_COLOR[p.seat]})`} size={24} />}
+                  {p.isBot ? (
+                    <DealerAvatar color={`var(--${SEAT_COLOR[p.seat]})`} size={24} />
+                  ) : (
+                    <PlayerAvatar color={`var(--${SEAT_COLOR[p.seat]})`} size={24} />
+                  )}
                   {p.name}
                   {previewIsBoss && <Crown className="size-3.5 text-accent" />}
                   {previewTeam !== null && (

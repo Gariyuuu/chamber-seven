@@ -8,11 +8,61 @@ import { ActionBar } from "./ActionBar";
 import { ItemCard } from "./ItemCard";
 import { TargetSelector } from "./TargetSelector";
 import { DealerAim } from "./DealerAvatar";
+import { ShootScare, ScareKind } from "./ShootScare";
 import { LayoutGrid, Radiation, type LucideIcon } from "lucide-react";
 import { SEAT_COLOR, COLOR_TEXT } from "@/lib/game/colors";
 import { cn } from "@/lib/utils";
 
 const DEALER_FX_DURATION_MS = 550;
+
+/**
+ * Detects a fresh LIVE (damaging) fire that involves the local player —
+ * either as the shooter (fired at someone else) or the victim (got hit,
+ * whether by their own hand or someone else's) — and returns a one-shot
+ * jump-scare cue. Uninvolved shots (e.g. two bots dueling each other) are
+ * left to the per-seat avatar firing animation instead.
+ */
+function useShootScare(log: RedactedState["log"], players: RedactedState["players"], you: SeatId) {
+  const [scare, setScare] = useState<{ key: number; kind: ScareKind; color: string; caption: string } | null>(null);
+  const prevLenRef = useRef(log.length);
+  const keyRef = useRef(0);
+
+  useEffect(() => {
+    const prevLen = prevLenRef.current;
+    prevLenRef.current = log.length;
+    if (log.length <= prevLen) return;
+
+    const fresh = log.slice(prevLen).find((entry) => entry.seat && /: LIVE\.$/.test(entry.message));
+    if (!fresh || !fresh.seat) return;
+
+    const actingSeat = fresh.seat;
+    const youPlayer = players.find((p) => p.seat === you);
+    if (!youPlayer) return;
+    const selfShot = /points it at themselves/.test(fresh.message);
+    const color = `var(--${SEAT_COLOR[actingSeat]})`;
+
+    let kind: ScareKind | null = null;
+    let caption = "";
+    if (actingSeat === you) {
+      if (selfShot) {
+        kind = "victim";
+        caption = "SELF-INFLICTED";
+      } else {
+        kind = "shooter";
+        caption = "BANG!";
+      }
+    } else if (!selfShot && fresh.message.includes(` fires at ${youPlayer.name}: `)) {
+      kind = "victim";
+      caption = "YOU'VE BEEN HIT";
+    }
+    if (!kind) return;
+
+    keyRef.current += 1;
+    setScare({ key: keyRef.current, kind, color, caption });
+  }, [log, players, you]);
+
+  return [scare, () => setScare(null)] as const;
+}
 
 /** Detects a fresh "fired" log line from a bot seat and returns a brief visual cue. */
 function useDealerFx(log: RedactedState["log"], players: RedactedState["players"]) {
@@ -70,6 +120,7 @@ export function PlayingView({
   const others = state.players.filter((p) => p.seat !== state.you);
   const isYourTurn = state.turn === state.you && state.phase === "playing";
   const dealerFx = useDealerFx(state.log, state.players);
+  const [shootScare, dismissShootScare] = useShootScare(state.log, state.players, state.you);
 
   const [target, setTarget] = useState<SeatId>(state.you);
   // Reset the target back to yourself whenever a fresh turn of yours begins,
@@ -84,7 +135,17 @@ export function PlayingView({
   const isSelfTarget = target === state.you;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
+    <>
+      {shootScare && (
+        <ShootScare
+          key={shootScare.key}
+          kind={shootScare.kind}
+          color={shootScare.color}
+          caption={shootScare.caption}
+          onDone={dismissShootScare}
+        />
+      )}
+      <div className="mx-auto max-w-3xl px-4 py-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-y-1 text-sm text-muted-foreground">
         <p>
           Round {state.round} ·{" "}
@@ -171,6 +232,7 @@ export function PlayingView({
           </p>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

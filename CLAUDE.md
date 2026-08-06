@@ -62,18 +62,21 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
 
 See `PROJECT_STATE.md` for the exact, timestamped snapshot. Summary:
 
-- **Latest deployed milestone:** v1.9 — `/tutorial` (rules + full
-  23-item glossary) and `/lessons` (mechanics-grounded strategy tips),
-  linked from the landing footer and in-game header. Committed
-  (`ae1219c`), deployed to Vercel (frontend-only change, no Worker
-  redeploy needed), verified live in production on 2026-08-06. Earlier
-  the same day: v1.8 (team modes, `47c651e`/`2a9c951`) and the post-v1.8
-  backlog cleanup (`51afb5e`, `6d55991`, `71c3956`, `83c6c3f`, `ea9728b`).
-- **Current blockers:** None. Nothing tracked in `TASKS.md` is
-  outstanding.
+- **Latest deployed milestone:** v1.9 (`/tutorial` + `/lessons`,
+  committed `ae1219c`, deployed and verified live in production
+  2026-08-06). **v1.10 (site icon, human player avatars, font bug
+  fix/swap, new SVG theme backgrounds, table-talk animation, jump-scare
+  overlay) is implemented and verified locally as of 2026-08-06 but
+  NOT YET committed, pushed, or deployed** — see `PROJECT_STATE.md` top
+  section and `SESSION_LOG.md` top entry. Ask the user before
+  committing/deploying it.
+- **Current blockers:** None technical. The only open item is that
+  v1.10's changes are sitting uncommitted in the working tree — not a
+  blocker, just something to be aware of before running any git command
+  that could discard uncommitted work.
 - **Highest-priority next task:** None queued. `TASKS.md` → "Current
-  task" says "None" — wait for user direction rather than inventing
-  work.
+  task" says "None queued" (but flags the uncommitted v1.10 work) — wait
+  for user direction rather than inventing work.
 
 ## Technology stack
 

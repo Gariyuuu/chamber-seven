@@ -4,7 +4,97 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest of all): v1.9 SHIPPED (tutorial + lessons)
+## Status as of 2026-08-06 (latest of all): v1.10 SHIPPED (icon, player avatars, real fonts, new backgrounds, jump-scare)
+
+Seventh pass this same day. User feedback, verbatim intent: add a site
+icon, give human players the same animated character treatment the bot
+dealer has, fix/replace the font ("I don't like the font"), replace the
+repetitive moon-and-light-streaks background art, add more animation to
+the "Table talk" event log, and add a full-screen jump-scare animation
+on a live/damaging shot — plus patch notes. All six were implemented in
+one pass, confirmed feasible up front via `AskUserQuestion` (font vibe:
+grunge/horror display; art approach: hand-drawn SVG since no raster
+image-generation tool is available in this environment — same technique
+already used for `DealerAvatar.tsx`).
+
+- **Site icon:** `src/app/icon.tsx` + `src/app/apple-icon.tsx` (Next.js
+  file-convention dynamic icons via `next/og` `ImageResponse`) — a
+  7-chamber revolver cylinder with one shell lit red. The old default
+  `src/app/favicon.ico` (create-next-app placeholder, never customized)
+  was deleted so these take over. Verified via a real build (`○ /icon`,
+  `○ /apple-icon` routes generated) and a live browser check (`<link
+  rel="icon" href="/icon?...">` present, correct PNG served).
+- **Font bug fix + swap:** Found and fixed a real bug while investigating
+  the "I don't like the font" complaint — `globals.css`'s `@theme inline`
+  block had `--font-sans: var(--font-sans)`, a self-referential/circular
+  CSS custom property. That's invalid, so the property fell back to the
+  browser's default system font — **Geist was never actually rendering**
+  on this site, despite being loaded and wired up via `next/font/google`.
+  Fixed the circularity (`--font-sans: var(--font-body)`) and, per the
+  user's chosen direction, swapped the actual typefaces: `Bebas_Neue` →
+  `Butcherman` (`--font-display`, headlines/wordmark — a distressed
+  horror-poster face) and `Geist` → `Barlow` (`--font-body`, everything
+  else). `Geist_Mono` unchanged. Verified via computed-style check in a
+  real browser (`getComputedStyle(h1).fontFamily` → `"Butcherman,
+  \"Butcherman Fallback\""`, body → `"Barlow, \"Barlow Fallback\""`) —
+  confirms the fix actually took effect, not just "it built."
+- **Human player avatars:** New `src/components/game/PlayerAvatar.tsx` —
+  a bare-headed, jacketed humanoid SVG figure (vs. `DealerAvatar`'s
+  hooded specter), sharing the same idle-sway/firing-recoil animation
+  system. The shared CSS classes were renamed from `dealer-avatar*` to
+  `duel-avatar*` in `globals.css` (and `DealerAvatar.tsx` updated to
+  match) so both avatars run off one animation implementation. Wired into
+  `PlayerHud.tsx` (every human seat, including your own — previously
+  human players had no avatar at all, just a name) and `Lobby.tsx`
+  (roster list). Verified live: a real vs-AI match screenshot shows both
+  "The Dealer" (hooded, blue glow) and "Tester (you)" (bare-headed, red
+  glow) each with their own animated avatar.
+- **New backgrounds:** All 5 `public/backgrounds/bg-<theme>.png` files
+  (a glowing moon + vertical light-streaks over a skyline, template
+  reused across all 5 themes just recolored — this exact repetition was
+  the user's complaint) were **replaced**, not supplemented, with new
+  hand-authored `bg-<theme>.svg` files: a rain-slicked brick alley, a
+  glowing neon bar-sign, a fire escape, and an overhead bulb, generated
+  programmatically (`/tmp` Python script, not committed) using each
+  theme's actual `oklch()` primary/accent CSS variables so the art and
+  the UI palette are exactly in sync. `globals.css`'s five `--bg-image`
+  declarations were repointed `.png` → `.svg`. Verified via `qlmanage`
+  thumbnail renders of each file plus a live browser screenshot.
+- **Table talk animation:** `EventLog.tsx` — new lines now slide in
+  (`table-talk-in` keyframe) instead of just fading, private reveals get
+  a slightly different entrance (`table-talk-in-private`), and the `›`
+  bullet has its own micro-entrance. Only genuinely new log lines
+  animate (keyed by stable `entry.id`, so already-rendered lines don't
+  replay on every re-render).
+- **Jump-scare overlay:** New `src/components/game/ShootScare.tsx` — a
+  full-screen overlay (a scaled-up version of the avatar art) that pops
+  up with a flash and a screen-shake on any LIVE (damaging) shot that
+  involves the local player: firing at someone shows the gun recoiling
+  aside ("shooter", caption "BANG!"); getting hit — by your own hand
+  (caption "SELF-INFLICTED") or someone else's ("YOU'VE BEEN HIT") —
+  swings the gun to point straight at the viewer. Deliberately does
+  **not** fire for shots that don't involve you (e.g. two bots dueling
+  in a 3-4 player game), to avoid spamming the screen. Detected via a
+  `useShootScare` hook in `PlayingView.tsx` that diffs `state.log` for a
+  fresh `": LIVE."`-suffixed entry, same pattern as the existing
+  `useDealerFx` hook. Verified live: a real vs-AI match, screenshotted
+  mid-animation, shows the correct hooded figure, red flash, muzzle
+  burst, and "SELF-INFLICTED" caption on a self-inflicted live shot.
+- **Patch notes:** `src/lib/changelog.ts` — new `v1.10` entry covering
+  all of the above, written for players (not engineers).
+
+Verified: `npm run typecheck`, `npm run typecheck:party`, `npm run lint`,
+`npm run build` all clean. Additionally ran a real `next dev` + `wrangler
+dev` pair and drove it with Playwright (installed ad hoc into `/tmp`,
+not added to the repo) to actually play a vs-AI match in a headless
+Chromium browser — confirmed fonts, icon, avatars, background, table-talk
+animation, and the jump-scare all render correctly at runtime, not just
+"it compiles." **Not committed, not pushed, not deployed** — this pass
+ends with a clean implementation, verified in a local dev environment
+only; ask the user before committing/deploying since that wasn't part of
+this specific request.
+
+## Status as of 2026-08-06 (prior pass): v1.9 SHIPPED (tutorial + lessons)
 
 Sixth pass this same day. The user asked for a tutorial covering all the
 items, plus a lesson/strategy page. Built and shipped both:

@@ -12,6 +12,37 @@ handoff memory system described in `CLAUDE.md`.
 
 ---
 
+## 2026-08-06 — v1.10: icon, human player avatars, real fonts, new backgrounds, jump-scare
+
+**Type:** Product/UI feature work, plus one real bug fix. See
+`src/lib/changelog.ts` `v1.10` for the player-facing version and
+`SESSION_LOG.md` (top entry) for the full engineering detail.
+
+Six user-requested changes shipped in one pass: a generated site icon
+(`src/app/icon.tsx`/`apple-icon.tsx`), an animated avatar for human
+players (`PlayerAvatar.tsx`, previously only bots had one), a font swap
+(`Butcherman`/`Barlow`) that also fixed a genuine bug — `globals.css` had
+`--font-sans: var(--font-sans)`, a circular CSS custom property, so the
+site had silently never been rendering `Geist` at all — five new
+hand-drawn SVG theme backgrounds replacing the old PNGs (which shared one
+moon-and-light-streaks template just recolored), an entrance animation
+for the "Table talk" event log, and a full-screen jump-scare overlay
+(`ShootScare.tsx`) on live/damaging shots involving the local player.
+
+No raster image-generation tool is available in this environment; the
+new backgrounds and jump-scare art are hand-authored SVG, generated via
+a throwaway (not committed) Python script for the backgrounds, matching
+the existing `DealerAvatar.tsx` inline-SVG convention.
+
+Verified via `npm run typecheck`/`typecheck:party`/`lint`/`build` (all
+clean) plus a real headless-browser run (Playwright, installed ad hoc,
+not added to the repo) against a live `next dev` + `wrangler dev` pair —
+confirmed fonts/icon/avatars/backgrounds/animations/jump-scare all
+actually render correctly, not just "it compiles." **Not committed,
+pushed, or deployed** as part of this pass.
+
+---
+
 ## 2026-08-06 — Documentation & handoff audit
 
 **Type:** Documentation only. No product/game behavior was intentionally

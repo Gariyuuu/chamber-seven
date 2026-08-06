@@ -6,11 +6,21 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
-**None.** The entire backlog as of the 2026-08-06 documentation audit
-(`TASK-001` through `TASK-008`) is complete, committed, deployed, and
-verified live in production. See "Recently completed" below for the
-full record. Nothing is queued — wait for the user's next direction
-rather than inventing new work.
+**None queued**, but **note: the working tree is currently dirty.** The
+2026-08-06 v1.10 pass (site icon, human player avatars, font fix/swap,
+new SVG backgrounds, table-talk animation, jump-scare overlay — see
+`PROJECT_STATE.md` top section and `SESSION_LOG.md` top entry for full
+detail) is implemented, verified via typecheck/lint/build and a real
+headless-browser run, but **not committed, not pushed, not deployed** —
+that wasn't part of what was asked. Before starting new work, check
+`git status`; before committing/deploying it, confirm with the user
+first (per standing git-safety rules, not because anything is wrong with
+the change).
+
+Everything from the prior backlog (`TASK-001` through `TASK-008`, the
+2026-08-06 documentation audit) is complete, committed, deployed, and
+verified live in production — see "Recently completed" below for that
+record. This new v1.10 work is separate/on top of that.
 
 ## v1.8 ship — full record
 

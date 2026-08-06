@@ -196,28 +196,43 @@ where noted.
   `/lessons` if the new item changes recommended strategy.
 
 ### `src/app/layout.tsx` / `src/app/globals.css`
-- **Purpose:** Root layout (fonts, flash-free theme-init script,
-  `TooltipProvider`) and **all** design tokens/theme
+- **Purpose:** Root layout (fonts — `Barlow` body / `Butcherman` display
+  / `Geist_Mono` mono, as of 2026-08-06 v1.10 — flash-free theme-init
+  script, `TooltipProvider`) and **all** design tokens/theme
   presets/keyframes/utility classes. See `UI_SYSTEM.md`.
 - **Risk:** Medium — `globals.css` is the single source of truth for
-  every color token in the app; a change here is instantly global.
+  every color token in the app; a change here is instantly global. Note:
+  `--font-sans` must reference the actual font variable
+  (`var(--font-body)`), not itself — a prior self-referential bug here
+  silently broke body-text font rendering site-wide (fixed 2026-08-06,
+  see `PROJECT_STATE.md`).
+
+### `src/app/icon.tsx` / `src/app/apple-icon.tsx`
+- **Purpose:** Next.js file-convention dynamic icon routes (`next/og`
+  `ImageResponse`) — generate the browser-tab favicon and Apple
+  home-screen icon at build time as a 7-chamber revolver cylinder with
+  one shell lit red. Added 2026-08-06, replacing the unused default
+  `favicon.ico` (deleted).
+- **Risk:** Low — self-contained, no shared state.
 
 ## Game UI components (`src/components/game/`)
 
 | File | Purpose | Risk notes |
 |---|---|---|
 | `GameSettingsForm.tsx` | The settings editor used by both "Host a Table" and "Play vs AI" dialogs. Owns player-count/team-mode/rounds/HP/items-per-reload/enabled-items controls and their cross-field invariants. | High — must keep its client-side invariants in sync with `clampSettings()` server-side, or the UI will show states the server will silently correct/reject. |
-| `PlayerHud.tsx` | One player's row: avatar (bot) or name, team badge, boss crown, connection/elimination icons, health bar, item count, turn indicator. | Medium |
+| `PlayerHud.tsx` | One player's row: animated avatar (`DealerAvatar` for bots, `PlayerAvatar` for humans — every seat gets one as of 2026-08-06, previously humans had none), team badge, boss crown, connection/elimination icons, health bar, item count, turn indicator. | Medium |
 | `TargetSelector.tsx` | The row of target chips shown on your turn; excludes eliminated players and (in team modes) your own teammates. | Medium — must stay in sync with server-side `isTeammate()` targeting rules, or the UI will let you attempt an action the server then rejects. |
 | `MatchEndView.tsx` | End-of-match screen: win/loss framing, career reward panel (now with a `victory-burst.png` glow on level-up), FFA standings or team-mode standings, rematch/leave or "back to career" actions. | Medium |
-| `PlayingView.tsx` | The main in-round layout: opponent HUDs, chamber bar, event log, your HUD, target selector, hand, action bar. Also derives the dealer-avatar firing animation cue from fresh log lines (`useDealerFx`). | Medium |
+| `PlayingView.tsx` | The main in-round layout: opponent HUDs, chamber bar, event log, your HUD, target selector, hand, action bar. Derives the per-seat avatar firing animation cue from fresh log lines (`useDealerFx`) and the full-screen jump-scare cue (`useShootScare`, added 2026-08-06) from fresh LIVE-shot log lines. | Medium |
 | `Lobby.tsx` | Pre-game waiting room: room code display, invite-link copy, player list (now with a team badge / boss crown preview via `teamForSeatIndex()`, see `state.ts`), "Start the Game" (disabled until everyone's connected). | Low |
 | `ActionBar.tsx` | The big "Fire" button (self vs. target framing). | Low |
 | `ItemCard.tsx` | One item in your hand — icon, name, tooltip description, click-to-use. | Low |
 | `ChamberBar.tsx` | Visual pip row for remaining shells + the peeked-shell reveal. | Low |
-| `EventLog.tsx` | Scrolling public + private log feed. | Low |
+| `EventLog.tsx` | Scrolling public + private log feed, titled "Table talk." Entries slide in on arrival (`table-talk-in`/`table-talk-in-private` keyframes, added 2026-08-06); only genuinely new lines animate (keyed by stable `entry.id`). | Low |
 | `HealthBar.tsx` | Simple proportional HP bar. | Low |
-| `DealerAvatar.tsx` | Hand-authored inline SVG bot avatar with CSS-keyframe idle animation + prop-driven firing/recoil. | Low — purely cosmetic, self-contained. |
+| `DealerAvatar.tsx` | Hand-authored inline SVG bot avatar (hooded specter) with CSS-keyframe idle animation + prop-driven firing/recoil, via the shared `duel-avatar*` CSS classes (`globals.css`). | Low — purely cosmetic, self-contained. |
+| `PlayerAvatar.tsx` | Hand-authored inline SVG human-player avatar (bare-headed, jacketed — vs. the dealer's hooded look), sharing `DealerAvatar`'s `duel-avatar*` animation classes and firing/aim prop API. Added 2026-08-06. | Low — purely cosmetic, self-contained. |
+| `ShootScare.tsx` | Full-screen jump-scare overlay for a LIVE/damaging shot involving the local player — scaled-up avatar art, flash, screen-shake, auto-dismisses via `onDone`. Added 2026-08-06. | Low — purely cosmetic, self-contained; must call `onDone` or the overlay snaps back to fully visible after its CSS animation ends (no `fill-mode: forwards` set). |
 | `BotCard.tsx` | Career Mode roster grid card (locked/current/defeated states). | Low |
 | `ThemePicker.tsx` | Table-vibe picker dialog; writes `data-theme` + `localStorage`. | Low |
 | `Flourish.tsx` | Decorative divider. | Trivial |
@@ -287,7 +302,8 @@ generated code in this repo.
   — see `PROJECT_STATE.md` and `DECISIONS.md`.
 - **Change themes:** `src/lib/themePresets.ts` (add a preset entry) +
   `src/app/globals.css` (add a matching `:root[data-theme="<id>"]`
-  block) + a new `public/backgrounds/bg-<id>.png` asset.
+  block) + a new `public/backgrounds/bg-<id>.svg` asset (SVG as of
+  2026-08-06, replacing the original PNGs — see `UI_SYSTEM.md`).
 - **Update deployment settings:** `wrangler.jsonc` (Worker) or the Vercel
   project's environment variables / project settings (frontend, not
   stored in this repo — see `DEPLOYMENT.md`).

@@ -5,6 +5,109 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Shipped v1.10: icon, human player avatars, real fonts, new backgrounds, table-talk animation, jump-scare
+
+- **Account or agent:** unknown (not disclosed in-session)
+- **Goal:** A single free-form user message bundling six asks: (1) add a
+  site icon, (2) give human players an animated character like the bot
+  dealer already has, (3) "add better font to the whole site, I don't
+  like the font", (4) replace the background art ("not just the one with
+  the sphere and lines"), (5) more animation in the "table talk" event
+  log, (6) a full-screen jump-scare animation on a shot ("an animation of
+  a guy shooting when you shoot and someone shooting you when you shoot
+  yourself") — plus patch notes. User explicitly asked "lmk if you can
+  implement all those things" — clarified feasibility up front rather
+  than assuming.
+- **Clarification asked (via `AskUserQuestion`) before implementing:**
+  1. Font direction — user picked "grunge/horror display" (a distressed
+     horror-poster face for headers, clean readable sans for body) over
+     "gritty noir stencil" and "modern sharp condensed."
+  2. Art approach for backgrounds/jump-scare — explained no raster
+     image-generation tool is available in this environment, offered
+     hand-drawn SVG scenes (same technique as the existing
+     `DealerAvatar.tsx`) as the alternative; user picked that over "just
+     reduce the repetition, keep it simple."
+- **Files inspected:** `src/app/layout.tsx`, `src/app/globals.css`
+  (found the actual root cause of the font complaint — see below),
+  `src/components/game/DealerAvatar.tsx`, `PlayerHud.tsx`, `Lobby.tsx`,
+  `EventLog.tsx`, `PlayingView.tsx`, `ActionBar.tsx`, `GameRoom.tsx`,
+  `src/lib/game/state.ts` (`fire()` — exact log message formats used to
+  detect LIVE shots), `src/lib/game/colors.ts`, `src/lib/themePresets.ts`,
+  `public/backgrounds/bg-crimson.png` (viewed directly — confirmed the
+  "sphere and lines" complaint: a moon + vertical light-streaks template
+  reused across all 5 theme backgrounds, just recolored), `public/bots/`,
+  `src/lib/changelog.ts`, root `CHANGELOG.md`/`TASKS.md`/
+  `PROJECT_STATE.md`/`SESSION_LOG.md` (for doc format/conventions).
+- **Files changed:**
+  - **New:** `src/app/icon.tsx`, `src/app/apple-icon.tsx` (generated
+    site icon via `next/og` `ImageResponse` — 7-chamber revolver
+    cylinder, one shell live), `src/components/game/PlayerAvatar.tsx`
+    (human player avatar, shares `duel-avatar*` CSS with `DealerAvatar`),
+    `src/components/game/ShootScare.tsx` (full-screen jump-scare
+    overlay), `public/backgrounds/bg-{crimson,neon,emerald,sapphire,
+    violet}.svg` (new hand-drawn alley/neon-sign scenes, one per theme,
+    generated via a throwaway Python script using each theme's real
+    `oklch()` primary/accent values — script not committed, lives in
+    `/tmp`).
+  - **Deleted:** `src/app/favicon.ico` (unused create-next-app
+    placeholder, superseded by `icon.tsx`), all 5 old
+    `public/backgrounds/bg-*.png` files (replaced, not kept alongside).
+  - **Modified:** `src/app/layout.tsx` (font swap: `Geist`→`Barlow`,
+    `Bebas_Neue`→`Butcherman`), `src/app/globals.css` (fixed the
+    self-referential `--font-sans: var(--font-sans)` bug → `var(--font-
+    body)`; renamed `dealer-avatar*` CSS classes to `duel-avatar*` and
+    `--dealer-color` to `--avatar-color` so `PlayerAvatar` can share
+    them; new `.shoot-scare*` and `.table-talk__*` keyframes/classes;
+    repointed all 5 `--bg-image` urls from `.png` to `.svg`),
+    `DealerAvatar.tsx` (class rename only, no visual change),
+    `PlayerHud.tsx` / `Lobby.tsx` (render `PlayerAvatar` for non-bot
+    seats, `DealerAvatar` for bot seats), `EventLog.tsx` (table-talk
+    entrance animation classes), `PlayingView.tsx` (new `useShootScare`
+    hook + `<ShootScare>` render, wrapped return in a Fragment),
+    `src/lib/changelog.ts` (new `v1.10` entry).
+- **Root cause found, not just a taste fix:** the font complaint wasn't
+  purely subjective — `--font-sans: var(--font-sans)` in `globals.css`
+  is a circular CSS custom property reference, which is invalid, so the
+  whole site had been silently falling back to the browser's default
+  system font this whole time. `Geist` was loaded and its CSS variable
+  was set correctly on `<html>`, but `--font-sans` (what `font-sans`
+  utility classes and `html { @apply font-sans }` actually consume) never
+  resolved to it. Fixed as part of this pass regardless of the font
+  swap.
+- **Commands run:**
+  - `npm run typecheck && npm run typecheck:party && npm run lint &&
+    npm run build` — all four clean. Build output confirms `○ /icon` and
+    `○ /apple-icon` as new static routes.
+  - Manual runtime verification: started `npm run dev:all` (Next.js on
+    port 3001 — 3000 was already occupied by an unrelated process;
+    `wrangler dev` on 8787), installed Playwright ad hoc into `/tmp`
+    (not added to the repo — this project has no test framework, see
+    `TESTING.md`) and drove a real headless Chromium browser through:
+    landing page load (screenshot + computed `fontFamily` check on `h1`/
+    `body` confirming Butcherman/Barlow actually render, `<link
+    rel="icon">` href check), starting a vs-AI match, and repeatedly
+    firing to trigger and screenshot the jump-scare overlay (captured
+    twice, both the self-inflicted case — visually confirmed the hooded
+    figure, red flash, muzzle burst, and "SELF-INFLICTED" caption).
+    Confirmed both "The Dealer" (hooded `DealerAvatar`) and "Tester
+    (you)" (bare-headed `PlayerAvatar`) render distinct animated avatars
+    side by side in the HUD. Confirmed 15 `.table-talk__row`-animated
+    log lines present. Killed both dev servers afterward.
+  - Did **not** run `git add`/`commit`/`push`, `wrangler deploy`, or
+    `vercel deploy --prod` — not requested this pass; the user asked to
+    implement the features and add patch notes, not to ship them.
+- **Docs sync:** `PROJECT_STATE.md` (new status section), `TASKS.md`
+  (current task still "None" — this was ad hoc work, not a queued
+  backlog item), root `CHANGELOG.md` (new dated entry), `FILE_MAP.md`
+  (new/deleted files), `UI_SYSTEM.md` (typography, avatar system,
+  background art, table-talk, jump-scare sections), this `SESSION_LOG.md`
+  entry.
+- **Known follow-up:** working tree now has meaningful uncommitted
+  changes (this entire pass). Ask the user before committing/pushing/
+  deploying — out of scope for what was actually requested.
+
+---
+
 ## 2026-08-06 — Shipped v1.9: tutorial page + strategy lessons page
 
 - **Account or agent:** unknown (not disclosed in-session)

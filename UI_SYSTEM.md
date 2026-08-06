@@ -59,13 +59,14 @@ for the main play screen:
 GameRoom
 └── ConnectedRoom
     ├── Lobby (phase = "lobby")
-    │   └── DealerAvatar (per bot seat)
+    │   └── DealerAvatar (per bot seat) / PlayerAvatar (per human seat)
     ├── PlayingView (phase = "playing")
+    │   ├── ShootScare (full-screen overlay, only while a scare is active)
     │   ├── PlayerHud × (others)
-    │   │   └── DealerAvatar (if bot)
+    │   │   └── DealerAvatar (if bot) / PlayerAvatar (if human)
     │   ├── ChamberBar
-    │   ├── EventLog
-    │   ├── PlayerHud (you)
+    │   ├── EventLog ("Table talk")
+    │   ├── PlayerHud (you) — also gets a PlayerAvatar as of 2026-08-06
     │   ├── TargetSelector (your turn only)
     │   ├── ItemCard × (your hand)
     │   └── ActionBar
@@ -81,11 +82,21 @@ presets, defined in `src/lib/themePresets.ts`:
 
 | id | name | emoji | background asset |
 |---|---|---|---|
-| `crimson` (default) | Crimson Noir | 🔴 | `public/backgrounds/bg-crimson.png` |
-| `neon` | Neon Tokyo | 🌃 | `public/backgrounds/bg-neon.png` |
-| `emerald` | Emerald | 🟢 | `public/backgrounds/bg-emerald.png` |
-| `sapphire` | Sapphire | 🔵 | `public/backgrounds/bg-sapphire.png` |
-| `violet` | Violet Dusk | 🟣 | `public/backgrounds/bg-violet.png` |
+| `crimson` (default) | Crimson Noir | 🔴 | `public/backgrounds/bg-crimson.svg` |
+| `neon` | Neon Tokyo | 🌃 | `public/backgrounds/bg-neon.svg` |
+| `emerald` | Emerald | 🟢 | `public/backgrounds/bg-emerald.svg` |
+| `sapphire` | Sapphire | 🔵 | `public/backgrounds/bg-sapphire.svg` |
+| `violet` | Violet Dusk | 🟣 | `public/backgrounds/bg-violet.svg` |
+
+**Background art history:** the original 5 backgrounds (through v1.9)
+were PNGs sharing one template — a glowing moon + vertical light-streaks
+over a city skyline, just recolored per theme. As of 2026-08-06 (v1.10)
+these were replaced with hand-authored SVG scenes (a rain-slicked brick
+alley, a glowing neon bar-sign, a fire escape, an overhead bulb),
+generated via a throwaway Python script (not committed) that reads each
+theme's actual `oklch()` `--primary`/`--accent` values, so the art and
+the live theme colors are always in sync. If you add a 6th theme, follow
+this SVG convention, not the old PNG one.
 
 **Mechanism:** `ThemePicker.tsx` writes the chosen id to
 `localStorage["chamber-seven:theme"]` and sets
@@ -121,12 +132,32 @@ pattern.
 
 ## Typography
 
-- **Sans:** `Geist` (`--font-geist-sans`), body text.
+As of 2026-08-06 (v1.10):
+
+- **Body/sans:** `Barlow` (`--font-body`, mapped to Tailwind's
+  `--font-sans`), all body text and UI chrome.
 - **Mono:** `Geist Mono` (`--font-geist-mono`), used for the event log
-  (`EventLog.tsx`, `font-mono`).
-- **Display:** `Bebas Neue` (`--font-display`), used for large headline
-  text (page titles, room code, match-end result).
+  (`EventLog.tsx`, `font-mono`). Unchanged in the v1.10 font pass.
+- **Display:** `Butcherman` (`--font-display`), a distressed
+  horror-poster face, used for large headline text (page titles, room
+  code, match-end result) *and* the small nav wordmark ("CHAMBER SEVEN")
+  — verified legible at both large and small sizes in a real browser.
 - All loaded via `next/font/google` in `layout.tsx`.
+
+**Previously `Geist` (sans) + `Bebas Neue` (display).** Both were
+replaced per user request ("I don't like the font"). While
+investigating, a real bug was found and fixed: `globals.css`'s `@theme
+inline` block had `--font-sans: var(--font-sans)` — a self-referential
+CSS custom property, which is invalid and silently falls back to the
+inherited/initial value. In practice this meant the `font-sans` utility
+(applied to `<html>` via `html { @apply font-sans }`) was never actually
+resolving to `Geist` at all — the site had been rendering the browser's
+default system font this entire time, regardless of what
+`next/font/google` had loaded. Fixed to `--font-sans: var(--font-body)`.
+**If you ever add another font variable here, verify it's wired end to
+end** (loaded in `layout.tsx` → referenced by the exact CSS variable name
+`@theme inline` maps `--font-sans`/`--font-display`/etc. to) rather than
+trusting that "it builds" means it renders — a build succeeds either way.
 
 ## Spacing / border radius / shadows
 
@@ -135,8 +166,8 @@ Tailwind defaults, plus a custom radius scale derived from one base:
 `calc()`'d as multiples of it (`globals.css`'s `@theme inline` block).
 No custom spacing scale beyond Tailwind's default. Card/panel shadows use
 inline `box-shadow`/`drop-shadow` utility classes rather than a named
-shadow scale (e.g. `.felt-panel`'s inset shadow, `DealerAvatar`'s
-`drop-shadow`).
+shadow scale (e.g. `.felt-panel`'s inset shadow, the shared
+`.duel-avatar` class's `drop-shadow`).
 
 ## Breakpoints
 
@@ -152,29 +183,55 @@ breakpoint values were found in any config file.
   throughout for entrance transitions (match-end screen, lobby player
   list, leaderboard rows, changelog cards).
 - **Custom CSS keyframes** (`globals.css` `@layer utilities`):
-  `dealer-idle` (breathing sway), `dealer-eye-pulse` (glow pulse),
-  `dealer-recoil` / `dealer-kick` (firing animation, triggered by a
-  `.dealer-avatar--firing` class toggled from React state in
-  `PlayerHud.tsx`/`Lobby.tsx` based on `firing`/`aim` props derived from
-  fresh event-log entries in `PlayingView.tsx`'s `useDealerFx`).
+  - `duel-idle` (breathing sway), `duel-eye-pulse` (glow pulse),
+    `duel-recoil` / `duel-kick` (firing animation, triggered by a
+    `.duel-avatar--firing` class toggled from React state in
+    `PlayerHud.tsx`/`Lobby.tsx` based on `firing`/`aim` props derived
+    from fresh event-log entries in `PlayingView.tsx`'s `useDealerFx`).
+    Shared by both `DealerAvatar.tsx` and `PlayerAvatar.tsx` (renamed
+    from `dealer-*`/`dealer-avatar*` to `duel-*`/`duel-avatar*` on
+    2026-08-06 when `PlayerAvatar` was introduced, specifically so both
+    components could reuse one animation implementation).
+  - `scare-flash` / `scare-pop` / `scare-shake` / `scare-caption`
+    (`.shoot-scare*` classes, added 2026-08-06) — the full-screen
+    jump-scare overlay (`ShootScare.tsx`): a radial color flash, the
+    avatar figure popping in/out, a subtle screen-shake on the overlay
+    container, and the caption text fading in/out. Triggered by
+    `PlayingView.tsx`'s `useShootScare` hook on a fresh `": LIVE."`-
+    suffixed log line involving the local player.
+  - `table-talk-in` / `table-talk-in-private` / `table-talk-bullet`
+    (`.table-talk__*` classes, added 2026-08-06) — entrance animation
+    for new `EventLog.tsx` ("Table talk") lines. Only fires for lines
+    that just mounted (React key = the log entry's stable `id`), so
+    re-renders don't replay it on already-visible lines.
 - **Health bar / shell pips:** `transition-[width]` /
   `transition-transform` for smooth HP-bar and peeked-shell state
   changes.
 
 ## Icon system
 
-`lucide-react` exclusively — no custom SVG icon set beyond the
-hand-authored `DealerAvatar` (which is a full illustration, not an
-"icon"). Every `ItemId` maps to exactly one `LucideIcon` in
-`src/components/game/itemIcons.tsx`; adding a new item **requires**
-adding an entry here (see `FILE_MAP.md`).
+`lucide-react` for in-app UI icons — no custom SVG icon set beyond the
+hand-authored `DealerAvatar`/`PlayerAvatar`/`ShootScare` (full
+illustrations, not "icons"). Every `ItemId` maps to exactly one
+`LucideIcon` in `src/components/game/itemIcons.tsx`; adding a new item
+**requires** adding an entry here (see `FILE_MAP.md`).
+
+**Site icon (browser tab / home screen):** `src/app/icon.tsx` and
+`src/app/apple-icon.tsx` (added 2026-08-06), Next.js's dynamic
+file-convention icon routes — generated at build/request time via
+`next/og`'s `ImageResponse` (JSX + inline `<svg>`, not a static file). A
+7-chamber revolver cylinder with one shell lit red, matching "Chamber
+Seven." Replaces the default create-next-app `favicon.ico` (deleted —
+having both would leave the old placeholder winning the literal
+`/favicon.ico` request in some browsers).
 
 ## Image assets
 
 All static, bundled at build time under `public/`:
 
-- `public/backgrounds/bg-<theme>.png` — 5 files, one per theme preset,
-  all referenced (`globals.css`).
+- `public/backgrounds/bg-<theme>.svg` — 5 files, one per theme preset,
+  all referenced (`globals.css`). **SVG as of 2026-08-06** (previously
+  `.png` — see Themes section above for the full history/rationale).
 - `public/bots/<botId>.png` — 12 files, one per `BOT_ROSTER` entry, all
   referenced (`BotCard.tsx`).
 - `public/career-hero.png` — 1 file, referenced (`career/page.tsx`).
@@ -190,10 +247,12 @@ All static, bundled at build time under `public/`:
 
 All game images were produced via hand-authored HTML/CSS/SVG scenes
 rasterized with Playwright (per prior session context — there is no
-image-generation tool available in this project's toolchain), not via an
-AI image generator or licensed asset pack. No licensing file/attribution
-exists for these images; treat them as originally created for this
-project.
+raster image-generation tool available in this project's toolchain), not
+via an AI image generator or licensed asset pack, **except** the 5
+`bg-<theme>.svg` background files (2026-08-06), which are plain SVG —
+not rasterized — generated by a throwaway Python script and referenced
+directly as `.svg` in `--bg-image`. No licensing file/attribution exists
+for these images; treat them as originally created for this project.
 
 ## Accessibility
 
@@ -283,6 +342,16 @@ matrix in the repo.
 - ~~The Lobby does not preview team assignments~~ — **fixed 2026-08-06**:
   team badges and the boss crown now preview in the lobby before a
   team-mode match starts.
+- ~~`--font-sans` was a self-referential CSS custom property, so the
+  site's body font silently never rendered `Geist` at all~~ — **fixed
+  2026-08-06**, and the font was swapped to `Barlow`/`Butcherman` in the
+  same pass — see Typography above.
+- ~~All 5 theme backgrounds shared one moon-and-light-streaks template,
+  just recolored~~ — **fixed 2026-08-06**: replaced with 5 genuinely
+  different hand-drawn SVG alley scenes — see Themes above.
+- ~~Human players had no avatar at all (only bots did, via
+  `DealerAvatar`)~~ — **fixed 2026-08-06**: `PlayerAvatar.tsx` gives
+  every human seat, including your own, the same animated treatment.
 - Default Next.js starter SVGs (`file.svg`, `globe.svg`, `next.svg`,
   `vercel.svg`, `window.svg`) remain in `public/` unused — cosmetic
   repo-cleanliness issue only, not a rendering bug.
