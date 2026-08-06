@@ -276,8 +276,8 @@ generated code in this repo.
   `state.ts`, add UI in `GameSettingsForm.tsx`, and surface any new
   per-player state in `redact()` + `RedactedPlayer` + the relevant UI
   components (`PlayerHud.tsx`, `TargetSelector.tsx`, `MatchEndView.tsx`).
-  This is exactly the pattern the in-progress, uncommitted v1.8 work
-  followed — see `PROJECT_STATE.md` and `DECISIONS.md`.
+  This is exactly the pattern the shipped v1.8 team-mode work followed
+  — see `PROJECT_STATE.md` and `DECISIONS.md`.
 - **Change themes:** `src/lib/themePresets.ts` (add a preset entry) +
   `src/app/globals.css` (add a matching `:root[data-theme="<id>"]`
   block) + a new `public/backgrounds/bg-<id>.png` asset.

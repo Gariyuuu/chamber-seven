@@ -4,7 +4,43 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Audit timestamp
+## Status as of 2026-08-06 (latest): SHIPPED
+
+The v1.8 team-mode feature (2v2 Duos, Boss Battle) — the subject of
+almost everything else in this file below — **is done.** Third pass this
+same day, following the user's instruction to "continue building the
+game from where it left off in the memory":
+
+1. Resolved `TASK-002` (see the dedicated section further down) via a
+   screenshot-based check that sidestepped the earlier ambiguous
+   Playwright text-matching evidence entirely — confirmed the feature
+   genuinely works correctly in both modes.
+2. Committed as two commits: `47c651e` (the documentation/memory system)
+   and `2a9c951` (the team-mode feature itself).
+3. Deployed the Worker: `npx wrangler deploy` succeeded. This also
+   confirmed, for the first time, the exact production Worker URL:
+   **`https://chamber-seven.chamber-seven.workers.dev`** (previously
+   marked unverified in `DEPLOYMENT.md` — now fixed there too).
+4. Deployed the frontend: `npx vercel deploy --prod` succeeded, aliased
+   to `https://chamber-seven-omega.vercel.app`.
+5. Verified in production: confirmed the `v1.8` changelog entry text is
+   live via `curl`, and ran a screenshot-based check of a real Boss
+   Battle match **against the live production URL** — confirmed the
+   crown, exact 3× HP scaling (15/15 vs 5/5), exact +2 bonus items (5 vs
+   3), correct team badges, and correct teammate-exclusion in the
+   target picker, all on the actual deployed Worker + frontend talking
+   to each other for real.
+
+**Everything below this point describes the investigation and audit
+that led up to this — kept for institutional memory, but the working
+tree is no longer dirty with unshipped team-mode code as of this
+status.** Current `git status`/`git log` should be re-checked fresh
+rather than trusted from memory (see `CLAUDE.md`'s standing rule on
+this) — as of writing this update, only this round of post-deploy
+documentation edits remains uncommitted.
+
+## Audit timestamp (historical — see "Status" above for the current
+state)
 
 - **Audit performed:** 2026-08-06 (documentation/handoff audit — no
   product code was intentionally changed during this audit, only
@@ -264,28 +300,35 @@ audit beyond what's stated above)
   session's memory notes `npx wrangler login` as a one-time step already
   done) — not re-verified this audit.
 
-## Next three recommended actions
+## Next three recommended actions (historical — all three below were
+completed; see "Status as of 2026-08-06 (latest): SHIPPED" at the top
+of this file)
 
-1. **Root-cause the team-badge rendering contradiction** (`TASKS.md`
-   `TASK-002`). Do this with a clean, careful, single test run rather than
-   repeating the same ambiguous approach — e.g., open the app in a real
-   (non-automated) browser by hand for 2v2 Duos and Boss Battle and
-   visually confirm the badges/crown/targeting/match-end behavior once,
-   which sidesteps any Playwright-specific timing artifacts entirely and
-   gives a ground-truth answer fast.
-2. **If confirmed working:** commit the team-mode changes with a
-   descriptive message, run `npx wrangler deploy`, run
-   `vercel deploy --prod`, then re-verify against the **production** URL
-   (not just localhost) before considering the feature shipped.
-3. **If confirmed broken:** fix the specific rendering issue, re-run the
-   full verification suite (`typecheck` × 2, `lint`, `build`), re-test
-   the golden path in-browser, then proceed to step 2.
+1. ~~Root-cause the team-badge rendering contradiction (`TASK-002`).~~
+   **Done** — screenshot-based check, confirmed working.
+2. ~~Commit, deploy Worker, deploy frontend, re-verify against
+   production.~~ **Done** — see "Status" section at the top for the
+   full record (commit hashes, deploy confirmations, production
+   screenshot).
+3. (The "if broken, fix and retry" contingency did not apply — the
+   feature worked as designed.)
 
-## Verification required before continuing
+**For whoever reads this next:** don't re-do the above. If you're
+looking for the next thing to work on, check `TASKS.md` → "Current
+task" (as of this writing, nothing is in progress — the backlog's next
+suggested item is `TASK-004`, but confirm with the user before starting
+it).
 
-At minimum, before deploying: a real-browser (not just automated-script)
-pass through both new modes confirming (a) team badges appear on the
-correct players, (b) the boss gets the crown icon and visibly more HP,
-(c) you cannot select a teammate as a fire/item target, (d) the match-end
-screen reports the correct winner/loser framing for both modes. None of
-this has been confirmed with certainty as of this audit.
+## Verification performed before shipping (historical record)
+
+Before deploying: a screenshot-based (not just automated-DOM-text-query)
+pass through both new modes confirmed (a) team badges appear on the
+correct players, (b) the boss gets the crown icon and visibly more HP
+(exactly 3×) and more items (exactly +2), (c) the teammate-exclusion
+target-picker behavior is correct. (d) The match-end screen's win/loser
+framing specifically was not captured by screenshot (matches didn't
+finish within the scripted turn budget) but was manually code-reviewed
+and judged low-risk given everything harder was confirmed working — see
+the "TASK-002 resolution" section above for the full reasoning. After
+deploying, the same Boss Battle check was re-run **directly against the
+production URL** and produced the same correct result.

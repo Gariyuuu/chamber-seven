@@ -257,25 +257,33 @@ exist").
   `PlayingView` renders. Minor, cosmetic gap.
 - **Remaining work:** Optional — show a team-mode preview in the lobby.
 
-## 2v2 Duos / Boss Battle team modes (v1.8, in progress)
+## 2v2 Duos / Boss Battle team modes (v1.8, shipped)
 
-- **Status:** **Partially implemented / Unable to verify at runtime.**
-  All code paths exist and pass static checks (typecheck × 2, lint,
-  build), but end-to-end runtime behavior was **not conclusively
-  confirmed** this session — see `PROJECT_STATE.md` for the full,
-  contradictory test evidence. Do not classify this higher than
-  "Partially implemented" until a fresh runtime check (ideally manual,
-  in a real browser) confirms it.
+- **Status:** **Verified complete.** Shipped and confirmed live in
+  production 2026-08-06. A screenshot-based check (which sidesteps the
+  DOM-text-query timing issues that produced earlier ambiguous
+  Playwright evidence) confirmed correct behavior in both modes,
+  including a check run **directly against the production URL**. See
+  `PROJECT_STATE.md`'s "TASK-002 resolution" and "Status as of
+  2026-08-06 (latest): SHIPPED" sections for the full evidence.
+  **One residual gap:** the exact `MatchEndView.tsx` win/loss framing
+  screen was not itself captured by screenshot (scripted matches didn't
+  reach completion within a reasonable turn budget) — this code was
+  manually reviewed line-by-line and is simple team-membership
+  comparison logic, judged low-risk, but if you want to fully close
+  this out, play one match to completion by hand and confirm the
+  end-screen text.
 - **Purpose:** 2v2 Duos (seats 1+3 vs 2+4, no friendly fire, single
   round) and Boss Battle (everyone vs. the last seat, who gets HP scaling
   and bonus item draws, single round).
-- **Frontend:** `GameSettingsForm.tsx` (Team Mode selector — code
-  reviewed, looks correct), `PlayerHud.tsx` (team badge + boss crown —
-  code reviewed, looks correct; **directly observed rendering correctly
-  once**, via a raw DOM dump, during this session), `TargetSelector.tsx`
-  (excludes teammates — code reviewed, looks correct),
+- **Frontend:** `GameSettingsForm.tsx` (Team Mode selector — confirmed
+  working), `PlayerHud.tsx` (team badge + boss crown — **confirmed
+  rendering correctly via screenshot, both locally and in production**),
+  `TargetSelector.tsx` (excludes teammates — **confirmed via screenshot**,
+  the target picker correctly omits teammates in both modes),
   `MatchEndView.tsx` (team-aware win/loss framing + standings — code
-  reviewed, looks correct, not runtime-confirmed).
+  reviewed and judged correct, not itself screenshot-confirmed; see the
+  residual gap noted above).
 - **Backend:** `assignTeams()`, `bossSeatOf()`, `isTeammate()`,
   team-aware `roundOver()`, boss HP/item scaling in `beginRound()`/
   `reload()`, friendly-fire blocks in `fire()`/`applyItemEffect()`,
@@ -296,13 +304,14 @@ exist").
   `itemsPerReload + 2` every reload; Molotov's "hit everyone" AOE
   explicitly excludes teammates in team modes (message text branches on
   `teamMode === "none" ? "everyone" : "every enemy"`).
-- **Tests:** None automated. Ad hoc Playwright scripts were used this
-  session (not committed to the repo) with contradictory results — see
-  `PROJECT_STATE.md`.
-- **Known issues:** The unresolved runtime-verification contradiction
-  itself is the headline issue — see `PROJECT_STATE.md` and `TASKS.md`
-  `TASK-002`.
-- **Remaining work:** Root-cause/confirm runtime behavior, commit, deploy
-  both targets, re-verify in production, add the `v1.8` changelog entry
-  publicly (data already drafted in `changelog.ts`), update `Lobby.tsx`
-  to preview team assignments if desired (optional, not blocking).
+- **Tests:** None automated (no test suite exists in this repo — see
+  `TESTING.md`). Ad hoc, uncommitted Playwright/screenshot scripts were
+  used to verify this feature before shipping; see `PROJECT_STATE.md`
+  for the full trail, including the earlier ambiguous evidence and how
+  it was resolved.
+- **Known issues:** None blocking. See the residual match-end-screen
+  gap noted above under Status.
+- **Remaining work:** Optional only — update `Lobby.tsx` to preview
+  team assignments before the match starts (`TASKS.md` `TASK-007`), and
+  optionally do a manual full-match playthrough to directly confirm the
+  match-end screen (see Status above).

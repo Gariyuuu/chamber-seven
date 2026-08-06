@@ -155,8 +155,7 @@ commit message)**.
 
 ### DEC-007 — Team modes are a single `TeamMode` enum unifying "2v2 Duos" and "Boss Battle" over shared primitives, not two separate feature branches
 - **Date:** This session (uncommitted, v1.8 in progress)
-- **Status:** Proposed / implemented, not yet deployed — see
-  `PROJECT_STATE.md`.
+- **Status:** Accepted, in production (shipped as v1.8, 2026-08-06).
 - **Context:** The user requested both a 2v2 mode and a boss-raid mode in
   the same request.
 - **Decision:** `TeamMode = "none" | "duos" | "boss"`; both non-"none"
@@ -183,7 +182,7 @@ commit message)**.
 
 ### DEC-008 — Boss seat is always the last active seat
 - **Date:** This session (uncommitted, v1.8 in progress)
-- **Status:** Proposed / implemented, not yet deployed.
+- **Status:** Accepted, in production (shipped as v1.8, 2026-08-06).
 - **Context:** Boss Battle needs a deterministic, simple rule for "who
   is the boss," and should work sensibly in vs-AI games where bots fill
   seats after the host.
@@ -205,7 +204,7 @@ commit message)**.
 
 ### DEC-009 — Team-mode matches are forced to a single round (`roundsToWin = 1`)
 - **Date:** This session (uncommitted, v1.8 in progress)
-- **Status:** Proposed / implemented, not yet deployed.
+- **Status:** Accepted, in production (shipped as v1.8, 2026-08-06).
 - **Context:** Multi-round matches track wins per-seat
   (`RoomState.roundWins: Record<SeatId, number>`); team modes would need
   per-*team* score tracking to support a "best of 3" team match.

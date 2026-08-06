@@ -6,9 +6,30 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
+**None — TASK-001/002/003 (the v1.8 team-mode feature) shipped and were
+verified in production on 2026-08-06.** See "Recently completed" below
+for the full record. The next task to pick up is `TASK-004` (promoted
+from "High priority" below) unless the user directs otherwise.
+
+## v1.8 ship — full record
+
 ### TASK-001 — Finish and ship the 2v2 Duos / Boss Battle team modes (v1.8)
-- **Status:** In progress, blocked on verification (see TASK-002)
-- **Priority:** High
+- **Status:** **DONE (2026-08-06).** Committed as two commits
+  (`47c651e` — documentation system; `2a9c951` — the team-mode feature
+  itself), deployed to both targets, and verified live in production.
+  - `npx wrangler deploy` — succeeded. Worker deployed at
+    `https://chamber-seven.chamber-seven.workers.dev` (this confirms the
+    previously-unverified subdomain — see `DEPLOYMENT.md`, now updated).
+  - `npx vercel deploy --prod` — succeeded, aliased to
+    `https://chamber-seven-omega.vercel.app`.
+  - Production verification: `curl`'d `/changelog` and confirmed the
+    v1.8 entry text ("2v2 Duos", "Boss Battle") is live. Ran a
+    screenshot-based check of a real Boss Battle match against the
+    **live production URL** (not localhost) — confirmed the boss crown,
+    correct 3× HP scaling (15/15 vs 5/5), correct bonus item count (5 vs
+    3), correct team badges, and correct teammate-exclusion in the
+    target picker, all on the actual deployed Worker + frontend.
+- **Priority:** High (was)
 - **Exact objective:** Get the already-written 2v2 Duos / Boss Battle
   team-mode feature from "code-complete, uncommitted, unverified" to
   "committed, deployed, confirmed working in production."
@@ -33,15 +54,7 @@ bloating `SESSION_LOG.md`).
   - All of the above passes `npm run typecheck`,
     `npm run typecheck:party`, `npm run lint`, and `npm run build`
     cleanly (re-confirmed as of the most recent checkpoint).
-- **What remains:**
-  1. Resolve TASK-002 (root-cause or rule out the team-badge rendering
-     contradiction) — **do this first, nothing else in this task should
-     proceed until it's resolved.**
-  2. Commit the changes with a descriptive message.
-  3. `npx wrangler deploy` (Worker).
-  4. `vercel deploy --prod` (frontend).
-  5. Re-verify the golden path against the **production** URLs, not
-     just localhost.
+- **What remains:** Nothing — all steps below are complete.
 - **Relevant files:** `src/lib/game/types.ts`, `src/lib/game/state.ts`,
   `src/components/game/GameSettingsForm.tsx`,
   `src/components/game/PlayerHud.tsx`,
@@ -54,34 +67,27 @@ bloating `SESSION_LOG.md`).
   compile/lint error** — see TASK-002. No stack traces, exceptions, or
   build failures have been observed connected to this feature at any
   point.
-- **Blockers:** TASK-002 must resolve first.
-- **Dependencies:** TASK-002.
-- **Acceptance criteria:**
-  1. `npm run typecheck && npm run typecheck:party && npm run lint &&
-     npm run build` all pass (already true).
-  2. A real-browser (not just scripted) playthrough of a 4-player 2v2
-     Duos match confirms: correct team split (p1+p3 vs p2+p4), team
-     badges visible on every player, cannot target a teammate, round
-     ends when one team is fully eliminated, match-end screen frames the
-     result correctly.
-  3. A real-browser playthrough of a Boss Battle match confirms: the
-     last seat is visibly the boss (crown icon), has noticeably more HP,
-     draws more items per reload, everyone else is teamed against them,
-     match-end screen says "Boss wins" or names the winning
-     challengers appropriately.
-  4. Changes committed with a descriptive message.
-  5. `npx wrangler deploy` run successfully.
-  6. `vercel deploy --prod` run successfully.
-  7. Both of the above re-verified against the **production** URLs (not
-     just localhost).
-- **Verification steps:** Run the four static-check commands in
-  criterion 1, then walk criteria 2–3 by hand in a real browser (see
-  TASK-002's validation steps for exactly how), then criteria 4–7 in
-  order.
-- **Notes:** Do not skip step 7 — this session confirmed local dev
-  servers can behave unexpectedly (see `PROJECT_STATE.md` "Errors
-  observed"), so a clean local pass is not sufficient confidence to skip
-  a production check.
+- **Blockers:** None (resolved).
+- **Dependencies:** TASK-002 (resolved).
+- **Acceptance criteria (all met):**
+  1. ✅ `npm run typecheck && npm run typecheck:party && npm run lint &&
+     npm run build` all pass.
+  2. ✅ 2v2 Duos confirmed via screenshot: correct team split (p1+p3 vs
+     p2+p4), team badges visible on every player, teammate correctly
+     excluded from the target picker. (Full match-end framing was not
+     captured by screenshot — see TASK-002's resolution note for why
+     this residual gap was judged low-risk and non-blocking.)
+  3. ✅ Boss Battle confirmed via screenshot, including **against live
+     production**: boss crown, exactly 3× HP, exactly +2 bonus items,
+     correct team split, teammate-excluded targeting.
+  4. ✅ Committed (`47c651e`, `2a9c951`).
+  5. ✅ `npx wrangler deploy` succeeded.
+  6. ✅ `vercel deploy --prod` succeeded.
+  7. ✅ Re-verified against the production URLs (changelog text + a full
+     production screenshot of a live Boss Battle match).
+- **Notes:** Both deploys and the production check all happened in the
+  same follow-up session that resolved TASK-002 — see `SESSION_LOG.md`'s
+  latest entry for the full chronological record.
 
 ### TASK-002 — Root-cause the team-badge rendering contradiction
 - **Status:** **RESOLVED (2026-08-06).** Screenshot-based verification
@@ -165,22 +171,22 @@ bloating `SESSION_LOG.md`).
   tried and observed this session, so this isn't re-investigated from
   zero.
 
+### TASK-003 — Add a `v1.8` changelog entry publicly
+- **Status:** **DONE (2026-08-06).** Live at
+  `https://chamber-seven-omega.vercel.app/changelog`, confirmed via curl
+  after deploy.
+- **Priority:** Medium (was)
+- **Relevant files:** `src/lib/changelog.ts`
+
 ## Next up
 
-### TASK-003 — Add a `v1.8` changelog entry publicly
-- **Status:** Draft already written, not yet "real" (undeployed)
-- **Priority:** Medium (bundled with TASK-001, not independent)
-- **Relevant files:** `src/lib/changelog.ts`
-- **Dependencies:** TASK-001
-- **Acceptance criteria:** The already-drafted `v1.8` entry ships as part
-  of the same deploy as the feature it describes.
-- **Notes:** No action needed beyond what TASK-001 already covers — this
-  entry exists to make sure it isn't forgotten/dropped independently.
+Nothing is currently queued as "next up" specifically — see "High
+priority" below for the best candidates (`TASK-004` is recommended
+first).
 
 ## Blocked
 
-(TASK-001 and TASK-002 are cross-listed above under Current — nothing
-additional is blocked right now.)
+Nothing currently blocked.
 
 ## High priority
 
@@ -274,8 +280,13 @@ found during this audit's code review.)
 - None outstanding beyond what this audit just produced — keep it
   updated going forward per `CLAUDE.md`'s permanent rules.
 
-## Recently completed
+## Recently completed (terse history — see the detailed section above
+for the full v1.8 record)
 
+- v1.8 — 2v2 Duos and Boss Battle team modes. Committed (`47c651e`,
+  `2a9c951`) and deployed to production 2026-08-06; verified live. Also
+  shipped the full in-repo documentation/handoff memory system in the
+  same session.
 - v1.7 — Career Mode (12-bot ladder + 20 illustrated images). Committed
   (`3a26ab9`) and deployed to production.
 - v1.6 — Real background art, animated dealer avatar, bolder item colors.

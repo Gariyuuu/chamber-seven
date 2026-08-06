@@ -86,7 +86,7 @@ not matching a newer type — see "Known inconsistencies" below).
   | `disconnectedAt` | `number \| null` | epoch ms, used for the reconnect-grace alarm |
   | `isBot` | `boolean` | |
   | `eliminated` | `boolean` | |
-  | `team` | `0 \| 1 \| null` | added for v1.8 team modes (uncommitted as of this audit) |
+  | `team` | `0 \| 1 \| null` | added for v1.8 team modes (shipped 2026-08-06) |
 
 - **Relationships:** All "relational" structure is nested/embedded — a
   room embeds all 4 possible players directly; there is no foreign-key-
@@ -215,7 +215,7 @@ erDiagram
         ItemId_array items "hidden from other players via redact()"
         boolean isBot
         boolean eliminated
-        int team "0 or 1 or null - added v1.8, uncommitted"
+        int team "0 or 1 or null - added v1.8, shipped"
     }
     LOG_ENTRY {
         string id

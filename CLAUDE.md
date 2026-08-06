@@ -41,11 +41,12 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
   `SECURITY.md`). **Not a commercial product** — no payments, no accounts,
   no user data retention beyond win-name/count.
 - **Production status:** **Deployed and publicly live** at
-  **https://chamber-seven-omega.vercel.app** (Vercel, frontend) backed by a
-  Cloudflare Worker (`chamber-seven.<account-subdomain>.workers.dev`,
-  exact subdomain not recorded in-repo — see `DEPLOYMENT.md`). As of this
-  audit (2026-08-06), the deployed version is **v1.7** (Career Mode). See
-  `PROJECT_STATE.md` for exactly what's deployed vs. what's only local.
+  **https://chamber-seven-omega.vercel.app** (Vercel, frontend) backed by
+  the Cloudflare Worker at **https://chamber-seven.chamber-seven.workers.dev**
+  (confirmed via a real deploy — see `DEPLOYMENT.md`). As of 2026-08-06,
+  the deployed version is **v1.8** (2v2 Duos / Boss Battle team modes,
+  shipped and verified live in production this same day). See
+  `PROJECT_STATE.md` for the exact deploy record.
 - **Repository type:** Single app, **not** a monorepo. One `package.json`
   at the root runs both the Next.js app and (via `wrangler`) the Cloudflare
   Worker; they share TypeScript source under `src/lib/game/` but are two
@@ -61,21 +62,17 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
 
 See `PROJECT_STATE.md` for the exact, timestamped snapshot. Summary:
 
-- **Latest deployed milestone:** v1.7 — Career Mode (12-bot ladder, 20
-  illustrated images). Live in production.
-- **Latest completed-but-undeployed milestone:** v1.8 — 2v2 Duos and Boss
-  Battle team modes. Code is written, typechecks, lints, and builds clean,
-  but is **uncommitted in the working tree and not deployed** to either
-  Vercel or the Worker.
-- **Current blockers:** None technical — the feature is code-complete and
-  passes all available static checks. It has **not been proven to work at
-  runtime**: manual/E2E verification of the team-mode UI was in progress
-  and inconclusive (see `PROJECT_STATE.md` and `TASKS.md` task
-  `TASK-002`) when work paused for this documentation audit.
-- **Highest-priority next task:** Finish runtime verification of the team
-  modes (`TASK-002`), then commit, deploy the Worker
-  (`npx wrangler deploy`), deploy the frontend (`vercel deploy --prod`),
-  and smoke-test in production. See `TASKS.md`.
+- **Latest deployed milestone:** v1.8 — 2v2 Duos and Boss Battle team
+  modes. Committed (`47c651e`, `2a9c951`), deployed to both the Worker
+  and Vercel, and verified live in production on 2026-08-06 (including a
+  screenshot-based check run directly against the production URL).
+- **Current blockers:** None. `TASK-001`/`TASK-002` are both resolved
+  and closed — see `TASKS.md` → "v1.8 ship — full record" for the
+  complete verification trail.
+- **Highest-priority next task:** No feature work is currently queued
+  by the user. The best next pick from the backlog is `TASK-004` (the
+  Career Mode venue-image discrepancy — the v1.7 changelog claims a
+  visual feature that isn't actually wired up) — see `TASKS.md`.
 
 ## Technology stack
 
@@ -572,16 +569,15 @@ Headline items:
    `career/page.tsx` (e.g. swap hero image by current tier) or correct
    the changelog claim. Status: **unresolved, not investigated further
    this session** (documentation-only audit; no code changes made).
-2. **Team modes (2v2 Duos, Boss Battle) are implemented but unverified at
-   runtime and undeployed.** See `PROJECT_STATE.md` `TASK-002` for the
-   exact state — static checks (typecheck/lint/build) all pass, but
-   in-browser confirmation that team badges/crown render and that a full
-   match resolves correctly was inconclusive due to flaky/ambiguous
-   Playwright test evidence (both a "works" and a "doesn't work" result
-   were observed across repeated runs against a hand-written, uncommitted
-   test script — root cause not conclusively isolated before this
-   documentation audit interrupted the work). **Do not assume this
-   feature works in production; it has not been deployed.**
+2. **RESOLVED — Team modes (2v2 Duos, Boss Battle) are live and verified.**
+   The earlier ambiguous Playwright text-matching evidence was resolved
+   by a screenshot-based check (which sidesteps DOM-text-query timing
+   issues entirely) — team badges, boss crown, exact HP/item scaling,
+   and teammate-exclusion in targeting were all confirmed correct, in
+   both modes, including a check run directly against **production**.
+   Shipped as v1.8 on 2026-08-06. See `PROJECT_STATE.md`'s "TASK-002
+   resolution" section for the full evidence and the (benign) root cause
+   of the earlier contradictory results.
 3. **Inconsistent local dev fallback host.** `useGameRoom.ts` defaults
    `NEXT_PUBLIC_PARTYKIT_HOST` to `127.0.0.1:1999` if unset;
    `leaderboardApi.ts` defaults to `127.0.0.1:8787`. `127.0.0.1:8787` is

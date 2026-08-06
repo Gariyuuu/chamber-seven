@@ -5,6 +5,120 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Shipped v1.8 (team modes): resolved TASK-002, committed, deployed, verified in production
+
+- **Account or agent:** unknown (not disclosed in-session)
+- **Goal:** The user said "continue building the game from where it
+  left off in the memory" — i.e., resume exactly where `TASKS.md` left
+  off: resolve `TASK-002` (the one open question blocking the v1.8
+  team-mode feature), then complete `TASK-001` (commit, deploy, verify
+  in production).
+- **Files inspected:** `git status`/`git log` (re-confirmed unchanged
+  from the prior checkpoint), `src/components/game/GameSettingsForm.tsx`
+  (to check a "two dialogs mounted" theory), `party/game.ts` /
+  `src/lib/ui/dialog.tsx` equivalent (Radix Dialog mounting behavior),
+  the live production site (via `curl` and Playwright/screenshots).
+- **Files changed (product code):** None — the team-mode source files
+  were already complete from the prior session; this session only
+  committed and deployed what already existed.
+- **Files changed (docs, post-ship sync):** `PROJECT_STATE.md` (added a
+  "TASK-002 resolution" section and a "Status: SHIPPED" banner at the
+  top), `TASKS.md` (marked TASK-001/002/003 done, moved to "Recently
+  completed", promoted TASK-004 as the suggested next pick),
+  `HANDOFF.md` (rewrote "current task" to reflect nothing is in
+  progress), `CLAUDE.md` (updated production status to v1.8, updated
+  the confirmed Worker subdomain, resolved the team-mode "Known issue"
+  entry), `DEPLOYMENT.md`/`.env.example` (filled in the now-confirmed
+  Worker URL, previously marked unverified), `FEATURES.md` (team-mode
+  status upgraded from "Partially implemented" to "Verified complete"),
+  `DATABASE.md`/`FILE_MAP.md`/`DECISIONS.md` (small wording fixes
+  removing stale "uncommitted"/"not yet deployed" language), this
+  `SESSION_LOG.md` entry.
+- **Commands run:**
+  - Code-inspection only (no browser) to debunk a loose thread from the
+    prior session: grepped `GameSettingsForm.tsx` for "single round" and
+    confirmed the "2v2 Duos"/"Boss Battle" hint text *itself* contains
+    that substring, separately from the Match Length section's own hint
+    — fully explaining an earlier "2 matches found" diagnostic result
+    without needing to invoke a dialog-duplication bug. Also read
+    `src/components/ui/dialog.tsx` and confirmed it's a standard
+    Radix `Dialog.Root`/`Portal`, which does not keep closed dialog
+    content mounted — further ruling out that theory.
+  - A new, screenshot-based Playwright verification (not committed to
+    the repo, scratch directory) against local `next dev -p 3900` +
+    `wrangler dev --port 8787`: set up a 2v2 Duos match and a Boss
+    Battle match, screenshotted the live "playing" state in both. Also
+    attempted full-match playouts to reach the match-end screen; neither
+    fully resolved within the script's turn budget (bot delays + large
+    item hands), so the match-end screen specifically was not
+    screenshot-confirmed (see Results).
+  - `npm run typecheck && npm run typecheck:party && npm run lint` —
+    not re-run this session (no product code changed since the last
+    time they were confirmed clean); `npm run build` likewise not
+    re-run standalone (superseded by the real `vercel deploy --prod`
+    build below, which succeeded).
+  - `git add` (two separate, scoped commits) + `git commit` ×2.
+  - `npx wrangler deploy` — real production deploy of the Worker.
+  - `npx vercel deploy --prod` — real production deploy of the frontend.
+  - `curl https://chamber-seven-omega.vercel.app/changelog` — confirmed
+    the v1.8 entry text is live.
+  - A second screenshot-based Playwright check, this time pointed at
+    `https://chamber-seven-omega.vercel.app` (real production, not
+    localhost) — set up and screenshotted a live Boss Battle match.
+- **Tests run:** No automated test suite exists (unchanged). The
+  screenshot-based checks above are the closest equivalent; they are
+  ad hoc and not committed to the repo, consistent with this project's
+  existing verification approach (see `TESTING.md`).
+- **Results:**
+  - **TASK-002 resolved:** both team modes render correctly — team
+    badges, boss crown, exact HP scaling (3×), exact bonus item draws
+    (+2), and teammate-exclusion in the target picker were all
+    confirmed via direct visual inspection of screenshots, both
+    mid-match and (for Boss Battle) deep into extended play. The
+    earlier contradictory automated-text-matching evidence from the
+    prior session is now understood to have been a benign test-script
+    artifact, not a real product defect — no product code was changed
+    to "fix" anything, because nothing needed fixing.
+  - **TASK-001 complete:** committed as `47c651e` (documentation system)
+    and `2a9c951` (the team-mode feature), deployed to both the
+    Cloudflare Worker (`https://chamber-seven.chamber-seven.workers.dev`
+    — this also newly confirms the exact subdomain, previously
+    unverified in the docs) and Vercel
+    (`https://chamber-seven-omega.vercel.app`), and re-verified against
+    the live production URLs.
+  - **One residual, non-blocking gap:** the `MatchEndView.tsx` win/loss
+    screen itself was not captured by screenshot (matches didn't finish
+    within the scripted turn budget in either local or production
+    checks). This code was manually reviewed line-by-line in the prior
+    session and judged low-risk (simple team-membership comparison, no
+    novel logic). Recorded as optional follow-up in `FEATURES.md`/
+    `TASKS.md`, not treated as blocking.
+- **Decisions made:** Judged the screenshot-based verification
+  sufficient to proceed to deployment without also forcing a full
+  match to completion (which would have required either a much larger
+  turn budget or manually intervening in bot play) — the parts of the
+  feature most likely to have a real bug (rendering, targeting
+  restrictions, HP/item math) were the parts directly confirmed; the
+  remaining match-end screen is simple, already-reviewed code with a
+  much smaller risk surface. Split the commit into two (documentation
+  system vs. game feature) rather than one large commit, for a cleaner
+  history.
+- **Problems found:** None new. The one loose thread carried over from
+  the prior session (the "2 dialogs mounted?" theory) was investigated
+  and resolved as a non-issue via code reading, not a real bug.
+- **Work completed:** Full `TASK-001`/`TASK-002`/`TASK-003` closure —
+  verified, committed, deployed, and confirmed live in production. Full
+  post-ship documentation sync across all affected memory files.
+- **Work remaining:** Nothing urgent. Optional backlog items remain in
+  `TASKS.md` (`TASK-004` through `TASK-008`) — none are blocking, none
+  were started this session (no explicit user request to do so).
+- **Recommended next action:** Ask the user what they want next, or
+  propose `TASK-004` (the Career Mode venue-image changelog
+  discrepancy) as the smallest, best-scoped backlog item if no other
+  direction is given.
+
+---
+
 ## 2026-08-06 — Final account-switch checkpoint (follow-up to the same-day audit below)
 
 - **Account or agent:** unknown (not disclosed in-session)

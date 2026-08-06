@@ -26,13 +26,15 @@ change touches `src/lib/game/**` (shared by both).
   - Other equivalent aliases observed:
     `chamber-seven-garywangsmes-8349s-projects.vercel.app`,
     `chamber-seven-git-main-garywangsmes-8349s-projects.vercel.app`.
-- **Backend:** `chamber-seven.<account-subdomain>.workers.dev` — the
-  exact `<account-subdomain>` is **not stored in this repository** (it's
-  a Cloudflare account-level setting configured once outside of any
-  file here). To find it: check the `NEXT_PUBLIC_PARTYKIT_HOST`
-  environment variable currently set on the live Vercel project (Vercel
-  dashboard → chamber-seven project → Settings → Environment Variables),
-  or run `npx wrangler deployments list` / check the Cloudflare
+- **Backend (confirmed via a real `npx wrangler deploy` run,
+  2026-08-06):** `https://chamber-seven.chamber-seven.workers.dev` — the
+  Cloudflare account's subdomain happens to match the Worker name
+  (`chamber-seven.chamber-seven.workers.dev`, not e.g. a personal
+  username-based subdomain). If this ever needs re-confirming: check the
+  `NEXT_PUBLIC_PARTYKIT_HOST` environment variable currently set on the
+  live Vercel project (Vercel dashboard → chamber-seven project →
+  Settings → Environment Variables), or run `npx wrangler deployments
+  list` / check the Cloudflare
   dashboard directly.
 
 ## Build command / output
