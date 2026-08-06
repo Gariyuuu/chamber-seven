@@ -7,7 +7,7 @@ import { useGameRoom } from "@/hooks/useGameRoom";
 import { Lobby } from "./Lobby";
 import { PlayingView } from "./PlayingView";
 import { MatchEndView, CareerReward } from "./MatchEndView";
-import { Loader2, ScrollText, Skull, Trophy } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, ScrollText, Skull, Trophy } from "lucide-react";
 import { GameSettings, ItemId } from "@/lib/game/types";
 import { ThemePicker } from "./ThemePicker";
 import { botById } from "@/lib/game/bots";
@@ -122,6 +122,20 @@ function ConnectedRoom({
           <span className="text-muted-foreground">
             Table <span className="font-medium text-foreground">{state.roomId}</span>
           </span>
+          <Link
+            href="/tutorial"
+            className="hidden items-center gap-1 text-muted-foreground transition-colors hover:text-accent sm:flex"
+          >
+            <BookOpen className="size-3.5" />
+            How to play
+          </Link>
+          <Link
+            href="/lessons"
+            className="hidden items-center gap-1 text-muted-foreground transition-colors hover:text-accent sm:flex"
+          >
+            <GraduationCap className="size-3.5" />
+            Lessons
+          </Link>
           <Link
             href="/leaderboard"
             className="hidden items-center gap-1 text-muted-foreground transition-colors hover:text-accent sm:flex"

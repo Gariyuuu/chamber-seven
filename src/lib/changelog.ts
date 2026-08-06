@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.9",
+    date: "2026-08-06",
+    title: "A tutorial and a strategy lessons page",
+    changes: [
+      "New \"How to play\" page: the full rules, every game mode explained, and a complete glossary of all 23 items grouped by category — no more guessing what an item does from its name alone.",
+      "New \"Lessons\" page: real strategy tied to the actual mechanics — reading chamber odds, when to shoot yourself, item sequencing, and mode-specific plays for 2v2 Duos, Boss Battle, and Career Mode.",
+      "Both are linked from the landing page footer and the in-game header.",
+      "Career Mode's venue backdrops (mentioned in the 1.7 notes below) are now actually wired up — the hero image escalates with your next opponent's tier instead of staying static.",
+    ],
+  },
+  {
     version: "1.8",
     date: "2026-08-06",
     title: "2v2 Duos and Boss Battle team modes",

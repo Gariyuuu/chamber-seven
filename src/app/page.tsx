@@ -18,7 +18,7 @@ import { GameSettingsForm } from "@/components/game/GameSettingsForm";
 import { generateRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { DEFAULT_SETTINGS } from "@/lib/game/state";
-import { Bot, ScrollText, Skull, Swords, Trophy, Users } from "lucide-react";
+import { Bot, BookOpen, GraduationCap, ScrollText, Skull, Swords, Trophy, Users } from "lucide-react";
 import { Flourish } from "@/components/game/Flourish";
 import { ThemePicker } from "@/components/game/ThemePicker";
 import Link from "next/link";
@@ -247,7 +247,21 @@ export default function HomePage() {
         <p className="text-[0.7rem] tracking-widest text-muted-foreground/70 uppercase">
           House rules apply. Good luck.
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/tutorial"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
+          >
+            <BookOpen className="size-3.5" />
+            How to play
+          </Link>
+          <Link
+            href="/lessons"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
+          >
+            <GraduationCap className="size-3.5" />
+            Lessons
+          </Link>
           <Link
             href="/leaderboard"
             className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-accent"
