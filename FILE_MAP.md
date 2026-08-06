@@ -25,11 +25,13 @@ where noted.
   `ClientMessage`/`ServerMessage` shape requires redeploying both the
   Worker and the frontend together (see `CLAUDE.md` → Critical rules).
 
-### `src/lib/game/state.ts` (929 lines — the engine)
+### `src/lib/game/state.ts` (~940 lines — the engine)
 - **Purpose:** The entire game state machine. Settings clamping
   (`clampSettings`), room/player creation (`createRoom`, `makePlayer`),
   seat/team helpers (`activeSeats`, `aliveActiveSeats`, `bossSeatOf`,
-  `assignTeams`, `isTeammate`, `roundOver`), turn resolution (`fire`,
+  `assignTeams`, `isTeammate`, `roundOver`, and the exported pure
+  `teamForSeatIndex()` that both `assignTeams()` and the lobby's
+  client-side team preview call), turn resolution (`fire`,
   `passTurnFrom`, `nextAliveSeat`), the full item-effect switch
   (`applyItemEffect`, `playItem`), redaction (`redact`), and the bot AI
   (`runBotStep`, `botActionDelayMs`).
@@ -202,9 +204,9 @@ where noted.
 | `GameSettingsForm.tsx` | The settings editor used by both "Host a Table" and "Play vs AI" dialogs. Owns player-count/team-mode/rounds/HP/items-per-reload/enabled-items controls and their cross-field invariants. | High — must keep its client-side invariants in sync with `clampSettings()` server-side, or the UI will show states the server will silently correct/reject. |
 | `PlayerHud.tsx` | One player's row: avatar (bot) or name, team badge, boss crown, connection/elimination icons, health bar, item count, turn indicator. | Medium |
 | `TargetSelector.tsx` | The row of target chips shown on your turn; excludes eliminated players and (in team modes) your own teammates. | Medium — must stay in sync with server-side `isTeammate()` targeting rules, or the UI will let you attempt an action the server then rejects. |
-| `MatchEndView.tsx` | End-of-match screen: win/loss framing, career reward panel, FFA standings or team-mode standings, rematch/leave or "back to career" actions. | Medium |
+| `MatchEndView.tsx` | End-of-match screen: win/loss framing, career reward panel (now with a `victory-burst.png` glow on level-up), FFA standings or team-mode standings, rematch/leave or "back to career" actions. | Medium |
 | `PlayingView.tsx` | The main in-round layout: opponent HUDs, chamber bar, event log, your HUD, target selector, hand, action bar. Also derives the dealer-avatar firing animation cue from fresh log lines (`useDealerFx`). | Medium |
-| `Lobby.tsx` | Pre-game waiting room: room code display, invite-link copy, player list, "Start the Game" (disabled until everyone's connected). | Low — does **not** currently show team-mode assignments before the game starts (a UX gap, not a bug — see `FEATURES.md`). |
+| `Lobby.tsx` | Pre-game waiting room: room code display, invite-link copy, player list (now with a team badge / boss crown preview via `teamForSeatIndex()`, see `state.ts`), "Start the Game" (disabled until everyone's connected). | Low |
 | `ActionBar.tsx` | The big "Fire" button (self vs. target framing). | Low |
 | `ItemCard.tsx` | One item in your hand — icon, name, tooltip description, click-to-use. | Low |
 | `ChamberBar.tsx` | Visual pip row for remaining shells + the peeked-shell reveal. | Low |

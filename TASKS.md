@@ -6,10 +6,11 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
-**None — TASK-001/002/003 (the v1.8 team-mode feature) shipped and were
-verified in production on 2026-08-06.** See "Recently completed" below
-for the full record. The next task to pick up is `TASK-004` (promoted
-from "High priority" below) unless the user directs otherwise.
+**None.** The entire backlog as of the 2026-08-06 documentation audit
+(`TASK-001` through `TASK-008`) is complete, committed, deployed, and
+verified live in production. See "Recently completed" below for the
+full record. Nothing is queued — wait for the user's next direction
+rather than inventing new work.
 
 ## v1.8 ship — full record
 
@@ -180,9 +181,10 @@ from "High priority" below) unless the user directs otherwise.
 
 ## Next up
 
-Nothing is currently queued as "next up" specifically — see "High
-priority" below for the best candidates (`TASK-004` is recommended
-first).
+Nothing is currently queued. `TASK-004` through `TASK-008` (the entire
+prior backlog) were completed, committed, deployed, and verified live
+in production on 2026-08-06, in the same session that shipped v1.8 —
+see "Recently completed" below.
 
 ## Blocked
 
@@ -190,81 +192,83 @@ Nothing currently blocked.
 
 ## High priority
 
-### TASK-004 — Decide the fate of the unused venue/tier images
-- **Status:** Not started
-- **Priority:** High-ish (it's a documentation-vs-reality mismatch, not a
-  functional bug, but the changelog actively misrepresents what shipped)
-- **Relevant files:** `public/venues/tier1.png`–`tier6.png`,
-  `public/victory-burst.png`, `src/app/career/page.tsx`,
-  `src/lib/game/bots.ts` (`BotProfile.tier`), `src/lib/changelog.ts`
-  (the v1.7 entry's claim)
-- **Acceptance criteria:** Either (a) wire `bot.tier` to swap the Career
-  Mode hero background per current tier and find a use for
-  `victory-burst.png` (e.g. the Career Mode `MatchEndView` reward panel
-  on a win), or (b) edit the v1.7 changelog entry to stop claiming this
-  shipped. Pick one — don't leave the contradiction standing.
-- **Notes:** See `FEATURES.md` → Career Mode for the full write-up of
-  this discrepancy.
+Nothing outstanding.
 
 ## Medium priority
 
-### TASK-005 — Fix the inconsistent local-dev WebSocket host fallback
-- **Status:** Not started
-- **Priority:** Medium (cosmetic/consistency, `.env.local` masks it in
-  practice)
-- **Relevant files:** `src/hooks/useGameRoom.ts` (fallback
-  `"127.0.0.1:1999"`), `src/lib/leaderboardApi.ts` (fallback
-  `"127.0.0.1:8787"`)
-- **Acceptance criteria:** Both fallbacks agree (should both be
-  `127.0.0.1:8787`, matching `wrangler dev --port 8787`).
-
-### TASK-006 — Remove or use the `zustand` dependency
-- **Status:** Not started
-- **Priority:** Medium
-- **Relevant files:** `package.json`
-- **Acceptance criteria:** Confirm (fresh grep, don't trust this note
-  blindly per `CLAUDE.md` rule 16) that `zustand` is genuinely unused,
-  then either remove it from `package.json`/`package-lock.json` or start
-  using it deliberately for a real need.
-
-### TASK-007 — Show team assignments in the pre-game lobby
-- **Status:** Not started
-- **Priority:** Medium (nice-to-have UX, only relevant once TASK-001
-  ships)
-- **Relevant files:** `src/components/game/Lobby.tsx`
-- **Acceptance criteria:** When `state.settings.teamMode !== "none"`, the
-  lobby player list shows which team each seat will be on (and which
-  seat will be the boss, for Boss Battle) before the match starts.
-- **Dependencies:** TASK-001.
+Nothing outstanding.
 
 ## Low priority
 
+Nothing outstanding.
+
+## Closed backlog (2026-08-06) — see "Recently completed" for the full record
+
+### TASK-004 — Decide the fate of the unused venue/tier images
+- **Status:** **DONE.** Went with option (a): wired `bot.tier` (via
+  `nextOpponent(career)?.tier ?? 6`) into a layered venue backdrop
+  behind the Career hub's hero banner (`src/app/career/page.tsx`), and
+  gave `victory-burst.png` a job as a soft glow behind the level-up
+  panel on `MatchEndView.tsx`. Verified via screenshot, both locally and
+  against production.
+- **Commit:** `51afb5e`.
+
+### TASK-005 — Fix the inconsistent local-dev WebSocket host fallback
+- **Status:** **DONE.** `useGameRoom.ts`'s fallback now matches
+  `leaderboardApi.ts`'s (`127.0.0.1:8787`).
+- **Commit:** `6d55991`.
+
+### TASK-006 — Remove or use the `zustand` dependency
+- **Status:** **DONE.** Re-confirmed unused via a fresh grep, then
+  removed from `package.json` + regenerated `package-lock.json` via
+  `npm install`.
+- **Commit:** `71c3956`.
+
+### TASK-007 — Show team assignments in the pre-game lobby
+- **Status:** **DONE.** Extracted a pure `teamForSeatIndex(teamMode,
+  index, seatCount)` helper in `state.ts` (also used by the real
+  `assignTeams()`, eliminating any risk of the preview drifting from
+  the real rule), and used it in `Lobby.tsx` to show the same team
+  badge / boss crown treatment as the in-game HUD, before the round
+  starts. Verified via screenshot for both Duos and Boss Battle, both
+  locally and against production.
+- **Commit:** `83c6c3f`.
+
 ### TASK-008 — Update the stale root `README.md`
-- **Status:** Not started
-- **Priority:** Low (this memory system is now authoritative; README is
-  the human-facing front door on GitHub, still worth fixing eventually)
-- **Relevant files:** `README.md`
-- **Acceptance criteria:** README reflects 2–4 player FFA, Career Mode,
-  and (once shipped) team modes — not just the original 2-player
-  description.
+- **Status:** **DONE.** Now describes the 2–4 player FFA, vs-AI, Career
+  Mode, team modes, leaderboard, and theme picker; documents the
+  `npx wrangler types` first-time-setup step; points to the in-repo
+  documentation system for depth.
+- **Commit:** `ea9728b`.
 
 ## Bugs
 
-(See TASK-002, TASK-004, TASK-005 above — no additional confirmed bugs
-found during this audit's code review.)
+None outstanding. TASK-002/004/005 (the only items ever tracked here)
+are all resolved — see "Closed backlog" above and "Recently completed"
+below.
 
 ## Technical debt
 
-- `zustand` unused dependency — TASK-006.
+- ~~`zustand` unused dependency~~ — **removed**, TASK-006 (`71c3956`).
 - No shared `<Nav>`/header component — every page repeats its own header
   JSX (`src/app/**/page.tsx`). Not urgent, but a future page addition
   would benefit from extracting this.
-- `src/lib/game/state.ts` is 929 lines in one file. Intentionally kept
+- `src/lib/game/state.ts` is ~940 lines in one file. Intentionally kept
   together (shared verbatim between two runtimes, single source of
   truth) — see `DECISIONS.md` — but if it keeps growing, consider
   splitting by concern (e.g. `state/items.ts` for `applyItemEffect`,
   `state/bots.ts` for the AI) while keeping a single barrel export, so
   both `tsconfig.json` projects still see one clean import surface.
+- `npm audit` (run 2026-08-06 while regenerating the lockfile for
+  TASK-006) reports 3 vulnerabilities (2 moderate, 1 high) in `undici`,
+  transitively via `wrangler`'s bundled `miniflare` (local Worker dev
+  simulation only — not part of the deployed Worker runtime bundle, and
+  not reachable from application code). `npm audit fix --force` would
+  downgrade `wrangler` from `4.118.0` to `4.35.0`, a large breaking
+  change to core deploy tooling — **not applied**, needs a deliberate
+  decision (e.g. wait for an in-range `wrangler` patch that bumps its
+  own `undici`, rather than force-downgrading). Not blocking anything
+  today. See `SECURITY.md`.
 
 ## Testing needed
 
@@ -283,6 +287,11 @@ found during this audit's code review.)
 ## Recently completed (terse history — see the detailed section above
 for the full v1.8 record)
 
+- Post-v1.8 backlog cleanup — Career Mode venue backdrops + victory
+  burst wired up, local-dev host fallback fixed, `zustand` removed,
+  lobby team/boss preview added, `README.md` updated. Committed as 5
+  separate commits (`51afb5e`, `6d55991`, `71c3956`, `83c6c3f`,
+  `ea9728b`), deployed to production 2026-08-06, verified live.
 - v1.8 — 2v2 Duos and Boss Battle team modes. Committed (`47c651e`,
   `2a9c951`) and deployed to production 2026-08-06; verified live. Also
   shipped the full in-repo documentation/handoff memory system in the

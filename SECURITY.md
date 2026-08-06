@@ -171,16 +171,23 @@ not enforced by any storage-layer policy.
 
 ## Dependency concerns
 
-- No known-vulnerable-dependency scan was run as part of this audit
-  (would require `npm audit` or similar, which was not executed since
-  it makes outbound network calls and this audit favored a fully
-  offline, read-only posture — **flagging as unverified, not as
-  clean**). Recommend running `npm audit` in a future session before
-  treating dependencies as vetted.
-- `zustand` is an installed-but-unused dependency (see `CLAUDE.md`,
-  `TASKS.md` `TASK-006`) — not a security issue per se, but unused
-  dependencies are unnecessary attack surface/supply-chain exposure in
-  principle.
+- **`npm audit` run 2026-08-06** (while regenerating the lockfile after
+  removing `zustand`): 3 vulnerabilities (2 moderate, 1 high), all in
+  `undici`, transitively via `wrangler`'s bundled `miniflare`. This is
+  Cloudflare's *local Worker dev simulation* dependency — it runs only
+  during `wrangler dev`, not as part of the deployed Worker (which runs
+  on Cloudflare's own edge runtime, not `undici`) and is not reachable
+  from any application code path. **Not exploitable via the live app.**
+  The suggested automatic fix (`npm audit fix --force`) would
+  force-downgrade `wrangler` from `4.118.0` to `4.35.0` — a large,
+  unrelated breaking change to core deploy tooling — so it was
+  **deliberately not applied**. Recommended real fix: wait for (or
+  manually bump to) a `wrangler` release that pins a patched `undici`
+  within the current major version, rather than downgrading. Re-run
+  `npm audit` periodically to check whether this has resolved upstream.
+- ~~`zustand` unused dependency~~ — **removed** 2026-08-06 (`TASK-006`,
+  commit `71c3956`), after re-confirming via a fresh grep it was
+  genuinely unused.
 
 ## Production security gaps (headline list)
 

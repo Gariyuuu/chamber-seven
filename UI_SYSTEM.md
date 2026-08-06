@@ -169,10 +169,11 @@ All static, bundled at build time under `public/`:
 - `public/bots/<botId>.png` — 12 files, one per `BOT_ROSTER` entry, all
   referenced (`BotCard.tsx`).
 - `public/career-hero.png` — 1 file, referenced (`career/page.tsx`).
-- `public/venues/tier1.png`–`tier6.png` — 6 files, **unreferenced by any
-  source file** (verified via repo-wide grep). See `FEATURES.md` and
-  `TASKS.md` `TASK-004`.
-- `public/victory-burst.png` — 1 file, **unreferenced**. Same caveat.
+- `public/venues/tier1.png`–`tier6.png` — 6 files, referenced (as of
+  2026-08-06) by `career/page.tsx`, layered behind the Career hub's hero
+  banner and selected by the next opponent's tier.
+- `public/victory-burst.png` — 1 file, referenced (as of 2026-08-06) by
+  `MatchEndView.tsx`, a soft glow behind the level-up panel.
 - `public/*.svg` (`file.svg`, `globe.svg`, `next.svg`, `vercel.svg`,
   `window.svg`) — the default Next.js starter template icons, also
   **unreferenced** by any source file found in this repo (leftover
@@ -266,10 +267,13 @@ matrix in the repo.
 
 ## Known visual inconsistencies
 
-- Career Mode's hero background does not change with progression despite
-  the changelog implying it should (see `FEATURES.md`).
-- The Lobby does not preview team assignments before a team-mode match
-  starts (see `FEATURES.md`, `TASKS.md` `TASK-007`).
+- ~~Career Mode's hero background does not change with progression~~ —
+  **fixed 2026-08-06**: it now layers the tier-appropriate
+  `public/venues/tier<N>.png` behind the hero banner, escalating with
+  the next opponent's tier.
+- ~~The Lobby does not preview team assignments~~ — **fixed 2026-08-06**:
+  team badges and the boss crown now preview in the lobby before a
+  team-mode match starts.
 - Default Next.js starter SVGs (`file.svg`, `globe.svg`, `next.svg`,
   `vercel.svg`, `window.svg`) remain in `public/` unused — cosmetic
   repo-cleanliness issue only, not a rendering bug.

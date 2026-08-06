@@ -116,21 +116,20 @@ exist").
   is static); no server round-trip for the hub page itself.
 - **Edge cases:** `isCareerComplete()` — "Roster cleared" / "Legend" rank
   shown once every bot is defeated.
-- **Known issue — verified via repo-wide grep:** the v1.7 changelog entry
-  claims "6 mood-lit venue backdrops that escalate from a dim back alley
-  to a blood-red penthouse as you climb the ladder." **This is not
-  actually implemented.** `public/venues/tier1.png`–`tier6.png` exist as
-  files but are never referenced by `career/page.tsx` or any other source
-  file (confirmed: zero matches for `venue`/`tier1`.. outside a code
-  comment and the changelog string itself). The Career Mode page shows
-  one single static `career-hero.png` regardless of the player's current
-  tier. `public/victory-burst.png` is similarly unreferenced.
-  **Classify the "escalating venue backdrop" feature specifically as:
-  Planned / not implemented, despite the changelog claiming it shipped.**
-- **Remaining work:** Either wire `bot.tier` → a matching
-  `public/venues/tier<N>.png` background on the career hub (and/or the
-  in-match background) and remove/repurpose `victory-burst.png`, or
-  correct the changelog's claim to match reality.
+- **RESOLVED (2026-08-06):** the v1.7 changelog entry's claim of "6
+  mood-lit venue backdrops that escalate from a dim back alley to a
+  blood-red penthouse as you climb the ladder" is now actually true.
+  `career/page.tsx` layers `public/venues/tier${venueTier}.png` (where
+  `venueTier = nextOpponent(career)?.tier ?? 6`) behind the existing
+  hero banner, so the backdrop escalates with the next opponent's tier
+  and settles on the final (tier 6) venue once the roster is cleared.
+  `public/victory-burst.png` now provides a soft celebratory glow behind
+  the level-up panel on `MatchEndView.tsx`. Verified via screenshot,
+  both locally and against production.
+- **Remaining work:** None for this discrepancy. (Optional, unrelated
+  polish: the venue backdrop currently only appears on the Career hub,
+  not carried into the in-match view — not part of the original
+  changelog claim, so not treated as required.)
 
 ## Item system (23 items)
 
@@ -251,11 +250,13 @@ exist").
   the same seat without losing game state; failing to reconnect within
   the grace period forfeits the seat (`forfeitSeat()`), which can end the
   round/match if it leaves only one team/seat alive.
-- **Known gap (UX, not a bug):** `Lobby.tsx` does not currently preview
-  team assignments (which seats will be on which team) before the match
-  starts, even when `teamMode !== "none"` — teams are only visible once
-  `PlayingView` renders. Minor, cosmetic gap.
-- **Remaining work:** Optional — show a team-mode preview in the lobby.
+- **RESOLVED (2026-08-06):** `Lobby.tsx` now previews team assignments
+  (and the boss crown) before the match starts, whenever
+  `teamMode !== "none"` — via a new pure `teamForSeatIndex()` helper in
+  `state.ts`, shared with the real `assignTeams()` so the preview can't
+  drift from the actual rule. Verified via screenshot for both Duos and
+  Boss Battle, both locally and against production.
+- **Remaining work:** None.
 
 ## 2v2 Duos / Boss Battle team modes (v1.8, shipped)
 

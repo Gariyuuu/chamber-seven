@@ -5,6 +5,91 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Cleared the entire remaining backlog (TASK-004–TASK-008)
+
+- **Account or agent:** unknown (not disclosed in-session)
+- **Goal:** The user asked about Career Mode's bot-difficulty system
+  (confirmed already shipped, v1.7), then said: "do all the other tasks
+  unfinished only tell me when ur done with every single task left" —
+  i.e., clear `TASKS.md`'s entire remaining backlog (`TASK-004` through
+  `TASK-008`) autonomously, without checking in until finished.
+- **Files inspected:** `TASKS.md` (full re-read to confirm exact
+  acceptance criteria per task), `public/venues/*.png` +
+  `public/victory-burst.png` (viewed directly to understand what the
+  assets actually look like before deciding how to wire them in),
+  `src/app/career/page.tsx`, `src/components/game/MatchEndView.tsx`,
+  `src/hooks/useGameRoom.ts`, `src/lib/leaderboardApi.ts`,
+  `package.json` (+ fresh grep confirming `zustand` unused),
+  `src/components/game/Lobby.tsx`, `src/lib/game/state.ts`
+  (`assignTeams`/`bossSeatOf`), `README.md`.
+- **Files changed:**
+  - **TASK-004:** `src/app/career/page.tsx` (layered venue backdrop,
+    selected by `nextOpponent(career)?.tier ?? 6`),
+    `src/components/game/MatchEndView.tsx` (victory-burst glow behind
+    the level-up panel).
+  - **TASK-005:** `src/hooks/useGameRoom.ts` (host fallback
+    `127.0.0.1:1999` → `127.0.0.1:8787`).
+  - **TASK-006:** `package.json` (`zustand` removed), `package-lock.json`
+    (regenerated via `npm install`).
+  - **TASK-007:** `src/lib/game/state.ts` (extracted a new exported pure
+    `teamForSeatIndex(teamMode, index, seatCount)`, `assignTeams()`
+    refactored to call it), `src/components/game/Lobby.tsx` (team badge
+    + boss crown preview using the same helper).
+  - **TASK-008:** `README.md` (rewritten for the current feature set).
+  - **Docs sync (this session):** `TASKS.md`, `PROJECT_STATE.md`,
+    `HANDOFF.md`, `CLAUDE.md`, `FEATURES.md`, `DECISIONS.md` (new
+    `DEC-012`), `SECURITY.md`, `FILE_MAP.md`, `UI_SYSTEM.md`, this
+    `SESSION_LOG.md` entry.
+- **Commands run:**
+  - `npm install` (to remove `zustand` from the lockfile) — surfaced 3
+    pre-existing `npm audit` findings (moderate/high, `undici` via
+    `wrangler`'s bundled `miniflare`, dev-only). Inspected with
+    `npm audit` (no `--fix`); the automatic fix would force-downgrade
+    `wrangler` ~80 versions, judged disproportionately risky for an
+    unrelated cleanup task — **not applied**, recorded in `SECURITY.md`/
+    `TASKS.md` instead.
+  - `npm run typecheck && npm run typecheck:party && npm run lint &&
+    npm run build` — all four passed clean after all 5 tasks' changes.
+  - A screenshot-based smoke test (local `next dev -p 3900` +
+    `wrangler dev --port 8787`, ad hoc/uncommitted Playwright script):
+    captured the Career hub hero (venue backdrop visible) and the lobby
+    for both 2v2 Duos and Boss Battle (team badges + boss crown preview
+    correct in both) — all confirmed by directly viewing the images.
+  - `git add`/`git commit` × 5 (one per task, for a clean, reviewable
+    history).
+  - `npx wrangler deploy` — real production Worker deploy.
+  - `npx vercel deploy --prod` — real production frontend deploy.
+  - A second screenshot-based check, this time against
+    `https://chamber-seven-omega.vercel.app` directly: re-confirmed the
+    Career hero venue backdrop and the lobby Duos team preview live in
+    production.
+- **Tests run:** No automated test suite exists (unchanged). Screenshots
+  viewed directly (not just DOM-text-matched) were the verification
+  method throughout, consistent with the approach that resolved
+  `TASK-002` in the prior session.
+- **Results:** All 5 backlog tasks completed, verified via direct visual
+  inspection (both locally and in production), committed as 5 separate,
+  focused commits, and deployed to both targets. `TASKS.md`'s entire
+  backlog as of the 2026-08-06 documentation audit is now closed — no
+  task remains queued.
+- **Decisions made:** Chose option (a) for `TASK-004` (wire the images
+  in) over option (b) (edit the changelog claim) — the assets already
+  existed and were higher-value to use than to discard. Chose not to
+  apply `npm audit fix --force` (surfaced as a side effect of TASK-006,
+  not itself a requested task) given the disproportionate risk of the
+  only available automatic fix. Split commits one-per-task rather than
+  one large commit, matching the pattern from the v1.8 ship.
+- **Problems found:** None blocking. The `npm audit` findings (above)
+  are the only new issue surfaced this session, and are dev-tooling-only
+  with no path to the deployed application.
+- **Work completed:** The entire backlog. See "Results" above.
+- **Work remaining:** Nothing queued. `TASKS.md` → "Current task" says
+  "None."
+- **Recommended next action:** None pending — wait for the user's next
+  direction rather than inventing new work.
+
+---
+
 ## 2026-08-06 — Shipped v1.8 (team modes): resolved TASK-002, committed, deployed, verified in production
 
 - **Account or agent:** unknown (not disclosed in-session)

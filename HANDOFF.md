@@ -4,10 +4,10 @@ You are picking up **Chamber Seven** with no memory of any prior
 conversation. This file is your fastest path to being useful. Everything
 here is backed by the other memory files in this repo root, all written
 2026-08-06 from a direct audit of the actual code — not from chat
-history. **As of the latest session (2026-08-06), the feature this
-memory system was built around (v1.8 team modes) has shipped and been
-verified in production** — see `SESSION_LOG.md`'s latest entry for the
-full record. There is no urgent open task right now.
+history. **As of the latest session (2026-08-06), v1.8 (team modes) has
+shipped AND the entire backlog that followed it (TASK-004 through
+TASK-008) has also shipped** — see `SESSION_LOG.md`'s latest entry for
+the full record. There is no open task right now.
 
 ## What is this project?
 
@@ -33,18 +33,15 @@ In order:
 
 ## What is the current task?
 
-**Nothing is currently in progress.** The v1.8 team-mode feature (2v2
-Duos, Boss Battle) shipped and was verified live in production on
-2026-08-06. There is no user-directed active task right now. The best
-next pick from the backlog is `TASKS.md` → `TASK-004` (Career Mode's
-changelog claims a visual feature — escalating venue backdrops — that
-isn't actually wired up; either wire it or correct the claim), but
-don't start it unprompted if the user has something else in mind —
-confirm first.
+**Nothing is currently in progress and nothing is queued.** Both v1.8
+(team modes) and the full follow-up backlog (`TASK-004`–`TASK-008`)
+have shipped and been verified live in production. `TASKS.md` →
+"Current task" says "None." Don't invent new work — wait for the user's
+next direction.
 
 ## What was the previous agent doing?
 
-Four things, in order, across what reads as one continuous engagement:
+Five things, in order, across what reads as one continuous engagement:
 1. Implementing the team-mode feature (engine changes, UI changes).
 2. At the user's request, pausing to perform a full documentation/
    handoff audit (the memory system you're reading now).
@@ -52,38 +49,42 @@ Four things, in order, across what reads as one continuous engagement:
    re-verified git state, tightened `TASKS.md`'s task structure, fixed
    one real bug (`.env.example` silently gitignored by the broad
    `.env*` pattern).
-4. When the user then said "continue building the game from where it
-   left off in the memory": resolved the one open question
-   (`TASK-002` — does the team-mode UI actually work?) via a
-   screenshot-based check (bypassing the earlier ambiguous
-   text-matching test evidence entirely), confirmed it does, **committed,
-   deployed both targets, and verified live in production** — including
-   a screenshot taken directly against the production URL.
+4. When the user said "continue building the game from where it left
+   off in the memory": resolved the one open question (`TASK-002` —
+   does the team-mode UI actually work?) via a screenshot-based check,
+   confirmed it does, committed, deployed both targets, and verified
+   live in production.
+5. When the user then said "do all the other tasks unfinished, only
+   tell me when ur done with every single task left": cleared the
+   entire remaining backlog (`TASK-004`–`TASK-008`) — Career Mode venue
+   backdrops, dev-host fallback fix, `zustand` removal, lobby team
+   preview, README update — verified each with typecheck/lint/build
+   plus screenshots, committed as 5 separate commits, deployed both
+   targets again, and re-verified against production.
 
 ## What works right now?
 
-Everything through v1.8, confirmed live in production: core duel loop,
-2–4 player FFA, vs-AI bots, all 23 items, customizable item pools, 5
-cosmetic themes, Career Mode (12-bot ladder), the global leaderboard,
-reconnect handling, and now 2v2 Duos / Boss Battle team modes. See
-`FEATURES.md` for the full, individually-verified status of each
-(update `FEATURES.md`'s team-mode entry from "Partially implemented" to
-reflect this if you're the one reading it fresh — it may not have been
-updated in the same pass as this file, double-check).
+Everything through the post-v1.8 backlog cleanup, confirmed live in
+production: core duel loop, 2–4 player FFA, vs-AI bots, all 23 items,
+customizable item pools, 5 cosmetic themes, Career Mode (12-bot ladder,
+now with escalating venue backdrops), the global leaderboard, reconnect
+handling, 2v2 Duos / Boss Battle team modes (now previewed in the
+lobby before the match starts). See `FEATURES.md` for the full,
+individually-verified status of each.
 
 ## What is broken?
 
-Nothing is confirmed broken in what's live in production. One known
-issue remains: **Career Mode's changelog claims "escalating venue
-backdrops" that don't actually exist in the shipped UI** —
-`public/venues/*.png` are dead, unreferenced assets. See `FEATURES.md`
-→ Career Mode, `TASKS.md` `TASK-004`.
+Nothing is confirmed broken in what's live in production. One
+deliberately-deferred item: `npm audit` (surfaced while removing
+`zustand`) reports vulnerabilities in `undici`, transitively via
+`wrangler`'s bundled `miniflare` (dev-only tooling, not the deployed
+Worker runtime) — the automatic fix would force-downgrade `wrangler` by
+~80 versions, judged too risky to apply as a side effect of an
+unrelated cleanup task. See `SECURITY.md` / `TASKS.md` → Technical debt.
 
 ## What should I do next?
 
-Nothing is blocking or urgent. If the user hasn't given new direction,
-either ask what they want next, or propose `TASK-004` as the smallest,
-best-scoped item in the backlog (see `TASKS.md` → High priority).
+Nothing is blocking or urgent. Ask the user what they want next.
 
 ## Which files are most important?
 
@@ -156,9 +157,8 @@ anything else. Then:
    that looks stale or contradicts what you find in the actual code —
    don't silently work around a contradiction, surface it.
 5. Check TASKS.md's "Current task" section — if it says nothing is in
-   progress, ask me what to work on next rather than guessing; don't
-   assume the backlog's suggested next item (TASK-004 as of this
-   writing) is what I want without confirming.
+   progress or queued (true as of this writing), ask me what to work on
+   next rather than guessing or inventing work.
 6. Preserve the existing architecture (Durable Objects via partyserver,
    the shared src/lib/game/ engine, the redact() information boundary)
    unless you find a genuinely strong reason to change it — and if you

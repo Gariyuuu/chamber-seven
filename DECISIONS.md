@@ -257,3 +257,31 @@ commit message)**.
   than a lighthearted vanity feature. Documented as a known limitation,
   not silently left undocumented.
 - **Affected files:** `party/leaderboard.ts`.
+
+### DEC-012 — Extract team assignment into a pure function so the lobby can safely preview it
+- **Date:** 2026-08-06
+- **Status:** Accepted, in production
+- **Context:** Teams weren't assigned until `beginRound()` actually ran
+  (server-side, at match start), so the pre-game lobby had no way to
+  show players which team they'd be on. The obvious naive fix — writing
+  separate preview logic in `Lobby.tsx` that guesses the same rule —
+  would risk silently drifting from the real `assignTeams()` rule if
+  either one were changed later without updating the other.
+- **Decision:** Extracted the actual assignment rule into
+  `teamForSeatIndex(teamMode, index, seatCount): 0 | 1 | null`, a pure
+  function taking only the inputs that determine team placement (no
+  `RoomState`, no hidden information). `assignTeams()` now calls this
+  same function per seat; `Lobby.tsx` calls it too, directly on
+  `state.settings.teamMode` and each player's index in the (already
+  seat-ordered) `players` array.
+- **Reasoning:** Single source of truth for a rule now used in two
+  places (server authority + client preview), verified safe to preview
+  ahead of time because team placement depends only on seat order and
+  the match settings — neither is hidden information, so there is no
+  redaction concern in exposing it before the round is dealt (contrast
+  with `redact()`'s hand/shell-order redaction, which exists precisely
+  because *that* information is hidden until revealed).
+- **Consequences:** Any future change to the team-assignment rule (e.g.
+  a new `TeamMode` variant) only needs to change `teamForSeatIndex()`
+  once; both the engine and the lobby preview pick it up automatically.
+- **Affected files:** `src/lib/game/state.ts`, `src/components/game/Lobby.tsx`.

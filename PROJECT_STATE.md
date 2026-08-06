@@ -4,7 +4,46 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest): SHIPPED
+## Status as of 2026-08-06 (latest): BACKLOG CLEARED
+
+Fourth pass this same day. The user asked to clear the entire remaining
+backlog (`TASK-004` through `TASK-008`) without checking in until every
+task was done. All five are complete, committed (5 separate commits:
+`51afb5e`, `6d55991`, `71c3956`, `83c6c3f`, `ea9728b`), deployed to both
+targets, and verified live in production via screenshots:
+
+1. **TASK-004** — Career Mode's venue backdrops (`public/venues/tier1-6.png`)
+   and `victory-burst.png`, previously dead/unreferenced assets despite
+   the v1.7 changelog claiming they shipped, are now wired up: the
+   Career hub's hero banner layers in the tier-appropriate venue image
+   (escalating with the next opponent's tier), and the match-end
+   level-up panel gets a soft `victory-burst.png` glow.
+2. **TASK-005** — `useGameRoom.ts`'s dev-host fallback now matches
+   `leaderboardApi.ts`'s (`127.0.0.1:8787`).
+3. **TASK-006** — `zustand` removed from `package.json` (re-confirmed
+   unused via a fresh grep first) and `package-lock.json` regenerated.
+   Running `npm install` for this surfaced 3 pre-existing `npm audit`
+   findings (moderate/high, in `undici` via `wrangler`'s bundled
+   `miniflare`, dev-only tooling) — **not fixed**, since the available
+   automatic fix would force-downgrade `wrangler` by ~80 versions, a
+   disproportionately risky change for an unrelated task. Recorded in
+   `SECURITY.md`/`TASKS.md` as a deliberate non-action, not an oversight.
+4. **TASK-007** — Team assignments (and the boss) now preview in the
+   pre-game lobby, via a new pure `teamForSeatIndex()` helper in
+   `state.ts` shared by both the real `assignTeams()` and the lobby's
+   preview — so the preview can never drift from the real rule.
+5. **TASK-008** — `README.md` rewritten to describe the actual current
+   feature set instead of the original 2-player-only description.
+
+All four verification commands (`typecheck` × 2, `lint`, `build`) passed
+clean before committing. Screenshots confirmed all the visual changes
+render correctly, both locally and — for the career hero and lobby
+preview — against the live production URL.
+
+**No task remains queued.** See `TASKS.md` → "Current task" (says
+"None") and `HANDOFF.md`.
+
+## Status as of 2026-08-06 (prior pass): SHIPPED (v1.8)
 
 The v1.8 team-mode feature (2v2 Duos, Boss Battle) — the subject of
 almost everything else in this file below — **is done.** Third pass this
