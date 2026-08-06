@@ -18,7 +18,7 @@ import { GameSettingsForm } from "@/components/game/GameSettingsForm";
 import { generateRoomCode, isValidRoomCode } from "@/lib/roomCode";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { DEFAULT_SETTINGS } from "@/lib/game/state";
-import { Bot, ScrollText, Skull, Trophy, Users } from "lucide-react";
+import { Bot, ScrollText, Skull, Swords, Trophy, Users } from "lucide-react";
 import { Flourish } from "@/components/game/Flourish";
 import { ThemePicker } from "@/components/game/ThemePicker";
 import Link from "next/link";
@@ -71,6 +71,11 @@ export default function HomePage() {
     router.push(`/room/${code}`);
   }
 
+  function goToCareer() {
+    if (!requireName()) return;
+    router.push("/career");
+  }
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden px-4 py-16">
       <div className="absolute top-4 right-4 z-10">
@@ -110,7 +115,7 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="relative grid w-full max-w-4xl gap-6 sm:grid-cols-3">
+      <div className="relative grid w-full max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--primary)_35%,transparent)]">
           <CardHeader>
             <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary ring-1 ring-primary/20">
@@ -209,6 +214,26 @@ export default function HomePage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-chart-2/50 hover:shadow-[0_8px_30px_-8px_color-mix(in_oklch,var(--chart-2)_35%,transparent)]">
+          <CardHeader>
+            <div className="mb-1 flex size-9 items-center justify-center rounded-full bg-chart-2/15 text-chart-2 ring-1 ring-chart-2/25">
+              <Swords className="size-4.5" />
+            </div>
+            <CardTitle>Career Mode</CardTitle>
+            <CardDescription>Climb a 12-bot ladder. Beat one to unlock more health and items.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="glossy w-full gap-2 bg-chart-2 text-white hover:bg-chart-2/80"
+              size="lg"
+              onClick={goToCareer}
+            >
+              <Swords className="size-4" />
+              Start Career
+            </Button>
           </CardContent>
         </Card>
       </div>

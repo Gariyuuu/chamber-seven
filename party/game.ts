@@ -96,7 +96,7 @@ export class Main extends Server<Env> {
       const seat = result.seat;
       addSystemLog(state, `${state.players[seat].name} joined the room.`);
       if (msg.vsAI && seat === state.hostSeat) {
-        fillRemainingSeatsWithBots(state);
+        fillRemainingSeatsWithBots(state, msg.botName);
       }
       await this.saveState(state);
       this.send(sender, { type: "welcome", seat, token: state.players[seat].token });

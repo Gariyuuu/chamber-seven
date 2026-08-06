@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.7",
+    date: "2026-08-05",
+    title: "Career Mode: a 12-bot ladder, and 20 more illustrated images",
+    changes: [
+      "New Career Mode: a chess.com-style bot ladder, 12 named opponents from The Rookie up to The House, each genuinely weaker or stronger — bots now make worse decisions on purpose at low skill instead of all playing at full strength.",
+      "Beat the bot in front of you to level up: unlocks a little more max HP and one new item at a time, starting from a small basic kit and ending with the full 23-item pool. Progress is saved on this device.",
+      "12 hand-illustrated bot portraits across 5 distinct character designs (hooded, fedora gambler, jester mask, bruiser, ragged reaper), plus 6 mood-lit venue backdrops that escalate from a dim back alley to a blood-red penthouse as you climb the ladder — 20 new real images in total, all originally drawn for this game.",
+      "Quick vs-AI play (\"Face the Dealer\") is unchanged — Career Mode is a separate, new way to play.",
+    ],
+  },
+  {
     version: "1.6",
     date: "2026-08-05",
     title: "Real background art, a living dealer, and bolder item colors",

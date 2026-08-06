@@ -15,6 +15,7 @@ export function useGameRoom(
   name: string,
   vsAI = false,
   initialSettings?: GameSettings,
+  botName?: string,
 ) {
   const [seat, setSeat] = useState<SeatId | null>(null);
   const [state, setState] = useState<RedactedState | null>(null);
@@ -23,11 +24,13 @@ export function useGameRoom(
   const nameRef = useRef(name);
   const vsAIRef = useRef(vsAI);
   const settingsRef = useRef(initialSettings);
+  const botNameRef = useRef(botName);
   useEffect(() => {
     nameRef.current = name;
     vsAIRef.current = vsAI;
     settingsRef.current = initialSettings;
-  }, [name, vsAI, initialSettings]);
+    botNameRef.current = botName;
+  }, [name, vsAI, initialSettings, botName]);
 
   const socket = usePartySocket({
     host: PARTYKIT_HOST,
@@ -35,7 +38,14 @@ export function useGameRoom(
     onOpen() {
       setConnected(true);
       const token = typeof window !== "undefined" ? localStorage.getItem(tokenKey(roomId)) ?? undefined : undefined;
-      send({ type: "join", name: nameRef.current, token, vsAI: vsAIRef.current, settings: settingsRef.current });
+      send({
+        type: "join",
+        name: nameRef.current,
+        token,
+        vsAI: vsAIRef.current,
+        settings: settingsRef.current,
+        botName: botNameRef.current,
+      });
     },
     onClose() {
       setConnected(false);

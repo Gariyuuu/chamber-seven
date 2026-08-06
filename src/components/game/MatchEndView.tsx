@@ -1,20 +1,34 @@
 import { Button } from "@/components/ui/button";
-import { RedactedState } from "@/lib/game/types";
-import { Crown, LogOut, RotateCcw } from "lucide-react";
+import { ItemId, RedactedState } from "@/lib/game/types";
+import { Crown, LogOut, RotateCcw, Sparkles, Swords, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Flourish } from "./Flourish";
+import { ITEM_INFO } from "@/lib/game/items";
+
+export interface CareerReward {
+  botName: string;
+  leveledUp: boolean;
+  newLevel: number;
+  newItem: ItemId | null;
+  newHp: { hpMin: number; hpMax: number };
+}
 
 export function MatchEndView({
   state,
   onRematch,
+  isCareerMatch = false,
+  careerReward,
 }: {
   state: RedactedState;
   onRematch: () => void;
+  isCareerMatch?: boolean;
+  careerReward?: CareerReward | null;
 }) {
   const winnerSeat = state.winner!;
   const winner = state.players.find((p) => p.seat === winnerSeat)!;
   const youWon = winnerSeat === state.you;
+  const opponent = state.players.find((p) => p.seat !== state.you);
   const standings = [...state.players].sort((a, b) => state.roundWins[b.seat] - state.roundWins[a.seat]);
 
   return (
@@ -25,40 +39,83 @@ export function MatchEndView({
           {youWon ? "YOU SURVIVE" : "TABLE LOST"}
         </p>
         <p className="mt-2 text-muted-foreground">
-          {winner.name} took the table.
+          {isCareerMatch
+            ? youWon
+              ? `You beat ${opponent?.name ?? "your opponent"}.`
+              : `${opponent?.name ?? "Your opponent"} got the better of you this time.`
+            : `${winner.name} took the table.`}
         </p>
         <Flourish className="mx-auto mt-4 max-w-32" />
       </div>
 
-      <div className="w-full space-y-1.5">
-        {standings.map((p, i) => (
-          <div
-            key={p.seat}
-            className={cn(
-              "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
-              p.seat === winnerSeat ? "border-accent/50 bg-accent/10" : "border-border bg-card",
-            )}
-          >
-            <span>
-              #{i + 1} {p.name}
-              {p.seat === state.you && <span className="text-muted-foreground"> (you)</span>}
-            </span>
-            <span className="text-muted-foreground">{state.roundWins[p.seat]} round win{state.roundWins[p.seat] === 1 ? "" : "s"}</span>
-          </div>
-        ))}
-      </div>
+      {isCareerMatch && youWon && careerReward && (
+        <div className="w-full space-y-2 rounded-lg border border-accent/40 bg-accent/10 p-4 text-left">
+          {careerReward.leveledUp ? (
+            <>
+              <p className="flex items-center gap-2 font-medium text-accent">
+                <TrendingUp className="size-4" />
+                Leveled up — rank {careerReward.newLevel}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Health range is now {careerReward.newHp.hpMin}–{careerReward.newHp.hpMax} HP.
+              </p>
+              {careerReward.newItem && (
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Sparkles className="size-3.5 text-accent" />
+                  New item unlocked: <span className="font-medium text-foreground">{ITEM_INFO[careerReward.newItem].name}</span>
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">Already beaten before — no new unlocks, but good practice.</p>
+          )}
+        </div>
+      )}
+
+      {!isCareerMatch && (
+        <div className="w-full space-y-1.5">
+          {standings.map((p, i) => (
+            <div
+              key={p.seat}
+              className={cn(
+                "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
+                p.seat === winnerSeat ? "border-accent/50 bg-accent/10" : "border-border bg-card",
+              )}
+            >
+              <span>
+                #{i + 1} {p.name}
+                {p.seat === state.you && <span className="text-muted-foreground"> (you)</span>}
+              </span>
+              <span className="text-muted-foreground">
+                {state.roundWins[p.seat]} round win{state.roundWins[p.seat] === 1 ? "" : "s"}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="flex gap-3">
-        <Button size="lg" onClick={onRematch} className="gap-2">
-          <RotateCcw className="size-4" />
-          Rematch
-        </Button>
-        <Button size="lg" variant="outline" asChild className="gap-2">
-          <Link href="/">
-            <LogOut className="size-4" />
-            Leave table
-          </Link>
-        </Button>
+        {isCareerMatch ? (
+          <Button size="lg" asChild className="gap-2">
+            <Link href="/career">
+              <Swords className="size-4" />
+              Back to Career Mode
+            </Link>
+          </Button>
+        ) : (
+          <>
+            <Button size="lg" onClick={onRematch} className="gap-2">
+              <RotateCcw className="size-4" />
+              Rematch
+            </Button>
+            <Button size="lg" variant="outline" asChild className="gap-2">
+              <Link href="/">
+                <LogOut className="size-4" />
+                Leave table
+              </Link>
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

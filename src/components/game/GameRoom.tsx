@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useGameRoom } from "@/hooks/useGameRoom";
 import { Lobby } from "./Lobby";
 import { PlayingView } from "./PlayingView";
-import { MatchEndView } from "./MatchEndView";
+import { MatchEndView, CareerReward } from "./MatchEndView";
 import { Loader2, ScrollText, Skull, Trophy } from "lucide-react";
-import { GameSettings } from "@/lib/game/types";
+import { GameSettings, ItemId } from "@/lib/game/types";
 import { ThemePicker } from "./ThemePicker";
+import { botById } from "@/lib/game/bots";
+import { careerLevel, hpRangeForLevel, loadCareer, recordCareerWin, unlockedItems } from "@/lib/career";
 
 const NAME_KEY = "chamber-seven:name";
 const PENDING_SETTINGS_KEY = "chamber-seven:pending-settings";
@@ -30,7 +32,15 @@ function readAndClearPendingSettings(): GameSettings | undefined {
   }
 }
 
-export function GameRoom({ roomId, vsAI = false }: { roomId: string; vsAI?: boolean }) {
+export function GameRoom({
+  roomId,
+  vsAI = false,
+  careerBotId,
+}: {
+  roomId: string;
+  vsAI?: boolean;
+  careerBotId?: string;
+}) {
   const router = useRouter();
   const [name] = useState(readStoredName);
   const [initialSettings] = useState(readAndClearPendingSettings);
@@ -40,7 +50,7 @@ export function GameRoom({ roomId, vsAI = false }: { roomId: string; vsAI?: bool
   }, [name, router]);
 
   return name ? (
-    <ConnectedRoom roomId={roomId} name={name} vsAI={vsAI} initialSettings={initialSettings} />
+    <ConnectedRoom roomId={roomId} name={name} vsAI={vsAI} initialSettings={initialSettings} careerBotId={careerBotId} />
   ) : null;
 }
 
@@ -49,18 +59,48 @@ function ConnectedRoom({
   name,
   vsAI,
   initialSettings,
+  careerBotId,
 }: {
   roomId: string;
   name: string;
   vsAI: boolean;
   initialSettings?: GameSettings;
+  careerBotId?: string;
 }) {
+  const careerBot = careerBotId ? botById(careerBotId) : undefined;
   const { seat, state, error, connected, startGame, fireAt, useItem, rematch } = useGameRoom(
     roomId,
     name,
     vsAI,
     initialSettings,
+    careerBot?.name,
   );
+
+  const recordedRef = useRef(false);
+  const [careerReward, setCareerReward] = useState<CareerReward | null>(null);
+
+  useEffect(() => {
+    if (!careerBotId || !state || state.phase !== "match_end" || state.winner !== state.you) return;
+    if (recordedRef.current) return;
+    recordedRef.current = true;
+
+    const before = loadCareer();
+    const prevLevel = careerLevel(before);
+    const prevItems = unlockedItems(prevLevel);
+    const after = recordCareerWin(careerBotId);
+    const newLevel = careerLevel(after);
+    const newItems = unlockedItems(newLevel);
+    const newItem = (newItems.find((i) => !prevItems.includes(i)) ?? null) as ItemId | null;
+    const bot = botById(careerBotId);
+
+    setCareerReward({
+      botName: bot?.name ?? "Opponent",
+      leveledUp: newLevel > prevLevel,
+      newLevel,
+      newItem,
+      newHp: hpRangeForLevel(newLevel),
+    });
+  }, [careerBotId, state]);
 
   if (!connected || !state || !seat) {
     return (
@@ -111,7 +151,9 @@ function ConnectedRoom({
         {state.phase === "playing" && (
           <PlayingView state={state} onFire={fireAt} onUseItem={useItem} />
         )}
-        {state.phase === "match_end" && <MatchEndView state={state} onRematch={rematch} />}
+        {state.phase === "match_end" && (
+          <MatchEndView state={state} onRematch={rematch} isCareerMatch={!!careerBotId} careerReward={careerReward} />
+        )}
       </div>
     </div>
   );

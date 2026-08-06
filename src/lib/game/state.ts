@@ -19,6 +19,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   hpMax: 12,
   itemsPerReload: 3,
   enabledItems: ALL_ITEM_IDS,
+  botSkill: 1,
 };
 
 export const HAND_CAP = 10;
@@ -60,7 +61,9 @@ export function clampSettings(input: Partial<GameSettings>): GameSettings {
     ? input.enabledItems.filter((item): item is ItemId => validItems.has(item))
     : [];
   const enabledItems = requestedItems.length > 0 ? Array.from(new Set(requestedItems)) : ALL_ITEM_IDS;
-  return { playerCount, roundsToWin, hpMin, hpMax, itemsPerReload, enabledItems };
+  const botSkillRaw = typeof input.botSkill === "number" ? input.botSkill : DEFAULT_SETTINGS.botSkill;
+  const botSkill = Math.min(1, Math.max(0, botSkillRaw));
+  return { playerCount, roundsToWin, hpMin, hpMax, itemsPerReload, enabledItems, botSkill };
 }
 
 function makePlayer(seat: SeatId): PlayerState {
@@ -183,20 +186,26 @@ export function markDisconnected(room: RoomState, seat: SeatId) {
 }
 
 /** Seats a bot at the given seat. Call in the lobby, before startGame. */
-export function fillBotSeat(room: RoomState, seat: SeatId) {
+export function fillBotSeat(room: RoomState, seat: SeatId, nameOverride?: string) {
   const p = room.players[seat];
   p.isBot = true;
-  p.name = BOT_NAMES[seat] ?? `Bot ${seat}`;
+  p.name = nameOverride ?? BOT_NAMES[seat] ?? `Bot ${seat}`;
   p.connected = true;
   p.connId = null;
   addSystemLog(room, `${p.name} sits down across the table.`);
 }
 
-export function fillRemainingSeatsWithBots(room: RoomState) {
+/** `firstBotName` overrides only the first bot seat filled — used by the career/roster picker
+ *  where the player chose a specific named opponent; generic multi-seat FFA fill leaves it unset. */
+export function fillRemainingSeatsWithBots(room: RoomState, firstBotName?: string) {
+  let usedOverride = false;
   for (const seat of activeSeats(room)) {
     if (seat === room.hostSeat) continue;
     const p = room.players[seat];
-    if (!p.connected && !p.isBot) fillBotSeat(room, seat);
+    if (!p.connected && !p.isBot) {
+      fillBotSeat(room, seat, !usedOverride ? firstBotName : undefined);
+      usedOverride = true;
+    }
   }
 }
 
@@ -769,58 +778,70 @@ export function runBotStep(room: RoomState, botSeat: SeatId): "used_item" | "fir
   const total = live + blank;
   const estLive = peeked ? (peeked === "live" ? 1 : 0) : total > 0 ? live / total : 0;
 
-  if (bot.items.includes("irons")) {
-    const targets = others.filter((s) => !room.players[s].skipNextTurn);
-    if (targets.length > 0) {
-      playItem(room, botSeat, "irons", targets[randomInt(0, targets.length - 1)]);
+  // Each micro-action re-rolls against the room's bot skill (0..1). A weak bot
+  // simply skips straight to the "fire" fallback below far more often, rather
+  // than playing items well — it doesn't forget how the items work, it's just
+  // worse at knowing when to use them.
+  const skill = room.settings.botSkill ?? 1;
+  const smart = Math.random() < skill;
+
+  if (smart) {
+    if (bot.items.includes("irons")) {
+      const targets = others.filter((s) => !room.players[s].skipNextTurn);
+      if (targets.length > 0) {
+        playItem(room, botSeat, "irons", targets[randomInt(0, targets.length - 1)]);
+        return "used_item";
+      }
+    }
+
+    if (!peeked && bot.items.includes("loupe")) {
+      playItem(room, botSeat, "loupe");
+      return "used_item";
+    }
+
+    if (peeked === "live" && bot.items.includes("magnum_load") && !bot.tripleDamageNext && !bot.doubleDamageNext) {
+      playItem(room, botSeat, "magnum_load");
+      return "used_item";
+    }
+
+    if (peeked === "live" && bot.items.includes("hacksaw") && !bot.doubleDamageNext && !bot.tripleDamageNext) {
+      playItem(room, botSeat, "hacksaw");
+      return "used_item";
+    }
+
+    const lowHp = bot.hp <= Math.max(1, Math.floor(bot.maxHp * 0.25));
+    if (!peeked && lowHp && bot.items.includes("riot_vest") && !bot.shieldedNext) {
+      playItem(room, botSeat, "riot_vest");
+      return "used_item";
+    }
+    if (!peeked && lowHp && bot.items.includes("flask")) {
+      playItem(room, botSeat, "flask");
+      return "used_item";
+    }
+    if (lowHp && bot.items.includes("overdose")) {
+      playItem(room, botSeat, "overdose");
+      return "used_item";
+    }
+    if (bot.hp < bot.maxHp && bot.items.includes("patch_kit") && bot.items.length > 1) {
+      playItem(room, botSeat, "patch_kit");
+      return "used_item";
+    }
+
+    if (bot.items.includes("point_blank") && !bot.forceLiveNext && others.length > 0 && estLive > 0.6) {
+      playItem(room, botSeat, "point_blank");
+      return "used_item";
+    }
+
+    if (bot.items.includes("molotov") && !bot.molotovNext && others.length >= 2 && estLive > 0.5) {
+      playItem(room, botSeat, "molotov");
       return "used_item";
     }
   }
 
-  if (!peeked && bot.items.includes("loupe")) {
-    playItem(room, botSeat, "loupe");
-    return "used_item";
-  }
-
-  if (peeked === "live" && bot.items.includes("magnum_load") && !bot.tripleDamageNext && !bot.doubleDamageNext) {
-    playItem(room, botSeat, "magnum_load");
-    return "used_item";
-  }
-
-  if (peeked === "live" && bot.items.includes("hacksaw") && !bot.doubleDamageNext && !bot.tripleDamageNext) {
-    playItem(room, botSeat, "hacksaw");
-    return "used_item";
-  }
-
-  const lowHp = bot.hp <= Math.max(1, Math.floor(bot.maxHp * 0.25));
-  if (!peeked && lowHp && bot.items.includes("riot_vest") && !bot.shieldedNext) {
-    playItem(room, botSeat, "riot_vest");
-    return "used_item";
-  }
-  if (!peeked && lowHp && bot.items.includes("flask")) {
-    playItem(room, botSeat, "flask");
-    return "used_item";
-  }
-  if (lowHp && bot.items.includes("overdose")) {
-    playItem(room, botSeat, "overdose");
-    return "used_item";
-  }
-  if (bot.hp < bot.maxHp && bot.items.includes("patch_kit") && bot.items.length > 1) {
-    playItem(room, botSeat, "patch_kit");
-    return "used_item";
-  }
-
-  if (bot.items.includes("point_blank") && !bot.forceLiveNext && others.length > 0 && estLive > 0.6) {
-    playItem(room, botSeat, "point_blank");
-    return "used_item";
-  }
-
-  if (bot.items.includes("molotov") && !bot.molotovNext && others.length >= 2 && estLive > 0.5) {
-    playItem(room, botSeat, "molotov");
-    return "used_item";
-  }
-
-  const fireLive = peeked ? peeked === "live" : estLive > 0.5;
+  // Already-known information (from a peek) is always honored — no reason to
+  // pretend not to know a shell you just looked at, regardless of skill.
+  // Only the odds-based guess when nothing is known scales with skill.
+  const fireLive = peeked ? peeked === "live" : smart ? estLive > 0.5 : Math.random() < 0.5;
   const target = fireLive && others.length > 0 ? others[randomInt(0, others.length - 1)] : botSeat;
   fire(room, botSeat, target);
   return "fired";

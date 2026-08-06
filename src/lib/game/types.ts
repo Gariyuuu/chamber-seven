@@ -39,6 +39,8 @@ export interface GameSettings {
   itemsPerReload: number;
   /** Which items can be drawn this match. Must be non-empty. */
   enabledItems: ItemId[];
+  /** 0..1 — how often bots in this room make the "smart" decision. 1 = full strength (default). */
+  botSkill: number;
 }
 
 export interface PlayerState {
@@ -133,7 +135,7 @@ export interface RedactedState {
 }
 
 export type ClientMessage =
-  | { type: "join"; name: string; token?: string; vsAI?: boolean; settings?: GameSettings }
+  | { type: "join"; name: string; token?: string; vsAI?: boolean; settings?: GameSettings; botName?: string }
   | { type: "start_game" }
   | { type: "use_item"; item: ItemId; target?: SeatId }
   | { type: "fire"; target: SeatId }
