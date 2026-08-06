@@ -150,22 +150,22 @@ export function bossSeatOf(room: RoomState): SeatId | null {
   return seats[seats.length - 1] ?? null;
 }
 
+/**
+ * Pure team-assignment rule, decoupled from RoomState so client UI (the
+ * pre-game lobby) can preview team placement before a round actually
+ * begins — assignTeams() below is only ever called from beginRound().
+ */
+export function teamForSeatIndex(teamMode: TeamMode, index: number, seatCount: number): 0 | 1 | null {
+  if (teamMode === "duos") return index % 2 === 0 ? 0 : 1;
+  if (teamMode === "boss") return index === seatCount - 1 ? 1 : 0;
+  return null;
+}
+
 function assignTeams(room: RoomState) {
   const seats = activeSeats(room);
-  if (room.settings.teamMode === "duos") {
-    seats.forEach((seat, i) => {
-      room.players[seat].team = i % 2 === 0 ? 0 : 1;
-    });
-  } else if (room.settings.teamMode === "boss") {
-    const boss = bossSeatOf(room);
-    seats.forEach((seat) => {
-      room.players[seat].team = seat === boss ? 1 : 0;
-    });
-  } else {
-    seats.forEach((seat) => {
-      room.players[seat].team = null;
-    });
-  }
+  seats.forEach((seat, i) => {
+    room.players[seat].team = teamForSeatIndex(room.settings.teamMode, i, seats.length);
+  });
 }
 
 function isTeammate(room: RoomState, a: SeatId, b: SeatId): boolean {
