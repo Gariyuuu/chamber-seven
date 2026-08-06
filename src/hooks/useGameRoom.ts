@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import usePartySocket from "partysocket/react";
 import { ClientMessage, GameSettings, ItemId, RedactedState, SeatId, ServerMessage } from "@/lib/game/types";
 
-const PARTYKIT_HOST = process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? "127.0.0.1:1999";
+const PARTYKIT_HOST = process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? "127.0.0.1:8787";
 
 function tokenKey(roomId: string) {
   return `chamber-seven:token:${roomId}`;
