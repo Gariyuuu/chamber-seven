@@ -10,6 +10,7 @@ import {
   RoomState,
   SeatId,
   ShellType,
+  TeamMode,
 } from "./types";
 
 export const DEFAULT_SETTINGS: GameSettings = {
@@ -20,7 +21,11 @@ export const DEFAULT_SETTINGS: GameSettings = {
   itemsPerReload: 3,
   enabledItems: ALL_ITEM_IDS,
   botSkill: 1,
+  teamMode: "none",
 };
+
+/** Bonus items the boss draws every reload, on top of the normal itemsPerReload. */
+const BOSS_BONUS_DRAWS = 2;
 
 export const HAND_CAP = 10;
 export const MIN_CHAMBER = 2;
@@ -49,7 +54,12 @@ function shuffle<T>(arr: T[]): T[] {
 
 export function clampSettings(input: Partial<GameSettings>): GameSettings {
   const playerCount = ([2, 3, 4].includes(input.playerCount as number) ? input.playerCount : 2) as 2 | 3 | 4;
-  const roundsToWin = ([1, 2, 3].includes(input.roundsToWin as number) ? input.roundsToWin : 2) as 1 | 2 | 3;
+  let teamMode: TeamMode = (["none", "duos", "boss"] as TeamMode[]).includes(input.teamMode as TeamMode)
+    ? (input.teamMode as TeamMode)
+    : "none";
+  if (teamMode === "duos" && playerCount !== 4) teamMode = "none";
+  let roundsToWin = ([1, 2, 3].includes(input.roundsToWin as number) ? input.roundsToWin : 2) as 1 | 2 | 3;
+  if (teamMode !== "none") roundsToWin = 1;
   let hpMin = Math.round(input.hpMin ?? DEFAULT_SETTINGS.hpMin);
   let hpMax = Math.round(input.hpMax ?? DEFAULT_SETTINGS.hpMax);
   hpMin = Math.min(Math.max(hpMin, 2), 20);
@@ -63,7 +73,7 @@ export function clampSettings(input: Partial<GameSettings>): GameSettings {
   const enabledItems = requestedItems.length > 0 ? Array.from(new Set(requestedItems)) : ALL_ITEM_IDS;
   const botSkillRaw = typeof input.botSkill === "number" ? input.botSkill : DEFAULT_SETTINGS.botSkill;
   const botSkill = Math.min(1, Math.max(0, botSkillRaw));
-  return { playerCount, roundsToWin, hpMin, hpMax, itemsPerReload, enabledItems, botSkill };
+  return { playerCount, roundsToWin, hpMin, hpMax, itemsPerReload, enabledItems, botSkill, teamMode };
 }
 
 function makePlayer(seat: SeatId): PlayerState {
@@ -86,6 +96,7 @@ function makePlayer(seat: SeatId): PlayerState {
     disconnectedAt: null,
     isBot: false,
     eliminated: false,
+    team: null,
   };
 }
 
@@ -130,6 +141,49 @@ export function activeSeats(room: RoomState): SeatId[] {
 
 export function aliveActiveSeats(room: RoomState): SeatId[] {
   return activeSeats(room).filter((s) => !room.players[s].eliminated);
+}
+
+/** In boss mode, the boss is always the last active seat — the last bot filled, in vs-AI games. */
+export function bossSeatOf(room: RoomState): SeatId | null {
+  if (room.settings.teamMode !== "boss") return null;
+  const seats = activeSeats(room);
+  return seats[seats.length - 1] ?? null;
+}
+
+function assignTeams(room: RoomState) {
+  const seats = activeSeats(room);
+  if (room.settings.teamMode === "duos") {
+    seats.forEach((seat, i) => {
+      room.players[seat].team = i % 2 === 0 ? 0 : 1;
+    });
+  } else if (room.settings.teamMode === "boss") {
+    const boss = bossSeatOf(room);
+    seats.forEach((seat) => {
+      room.players[seat].team = seat === boss ? 1 : 0;
+    });
+  } else {
+    seats.forEach((seat) => {
+      room.players[seat].team = null;
+    });
+  }
+}
+
+function isTeammate(room: RoomState, a: SeatId, b: SeatId): boolean {
+  if (room.settings.teamMode === "none" || a === b) return false;
+  const ta = room.players[a].team;
+  const tb = room.players[b].team;
+  return ta !== null && ta === tb;
+}
+
+/** Returns the sole surviving seat once a round is decided, honoring team modes — null if still contested. */
+function roundOver(room: RoomState): SeatId | null {
+  const alive = aliveActiveSeats(room);
+  if (alive.length === 0) return null;
+  if (room.settings.teamMode === "none") {
+    return alive.length <= 1 ? alive[0] : null;
+  }
+  const teams = new Set(alive.map((s) => room.players[s].team));
+  return teams.size === 1 ? alive[0] : null;
 }
 
 function log(room: RoomState, seat: SeatId | null, message: string) {
@@ -257,8 +311,10 @@ function reload(room: RoomState) {
   room.peekedShell = {};
   log(room, null, `The chamber is reloaded: ${live} live, ${blank} blank.`);
 
+  const boss = bossSeatOf(room);
   for (const seat of activeSeats(room)) {
     let draws = room.settings.itemsPerReload;
+    if (seat === boss) draws += BOSS_BONUS_DRAWS;
     if (room.bonusDrawFor === seat) draws += 1;
     drawItems(room, seat, draws);
   }
@@ -266,11 +322,15 @@ function reload(room: RoomState) {
 }
 
 function beginRound(room: RoomState, startingSeat: SeatId) {
+  assignTeams(room);
   const hp = randomInt(room.settings.hpMin, room.settings.hpMax);
+  const boss = bossSeatOf(room);
+  const bossHpMultiplier = Math.max(1, activeSeats(room).length - 1);
   for (const seat of activeSeats(room)) {
     const p = room.players[seat];
-    p.hp = hp;
-    p.maxHp = hp;
+    const seatHp = seat === boss ? hp * bossHpMultiplier : hp;
+    p.hp = seatHp;
+    p.maxHp = seatHp;
     p.items = [];
     p.skipNextTurn = false;
     p.doubleDamageNext = false;
@@ -283,11 +343,19 @@ function beginRound(room: RoomState, startingSeat: SeatId) {
   }
   room.turn = startingSeat;
   reload(room);
-  log(
-    room,
-    null,
-    `Round ${room.round} begins with ${hp} HP each. ${room.players[startingSeat].name} goes first.`,
-  );
+  if (boss) {
+    log(
+      room,
+      null,
+      `Round ${room.round} begins. ${room.players[boss].name} the Boss enters with ${room.players[boss].hp} HP; everyone else has ${hp}. ${room.players[startingSeat].name} goes first.`,
+    );
+  } else {
+    log(
+      room,
+      null,
+      `Round ${room.round} begins with ${hp} HP each. ${room.players[startingSeat].name} goes first.`,
+    );
+  }
 }
 
 export function startGame(room: RoomState) {
@@ -333,9 +401,9 @@ function applyDamage(room: RoomState, seat: SeatId, amount: number): boolean {
     p.hp = 0;
     p.eliminated = true;
     log(room, seat, `${p.name} is eliminated!`);
-    const alive = aliveActiveSeats(room);
-    if (alive.length <= 1) {
-      endRound(room, alive[0] ?? seat);
+    const winner = roundOver(room);
+    if (winner) {
+      endRound(room, winner);
       return true;
     }
     return false;
@@ -393,9 +461,9 @@ export function forfeitSeat(room: RoomState, seat: SeatId) {
   p.eliminated = true;
   p.hp = 0;
   addSystemLog(room, `${p.name} did not reconnect in time and is eliminated.`);
-  const alive = aliveActiveSeats(room);
-  if (alive.length <= 1) {
-    endRound(room, alive[0] ?? seat);
+  const winner = roundOver(room);
+  if (winner) {
+    endRound(room, winner);
   } else if (room.turn === seat) {
     passTurnFrom(room, seat);
   }
@@ -431,6 +499,9 @@ export function fire(room: RoomState, actingSeat: SeatId, targetSeat: SeatId): A
   if (!activeSeats(room).includes(targetSeat) || room.players[targetSeat].eliminated) {
     return { ok: false, error: "Invalid target." };
   }
+  if (targetSeat !== actingSeat && isTeammate(room, actingSeat, targetSeat)) {
+    return { ok: false, error: "Can't fire at your own teammate." };
+  }
 
   const actor = room.players[actingSeat];
   let shell = room.chamber.shift()!;
@@ -457,8 +528,12 @@ export function fire(room: RoomState, actingSeat: SeatId, targetSeat: SeatId): A
     }
     // blank: keep the turn, no pass.
   } else if (molotov) {
-    const targets = aliveActiveSeats(room).filter((s) => s !== actingSeat);
-    log(room, actingSeat, `${actor.name} throws a Molotov — it catches everyone: ${shell.toUpperCase()}.`);
+    const targets = aliveActiveSeats(room).filter((s) => s !== actingSeat && !isTeammate(room, actingSeat, s));
+    log(
+      room,
+      actingSeat,
+      `${actor.name} throws a Molotov — it catches ${room.settings.teamMode === "none" ? "everyone" : "every enemy"}: ${shell.toUpperCase()}.`,
+    );
     let roundEnded = false;
     if (shell === "live") {
       for (const t of targets) {
@@ -501,6 +576,9 @@ function applyItemEffect(
     const target = room.players[targetSeat];
     if (!activeSeats(room).includes(targetSeat) || target.eliminated) {
       return { ok: false, error: "Invalid target." };
+    }
+    if (isTeammate(room, actingSeat, targetSeat)) {
+      return { ok: false, error: "Can't target your own teammate." };
     }
     return target;
   }
@@ -718,6 +796,7 @@ export function playItem(
 }
 
 export function redact(room: RoomState, forSeat: SeatId): RedactedState {
+  const boss = bossSeatOf(room);
   const players = activeSeats(room).map((seat) => {
     const p = room.players[seat];
     const isYou = seat === forSeat;
@@ -731,6 +810,8 @@ export function redact(room: RoomState, forSeat: SeatId): RedactedState {
       connected: p.connected,
       isBot: p.isBot,
       eliminated: p.eliminated,
+      team: p.team,
+      isBoss: seat === boss,
     };
   });
   return {
@@ -772,7 +853,7 @@ export function botActionDelayMs(): number {
  */
 export function runBotStep(room: RoomState, botSeat: SeatId): "used_item" | "fired" {
   const bot = room.players[botSeat];
-  const others = aliveActiveSeats(room).filter((s) => s !== botSeat);
+  const others = aliveActiveSeats(room).filter((s) => s !== botSeat && !isTeammate(room, botSeat, s));
   const peeked = room.peekedShell[botSeat] ?? null;
   const { live, blank } = remainingComposition(room);
   const total = live + blank;

@@ -1,6 +1,6 @@
 "use client";
 
-import { GameSettings } from "@/lib/game/types";
+import { GameSettings, TeamMode } from "@/lib/game/types";
 import { ALL_ITEM_IDS, ITEM_INFO } from "@/lib/game/items";
 import { itemColor, COLOR_BORDER, COLOR_BG_SOFT, COLOR_TEXT } from "@/lib/game/colors";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,11 @@ const ROUNDS_OPTIONS: { value: 1 | 2 | 3; label: string }[] = [
   { value: 3, label: "Best of 5" },
 ];
 const ITEMS_OPTIONS = [2, 3, 4, 5] as const;
+const TEAM_MODE_OPTIONS: { value: TeamMode; label: string; hint: string }[] = [
+  { value: "none", label: "Free-for-all", hint: "Every seat for themselves." },
+  { value: "duos", label: "2v2 Duos", hint: "Seats 1+3 vs 2+4. No friendly fire. Requires 4 players, single round." },
+  { value: "boss", label: "Boss Battle", hint: "Everyone vs the last seat, who gets bonus HP and items. Single round." },
+];
 
 function OptionRow<T extends string | number>({
   options,
@@ -57,21 +62,51 @@ export function GameSettingsForm({
     onChange({ ...settings, [key]: value });
   }
 
+  function setPlayerCount(v: 2 | 3 | 4) {
+    const next: GameSettings = { ...settings, playerCount: v };
+    if (settings.teamMode === "duos" && v !== 4) next.teamMode = "none";
+    onChange(next);
+  }
+
+  function setTeamMode(v: TeamMode) {
+    const next: GameSettings = { ...settings, teamMode: v };
+    if (v === "duos") next.playerCount = 4;
+    if (v !== "none") next.roundsToWin = 1;
+    onChange(next);
+  }
+
+  const activeTeamHint = TEAM_MODE_OPTIONS.find((o) => o.value === settings.teamMode)?.hint;
+
   return (
     <div className="space-y-5">
       <div>
         <p className="mb-2 text-sm font-medium text-muted-foreground">{playerCountLabel}</p>
-        <OptionRow options={PLAYER_OPTIONS} value={settings.playerCount} onSelect={(v) => set("playerCount", v)} />
+        <OptionRow options={PLAYER_OPTIONS} value={settings.playerCount} onSelect={setPlayerCount} />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-medium text-muted-foreground">Team mode</p>
+        <OptionRow
+          options={TEAM_MODE_OPTIONS.map((o) => o.value)}
+          value={settings.teamMode}
+          onSelect={setTeamMode}
+          render={(v) => TEAM_MODE_OPTIONS.find((o) => o.value === v)?.label ?? String(v)}
+        />
+        {activeTeamHint && <p className="mt-1.5 text-xs text-muted-foreground">{activeTeamHint}</p>}
       </div>
 
       <div>
         <p className="mb-2 text-sm font-medium text-muted-foreground">Match length</p>
-        <OptionRow
-          options={ROUNDS_OPTIONS.map((o) => o.value)}
-          value={settings.roundsToWin}
-          onSelect={(v) => set("roundsToWin", v)}
-          render={(v) => ROUNDS_OPTIONS.find((o) => o.value === v)?.label ?? String(v)}
-        />
+        {settings.teamMode === "none" ? (
+          <OptionRow
+            options={ROUNDS_OPTIONS.map((o) => o.value)}
+            value={settings.roundsToWin}
+            onSelect={(v) => set("roundsToWin", v)}
+            render={(v) => ROUNDS_OPTIONS.find((o) => o.value === v)?.label ?? String(v)}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground">Single round — team modes decide it in one go.</p>
+        )}
       </div>
 
       <div>

@@ -1,6 +1,6 @@
 import { RedactedPlayer } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
-import { Skull, WifiOff } from "lucide-react";
+import { Crown, Skull, WifiOff } from "lucide-react";
 import { HealthBar } from "./HealthBar";
 import { DealerAvatar, DealerAim } from "./DealerAvatar";
 import { SEAT_COLOR, COLOR_BORDER_L, COLOR_TEXT } from "@/lib/game/colors";
@@ -44,6 +44,17 @@ export function PlayerHud({
               <span className={cn(!player.eliminated && COLOR_TEXT[color])}>{player.name}</span>
               {isYou && <span className="text-muted-foreground"> (you)</span>}
             </p>
+            {player.isBoss && <Crown className="size-3.5 text-accent" />}
+            {player.team !== null && (
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
+                  player.team === 0 ? "bg-chart-3/20 text-chart-3" : "bg-chart-1/20 text-chart-1",
+                )}
+              >
+                Team {player.team === 0 ? "A" : "B"}
+              </span>
+            )}
             {player.eliminated && <Skull className="size-3.5 text-destructive" />}
             {!player.eliminated && !player.connected && <WifiOff className="size-3.5 text-destructive" />}
           </div>

@@ -7,6 +7,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.8",
+    date: "2026-08-06",
+    title: "2v2 Duos and Boss Battle team modes",
+    changes: [
+      "New Team Mode selector in settings: Free-for-all (as before), 2v2 Duos, or Boss Battle.",
+      "2v2 Duos: locks to 4 players, seats 1+3 vs 2+4, single round. No friendly fire — you can't target or accidentally AOE your own teammate.",
+      "Boss Battle: everyone vs. the last seat. The boss gets scaled-up max HP (more with more challengers) and draws extra items every reload to stay dangerous solo. Works with bots too, so you can raid a boss with friends against an AI.",
+      "Target picker, HUD, and end screen all show team badges and a crown on the boss, with team-aware win/loss messaging.",
+    ],
+  },
+  {
     version: "1.7",
     date: "2026-08-05",
     title: "Career Mode: a 12-bot ladder, and 20 more illustrated images",

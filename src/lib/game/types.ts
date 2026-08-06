@@ -30,9 +30,16 @@ export const ALL_SEATS: SeatId[] = ["p1", "p2", "p3", "p4"];
 
 export type GamePhase = "lobby" | "playing" | "match_end";
 
+/**
+ * "none" — free-for-all, every seat for themselves (default).
+ * "duos" — 2v2, requires exactly 4 players. Seats alternate p1+p3 vs p2+p4.
+ * "boss" — every player vs the last seat, who gets bonus HP and item draws.
+ */
+export type TeamMode = "none" | "duos" | "boss";
+
 export interface GameSettings {
   playerCount: 2 | 3 | 4;
-  /** Round wins needed to take the match: 1 = best of 1, 2 = best of 3, 3 = best of 5. */
+  /** Round wins needed to take the match: 1 = best of 1, 2 = best of 3, 3 = best of 5. Forced to 1 when teamMode isn't "none". */
   roundsToWin: 1 | 2 | 3;
   hpMin: number;
   hpMax: number;
@@ -41,6 +48,7 @@ export interface GameSettings {
   enabledItems: ItemId[];
   /** 0..1 — how often bots in this room make the "smart" decision. 1 = full strength (default). */
   botSkill: number;
+  teamMode: TeamMode;
 }
 
 export interface PlayerState {
@@ -62,6 +70,8 @@ export interface PlayerState {
   disconnectedAt: number | null;
   isBot: boolean;
   eliminated: boolean;
+  /** 0 or 1 in team modes, null in free-for-all. */
+  team: 0 | 1 | null;
 }
 
 export interface LogEntry {
@@ -113,6 +123,8 @@ export interface RedactedPlayer {
   connected: boolean;
   isBot: boolean;
   eliminated: boolean;
+  team: 0 | 1 | null;
+  isBoss: boolean;
 }
 
 export interface RedactedState {

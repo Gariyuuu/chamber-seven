@@ -107,6 +107,7 @@ export function careerMatchSettings(level: number, botSkill: number): GameSettin
   return {
     playerCount: 2,
     roundsToWin: 1,
+    teamMode: "none",
     hpMin,
     hpMax,
     itemsPerReload: 2,

@@ -1,4 +1,4 @@
-import { Bot } from "lucide-react";
+import { Bot, Crown } from "lucide-react";
 import { RedactedPlayer, SeatId } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
 import { SEAT_COLOR, COLOR_BORDER, COLOR_BG_SOFT, COLOR_TEXT } from "@/lib/game/colors";
@@ -16,7 +16,8 @@ export function TargetSelector({
   onSelect: (seat: SeatId) => void;
   disabled?: boolean;
 }) {
-  const alive = players.filter((p) => !p.eliminated);
+  const yourTeam = players.find((p) => p.seat === you)?.team ?? null;
+  const alive = players.filter((p) => !p.eliminated && (p.seat === you || yourTeam === null || p.team !== yourTeam));
 
   return (
     <div className="flex flex-wrap justify-center gap-2">
@@ -37,7 +38,7 @@ export function TargetSelector({
               disabled && "cursor-not-allowed opacity-60",
             )}
           >
-            {p.isBot && <Bot className="size-3.5" />}
+            {p.isBoss ? <Crown className="size-3.5" /> : p.isBot && <Bot className="size-3.5" />}
             {p.seat === you ? "Yourself" : p.name}
           </button>
         );

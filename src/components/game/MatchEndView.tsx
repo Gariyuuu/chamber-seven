@@ -27,9 +27,25 @@ export function MatchEndView({
 }) {
   const winnerSeat = state.winner!;
   const winner = state.players.find((p) => p.seat === winnerSeat)!;
-  const youWon = winnerSeat === state.you;
+  const you = state.players.find((p) => p.seat === state.you)!;
   const opponent = state.players.find((p) => p.seat !== state.you);
+  const teamMode = state.settings.teamMode;
+  const youWon = teamMode === "none" ? winnerSeat === state.you : winner.team === you.team;
+  const teammates = teamMode !== "none" ? state.players.filter((p) => p.team === winner.team) : [];
   const standings = [...state.players].sort((a, b) => state.roundWins[b.seat] - state.roundWins[a.seat]);
+
+  function outcomeText() {
+    if (isCareerMatch) {
+      return youWon ? `You beat ${opponent?.name ?? "your opponent"}.` : `${opponent?.name ?? "Your opponent"} got the better of you this time.`;
+    }
+    if (teamMode === "boss") {
+      return winner.isBoss ? "The Boss wins." : `${teammates.map((p) => p.name).join(" & ")} took down the Boss.`;
+    }
+    if (teamMode === "duos") {
+      return `${teammates.map((p) => p.name).join(" & ")} win the round.`;
+    }
+    return `${winner.name} took the table.`;
+  }
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center gap-6 px-4 py-24 text-center animate-in fade-in zoom-in-95 duration-500">
@@ -38,13 +54,7 @@ export function MatchEndView({
         <p className="font-display text-6xl tracking-wide text-primary drop-shadow-[0_0_24px_color-mix(in_oklch,var(--primary)_50%,transparent)]">
           {youWon ? "YOU SURVIVE" : "TABLE LOST"}
         </p>
-        <p className="mt-2 text-muted-foreground">
-          {isCareerMatch
-            ? youWon
-              ? `You beat ${opponent?.name ?? "your opponent"}.`
-              : `${opponent?.name ?? "Your opponent"} got the better of you this time.`
-            : `${winner.name} took the table.`}
-        </p>
+        <p className="mt-2 text-muted-foreground">{outcomeText()}</p>
         <Flourish className="mx-auto mt-4 max-w-32" />
       </div>
 
@@ -72,7 +82,7 @@ export function MatchEndView({
         </div>
       )}
 
-      {!isCareerMatch && (
+      {!isCareerMatch && teamMode === "none" && (
         <div className="w-full space-y-1.5">
           {standings.map((p, i) => (
             <div
@@ -89,6 +99,27 @@ export function MatchEndView({
               <span className="text-muted-foreground">
                 {state.roundWins[p.seat]} round win{state.roundWins[p.seat] === 1 ? "" : "s"}
               </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isCareerMatch && teamMode !== "none" && (
+        <div className="w-full space-y-1.5">
+          {state.players.map((p) => (
+            <div
+              key={p.seat}
+              className={cn(
+                "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
+                p.team === winner.team ? "border-accent/50 bg-accent/10" : "border-border bg-card",
+              )}
+            >
+              <span className="flex items-center gap-1.5">
+                {p.isBoss && <Crown className="size-3.5 text-accent" />}
+                {p.name}
+                {p.seat === state.you && <span className="text-muted-foreground"> (you)</span>}
+              </span>
+              <span className="text-muted-foreground">{p.eliminated ? "Eliminated" : "Survived"}</span>
             </div>
           ))}
         </div>
