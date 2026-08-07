@@ -11,17 +11,26 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  BG_STYLE_STORAGE_KEY,
+  BG_STYLES,
   CUSTOM_BG_MAX_BYTES,
   CUSTOM_BG_STORAGE_KEY,
+  DEFAULT_BG_STYLE_ID,
   DEFAULT_THEME_ID,
   THEME_PRESETS,
   THEME_STORAGE_KEY,
+  backgroundUrl,
 } from "@/lib/themePresets";
 import { cn } from "@/lib/utils";
 
 function readStoredTheme(): string {
   if (typeof window === "undefined") return DEFAULT_THEME_ID;
   return localStorage.getItem(THEME_STORAGE_KEY) ?? DEFAULT_THEME_ID;
+}
+
+function readStoredStyle(): string {
+  if (typeof window === "undefined") return DEFAULT_BG_STYLE_ID;
+  return localStorage.getItem(BG_STYLE_STORAGE_KEY) ?? DEFAULT_BG_STYLE_ID;
 }
 
 function hasCustomBg(): boolean {
@@ -32,6 +41,7 @@ function hasCustomBg(): boolean {
 export function ThemePicker() {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState(readStoredTheme);
+  const [style, setStyle] = useState(readStoredStyle);
   const [customBg, setCustomBg] = useState(hasCustomBg);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,16 +50,33 @@ export function ThemePicker() {
     document.documentElement.dataset.theme = current;
   }, [current]);
 
+  function applyBackground(themeId: string, styleId: string) {
+    if (styleId === DEFAULT_BG_STYLE_ID) {
+      // Matches the CSS default per theme — let the stylesheet handle it.
+      document.documentElement.style.removeProperty("--bg-image");
+    } else {
+      document.documentElement.style.setProperty("--bg-image", `url("${backgroundUrl(themeId, styleId)}")`);
+    }
+  }
+
   function pick(id: string) {
     localStorage.setItem(THEME_STORAGE_KEY, id);
     setCurrent(id);
-    // A preset vibe should show that vibe's own background — drop any
-    // custom upload so it doesn't keep overriding --bg-image.
     if (customBg) {
       localStorage.removeItem(CUSTOM_BG_STORAGE_KEY);
-      document.documentElement.style.removeProperty("--bg-image");
       setCustomBg(false);
     }
+    applyBackground(id, style);
+  }
+
+  function pickStyle(id: string) {
+    localStorage.setItem(BG_STYLE_STORAGE_KEY, id);
+    setStyle(id);
+    if (customBg) {
+      localStorage.removeItem(CUSTOM_BG_STORAGE_KEY);
+      setCustomBg(false);
+    }
+    applyBackground(current, id);
   }
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -89,9 +116,9 @@ export function ThemePicker() {
 
   function clearCustomBg() {
     localStorage.removeItem(CUSTOM_BG_STORAGE_KEY);
-    document.documentElement.style.removeProperty("--bg-image");
     setCustomBg(false);
     setUploadError(null);
+    applyBackground(current, style);
   }
 
   return (
@@ -129,6 +156,30 @@ export function ThemePicker() {
 
         <div className="mt-1 space-y-2 border-t border-border/60 pt-3">
           <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+            Background style
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {BG_STYLES.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => pickStyle(s.id)}
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-center transition-colors",
+                  style === s.id && !customBg
+                    ? "border-primary bg-primary/10"
+                    : "border-border hover:border-foreground/30",
+                )}
+              >
+                <span className="text-lg">{s.emoji}</span>
+                <span className="text-xs font-medium">{s.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-1 space-y-2 border-t border-border/60 pt-3">
+          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
             Custom background
           </p>
           {customBg ? (
@@ -153,7 +204,7 @@ export function ThemePicker() {
           />
           {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
           <p className="text-xs text-muted-foreground">
-            Stays on this device only, under {Math.round(CUSTOM_BG_MAX_BYTES / 1_000_000)}MB. Pick a vibe above to go back to a built-in background.
+            Stays on this device only, under {Math.round(CUSTOM_BG_MAX_BYTES / 1_000_000)}MB. Pick a vibe or style above to go back to a built-in background.
           </p>
         </div>
       </DialogContent>

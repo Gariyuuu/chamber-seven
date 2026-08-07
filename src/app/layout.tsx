@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { Oswald, Geist_Mono, Butcherman } from "next/font/google";
 import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { THEME_STORAGE_KEY, CUSTOM_BG_STORAGE_KEY } from "@/lib/themePresets";
+import {
+  THEME_STORAGE_KEY,
+  CUSTOM_BG_STORAGE_KEY,
+  BG_STYLE_STORAGE_KEY,
+  DEFAULT_BG_STYLE_ID,
+  DEFAULT_THEME_ID,
+} from "@/lib/themePresets";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -41,7 +47,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});
             if(t)document.documentElement.dataset.theme=t;
             var b=localStorage.getItem(${JSON.stringify(CUSTOM_BG_STORAGE_KEY)});
-            if(b)document.documentElement.style.setProperty("--bg-image","url(\\""+b+"\\")");
+            var s=localStorage.getItem(${JSON.stringify(BG_STYLE_STORAGE_KEY)});
+            if(b){
+              document.documentElement.style.setProperty("--bg-image","url(\\""+b+"\\")");
+            }else if(s&&s!==${JSON.stringify(DEFAULT_BG_STYLE_ID)}){
+              var themeId=t||${JSON.stringify(DEFAULT_THEME_ID)};
+              document.documentElement.style.setProperty("--bg-image","url(\\"/backgrounds/bg-"+themeId+"-"+s+".png\\")");
+            }
           }catch(e){}`}
         </Script>
         <TooltipProvider delayDuration={150}>{children}</TooltipProvider>

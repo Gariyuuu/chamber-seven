@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.17",
+    date: "2026-08-06",
+    title: "Two-tone backgrounds + 3 selectable styles",
+    changes: [
+      "Backgrounds now use both of a table vibe's colors, not just one — red/gold hearts and clubs instead of a single flat hue. Noticeably more colorful, still zero white or glow.",
+      "New: pick a background style from the table vibe picker (🎨) — Felt Table, Smoke & Embers (scattered colored sparks), or Chip Scatter (poker chips). Each one follows whichever vibe color you've picked.",
+    ],
+  },
+  {
     version: "1.16",
     date: "2026-08-06",
     title: "Fixed the off-center subtitle on the landing page",
