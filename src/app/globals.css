@@ -254,10 +254,24 @@
     transform: scale(1);
   }
   .duel-avatar--firing .duel-avatar__gun-recoil {
-    animation: duel-recoil 0.45s ease-out;
+    animation: duel-recoil 0.6s ease-out;
   }
   .duel-avatar--firing .duel-avatar__figure {
-    animation: duel-kick 0.45s ease-out;
+    animation: duel-kick 0.6s ease-out;
+  }
+  /* Muzzle smoke — appears with the flash but, unlike it, lingers and
+     drifts on a much slower transition, so the shot still reads as "just
+     happened" for a beat after the flash itself has already cut out. */
+  .duel-avatar__smoke {
+    opacity: 0;
+    transform: scale(0.4) translateY(0);
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+  }
+  .duel-avatar--firing .duel-avatar__smoke {
+    opacity: 0.55;
+    transform: scale(1.6) translateY(-6%);
   }
   @keyframes duel-idle {
     0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -279,10 +293,13 @@
   }
 
   /* Full-screen jump-scare overlay, shown for a live/damaging shot. A
-     multi-beat sequence — charge, flash/kick, shockwave, hold, fade —
-     choreographed as percentage keyframes across one shared ~1.9s timeline
-     so every layer (shake, flash, figure, shockwave, caption, particles)
-     stays in sync without separate JS-driven phases. */
+     slow, cinematic multi-beat sequence — charge, flash/kick, shockwave +
+     spark burst, a slow-motion ejected shell casing tumbling through the
+     air, rising smoke, a long held beat, then a fade — choreographed as
+     percentage keyframes across one shared ~2.65s timeline so every layer
+     stays in sync without separate JS-driven phases. The fast beats (charge
+     through settle) land in the first ~600ms; everything after that is
+     deliberately slow and lingering. */
   .shoot-scare {
     position: fixed;
     inset: 0;
@@ -291,21 +308,21 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    animation: scare-shake 1.9s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    animation: scare-shake 2.65s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
   .shoot-scare__vignette {
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, color-mix(in oklch, var(--scare-color) 45%, black) 100%);
     opacity: 0;
-    animation: scare-vignette 1.9s ease-out both;
+    animation: scare-vignette 2.65s ease-out both;
   }
   .shoot-scare__flash {
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse 70% 60% at 50% 50%, color-mix(in oklch, var(--scare-color) 55%, white 35%), transparent 70%);
     opacity: 0;
-    animation: scare-flash 1.9s ease-out both;
+    animation: scare-flash 2.65s ease-out both;
   }
   .shoot-scare__shockwave {
     position: absolute;
@@ -315,14 +332,14 @@
     border: 3px solid color-mix(in oklch, var(--scare-color) 80%, white 20%);
     box-shadow: 0 0 40px color-mix(in oklch, var(--scare-color) 60%, transparent);
     opacity: 0;
-    animation: scare-shockwave 1.9s cubic-bezier(0.1, 0.6, 0.3, 1) both;
+    animation: scare-shockwave 2.65s cubic-bezier(0.1, 0.6, 0.3, 1) both;
   }
   .shoot-scare__figure {
     position: relative;
     width: min(60vw, 420px);
     height: min(78vh, 540px);
     filter: drop-shadow(0 0 30px color-mix(in oklch, var(--scare-color) 60%, transparent));
-    animation: scare-pop 1.9s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+    animation: scare-pop 2.65s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
   }
   .shoot-scare__caption {
     position: absolute;
@@ -333,7 +350,7 @@
     letter-spacing: 0.08em;
     color: color-mix(in oklch, var(--scare-color) 75%, white 25%);
     text-shadow: 0 0 18px color-mix(in oklch, var(--scare-color) 70%, transparent), 0 2px 0 black;
-    animation: scare-caption 1.9s ease-out both;
+    animation: scare-caption 2.65s ease-out both;
     white-space: nowrap;
   }
   .shoot-scare__particle {
@@ -344,59 +361,97 @@
     background: var(--scare-color);
     box-shadow: 0 0 8px color-mix(in oklch, var(--scare-color) 70%, transparent);
     opacity: 0;
-    animation: scare-particle 1.9s cubic-bezier(0.15, 0.7, 0.3, 1) both;
+    animation: scare-particle 2.65s cubic-bezier(0.15, 0.7, 0.3, 1) both;
+  }
+  /* Slow-motion ejected shell casing — tumbles through the air over ~1s,
+     the single slowest, most deliberate element in the whole sequence. */
+  .shoot-scare__casing {
+    position: absolute;
+    width: 7px;
+    height: 16px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, color-mix(in oklch, var(--scare-color) 70%, #d9a441 20%), color-mix(in oklch, var(--scare-color) 40%, #7a5a1a 30%));
+    box-shadow: 0 0 6px color-mix(in oklch, var(--scare-color) 50%, transparent);
+    opacity: 0;
+    animation: scare-casing 2.65s cubic-bezier(0.25, 0.4, 0.35, 1) both;
+  }
+  /* Rising muzzle smoke — slow, drifting, long-lingering on purpose. */
+  .shoot-scare__smoke {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in oklch, var(--scare-color) 35%, #d8d3cc 55%), transparent 72%);
+    filter: blur(3px);
+    opacity: 0;
+    animation: scare-smoke 2.65s ease-out both;
   }
   @keyframes scare-vignette {
-    0%, 14% { opacity: 0; }
-    20% { opacity: 0.9; }
-    30% { opacity: 0.55; }
-    80% { opacity: 0.4; }
+    0%, 10.5% { opacity: 0; }
+    15% { opacity: 0.9; }
+    22.5% { opacity: 0.55; }
+    83% { opacity: 0.4; }
     100% { opacity: 0; }
   }
   @keyframes scare-flash {
-    0%, 10% { opacity: 0; }
-    16% { opacity: 1; }
-    26% { opacity: 0.12; }
-    78% { opacity: 0.08; }
+    0%, 7.5% { opacity: 0; }
+    12% { opacity: 1; }
+    19.5% { opacity: 0.12; }
+    80% { opacity: 0.08; }
     100% { opacity: 0; }
   }
   @keyframes scare-shockwave {
-    0%, 15% { transform: scale(0); opacity: 0; }
-    22% { transform: scale(0.3); opacity: 0.95; }
-    55% { transform: scale(1.9); opacity: 0; }
+    0%, 11% { transform: scale(0); opacity: 0; }
+    16% { transform: scale(0.3); opacity: 0.95; }
+    40% { transform: scale(1.9); opacity: 0; }
     100% { transform: scale(1.9); opacity: 0; }
   }
   @keyframes scare-pop {
     0% { transform: scale(0.25); opacity: 0; }
-    12% { transform: scale(0.7); opacity: 0.75; }
-    17% { transform: scale(1.12); opacity: 1; }
-    22% { transform: scale(0.96); }
-    27% { transform: scale(1.03); }
-    33% { transform: scale(1); }
-    80% { transform: scale(1); opacity: 1; }
+    9% { transform: scale(0.7); opacity: 0.75; }
+    12.5% { transform: scale(1.15); opacity: 1; }
+    16% { transform: scale(0.96); }
+    19.5% { transform: scale(1.04); }
+    24% { transform: scale(1); }
+    83% { transform: scale(1); opacity: 1; }
     100% { transform: scale(1.07); opacity: 0; }
   }
   @keyframes scare-caption {
-    0%, 20% { opacity: 0; transform: translateY(10px) scale(0.92); }
-    26% { opacity: 1; transform: translateY(0) scale(1.06); }
-    33% { transform: translateY(0) scale(1); }
-    82% { opacity: 1; transform: translateY(0) scale(1); }
+    0%, 15% { opacity: 0; transform: translateY(10px) scale(0.92); }
+    20% { opacity: 1; transform: translateY(0) scale(1.06); }
+    25% { transform: translateY(0) scale(1); }
+    85% { opacity: 1; transform: translateY(0) scale(1); }
     100% { opacity: 0; transform: translateY(0) scale(1); }
   }
   @keyframes scare-particle {
-    0%, 15% { transform: translate(0, 0) scale(0.4); opacity: 0; }
-    20% { transform: translate(0, 0) scale(1.2); opacity: 1; }
-    55% { transform: translate(var(--px, 60px), var(--py, -20px)) scale(0.5); opacity: 0; }
+    0%, 11% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+    15% { transform: translate(0, 0) scale(1.2); opacity: 1; }
+    40% { transform: translate(var(--px, 60px), var(--py, -20px)) scale(0.5); opacity: 0; }
     100% { opacity: 0; }
   }
+  @keyframes scare-casing {
+    0%, 14% { transform: translate(0, 0) rotate(0deg) scale(0.6); opacity: 0; }
+    18% { transform: translate(6px, -5px) rotate(30deg) scale(0.85); opacity: 1; }
+    34% { transform: translate(24px, -26px) rotate(200deg) scale(0.9); opacity: 1; }
+    52% { transform: translate(38px, 6px) rotate(380deg) scale(0.8); opacity: 0.9; }
+    64% { transform: translate(46px, 38px) rotate(480deg) scale(0.6); opacity: 0; }
+    100% { opacity: 0; }
+  }
+  @keyframes scare-smoke {
+    0%, 12% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+    18% { transform: translate(0, -6px) scale(0.7); opacity: 0.5; }
+    45% { transform: translate(var(--sx, 10px), -42px) scale(1.3); opacity: 0.35; }
+    75% { transform: translate(calc(var(--sx, 10px) * 1.6), -85px) scale(1.9); opacity: 0.15; }
+    100% { transform: translate(calc(var(--sx, 10px) * 2), -118px) scale(2.3); opacity: 0; }
+  }
   @keyframes scare-shake {
-    0%, 15% { transform: translate(0, 0) rotate(0deg); }
-    17% { transform: translate(-2.2%, 1.1%) rotate(-0.6deg); }
-    19% { transform: translate(2.4%, -1.5%) rotate(0.7deg); }
-    21% { transform: translate(-1.8%, 1.6%) rotate(-0.5deg); }
-    23% { transform: translate(1.6%, -0.9%) rotate(0.4deg); }
-    26% { transform: translate(-0.8%, 0.5%) rotate(-0.2deg); }
-    30%, 100% { transform: translate(0, 0) rotate(0deg); }
+    0%, 10.5% { transform: translate(0, 0) rotate(0deg); }
+    12% { transform: translate(-2.2%, 1.1%) rotate(-0.6deg); }
+    13.5% { transform: translate(2.4%, -1.5%) rotate(0.7deg); }
+    15% { transform: translate(-1.8%, 1.6%) rotate(-0.5deg); }
+    16.5% { transform: translate(1.6%, -0.9%) rotate(0.4deg); }
+    19% { transform: translate(-0.8%, 0.5%) rotate(-0.2deg); }
+    23%, 100% { transform: translate(0, 0) rotate(0deg); }
   }
 
   /* Table talk (EventLog) message entrance + emphasis. */

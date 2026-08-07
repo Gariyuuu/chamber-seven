@@ -5,15 +5,17 @@ import { useEffect } from "react";
 export type ScareKind = "shooter" | "victim";
 
 const PARTICLE_COUNT = 8;
-const SCARE_DURATION_MS = 1950;
+const SMOKE_COUNT = 3;
+const SCARE_DURATION_MS = 2700;
 
 /**
- * A full-screen jump-scare overlay for a LIVE (damaging) shot — a multi-beat
- * sequence (charge → muzzle flash/kick → shockwave → hold → fade) rather
- * than a single pop, so it reads as a real "moment" instead of a blip.
- * `victim` aims the gun straight at the viewer (you got hit, whether by
- * yourself or someone else); `shooter` shows the side-on recoil (you just
- * fired at someone). Auto-dismisses itself once the sequence finishes.
+ * A full-screen jump-scare overlay for a LIVE (damaging) shot — a slow,
+ * cinematic multi-beat sequence (charge → muzzle flash/kick → shockwave +
+ * spark burst → a slow-motion tumbling shell casing and rising smoke →
+ * held caption → fade) rather than a single quick pop. `victim` aims the
+ * gun straight at the viewer (you got hit, whether by yourself or someone
+ * else); `shooter` shows the side-on recoil (you just fired at someone).
+ * Auto-dismisses itself once the sequence finishes.
  */
 export function ShootScare({
   kind,
@@ -31,7 +33,12 @@ export function ShootScare({
     return () => clearTimeout(timer);
   }, [onDone]);
 
-  const particleOrigin = kind === "victim" ? { left: "50%", top: "54%" } : { left: "76%", top: "60%" };
+  // The spark burst centers on the muzzle itself (roughly center-forward
+  // when the gun points at the viewer, off to the side when aimed away).
+  // The casing/smoke get their own, slightly offset origin so they don't
+  // just vanish into the shockwave ring/eye glow sitting at dead-center.
+  const muzzleOrigin = kind === "victim" ? { left: "50%", top: "54%" } : { left: "76%", top: "60%" };
+  const ejectOrigin = kind === "victim" ? { left: "34%", top: "62%" } : { left: "82%", top: "50%" };
 
   return (
     <div className="shoot-scare" style={{ ["--scare-color" as string]: color }}>
@@ -50,7 +57,7 @@ export function ShootScare({
             key={i}
             className="shoot-scare__particle"
             style={{
-              ...particleOrigin,
+              ...muzzleOrigin,
               ["--px" as string]: `${px}px`,
               ["--py" as string]: `${py}px`,
               animationDelay: `${i * 12}ms`,
@@ -58,6 +65,20 @@ export function ShootScare({
           />
         );
       })}
+
+      <span className="shoot-scare__casing" style={ejectOrigin} />
+
+      {Array.from({ length: SMOKE_COUNT }).map((_, i) => (
+        <span
+          key={i}
+          className="shoot-scare__smoke"
+          style={{
+            ...ejectOrigin,
+            ["--sx" as string]: `${(i - 1) * 16}px`,
+            animationDelay: `${i * 180}ms`,
+          }}
+        />
+      ))}
 
       <svg viewBox="0 0 100 130" className="shoot-scare__figure" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -89,21 +110,21 @@ export function ShootScare({
         </g>
 
         <g transform={kind === "victim" ? "rotate(78 70 78)" : "rotate(-6 70 78)"}>
-          <rect x="70" y="74" width="34" height="8" rx="2" fill="#161419" />
-          <rect x="98" y="75" width="10" height="6" rx="1.5" fill="#0a090c" />
-          <rect x="58" y="72" width="16" height="14" rx="2" fill="#1d1a22" />
+          <rect x="66" y="72" width="38" height="10" rx="2.5" fill="#161419" />
+          <rect x="98" y="73.5" width="12" height="7" rx="1.5" fill="#0a090c" />
+          <rect x="56" y="69" width="18" height="16" rx="2" fill="#1d1a22" />
           <circle
-            cx="106"
-            cy="78"
-            r="3.4"
+            cx="108"
+            cy="77"
+            r="3.6"
             fill="#000"
             stroke="color-mix(in oklch, var(--scare-color) 70%, transparent)"
             strokeWidth="0.8"
           />
           <g filter="url(#scare-glow)">
-            <circle cx="112" cy="78" r="10" fill="var(--scare-color)" />
+            <circle cx="114" cy="77" r="13" fill="var(--scare-color)" />
             <path
-              d="M112 58 L116 74 L132 78 L116 82 L112 98 L108 82 L92 78 L108 74 Z"
+              d="M114 54 L119 73 L138 77 L119 81 L114 100 L109 81 L90 77 L109 73 Z"
               fill="var(--scare-color)"
             />
           </g>

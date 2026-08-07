@@ -13,7 +13,7 @@ import { LayoutGrid, Radiation, type LucideIcon } from "lucide-react";
 import { SEAT_COLOR, COLOR_TEXT } from "@/lib/game/colors";
 import { cn } from "@/lib/utils";
 
-const DEALER_FX_DURATION_MS = 550;
+const DEALER_FX_DURATION_MS = 900;
 
 /**
  * Detects a fresh LIVE (damaging) fire that involves the local player —

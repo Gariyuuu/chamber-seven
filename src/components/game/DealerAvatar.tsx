@@ -85,6 +85,8 @@ export function DealerAvatar({
                 fill="var(--avatar-color)"
               />
             </g>
+            {/* muzzle smoke — lingers longer than the flash via a slower CSS transition */}
+            <circle cx="113" cy="76" r="6" fill="#cfcac0" className="duel-avatar__smoke" />
           </g>
         </g>
       </svg>

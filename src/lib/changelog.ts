@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.21",
+    date: "2026-08-07",
+    title: "The jump-scare is slower and heavier now",
+    changes: [
+      "Stretched the shooting sequence from ~2s to ~2.7s and made the muzzle flash noticeably bigger — it lingers instead of snapping past.",
+      "Added a slow-motion ejected shell casing that tumbles through the air, plus rising muzzle smoke that drifts and fades gradually.",
+      "The smaller in-HUD firing animation (for shots that don't involve you directly) got the same treatment — a bit slower, with its own lingering muzzle smoke.",
+    ],
+  },
+  {
     version: "1.20",
     date: "2026-08-07",
     title: "A much bigger jump-scare, and animation everywhere",
