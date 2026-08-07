@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.14",
+    date: "2026-08-06",
+    title: "New backgrounds, take three: a dark felt table instead of an alley",
+    changes: [
+      "Replaced the alley/neon-sign backgrounds entirely with a new design: a near-black card-table felt, faint suit watermarks (♠♥♦♣), and a subtle woven texture — no light sources or glow of any kind.",
+      "Also switched the file format back to PNG.",
+    ],
+  },
+  {
     version: "1.13",
     date: "2026-08-06",
     title: "Found the actual glow: a giant faint skull behind the landing page title",
