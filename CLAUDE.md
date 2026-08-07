@@ -62,21 +62,19 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
 
 See `PROJECT_STATE.md` for the exact, timestamped snapshot. Summary:
 
-- **Latest deployed milestone:** v1.9 (`/tutorial` + `/lessons`,
-  committed `ae1219c`, deployed and verified live in production
-  2026-08-06). **v1.10 (site icon, human player avatars, font bug
-  fix/swap, new SVG theme backgrounds, table-talk animation, jump-scare
-  overlay) is implemented and verified locally as of 2026-08-06 but
-  NOT YET committed, pushed, or deployed** — see `PROJECT_STATE.md` top
-  section and `SESSION_LOG.md` top entry. Ask the user before
-  committing/deploying it.
-- **Current blockers:** None technical. The only open item is that
-  v1.10's changes are sitting uncommitted in the working tree — not a
-  blocker, just something to be aware of before running any git command
-  that could discard uncommitted work.
+- **Latest deployed milestone:** v1.11 (2026-08-06) — fixes a real
+  contrast bug in v1.10's new backgrounds (bright glow/window elements
+  sat behind page titles, blew up into glaring blocks on mobile) plus a
+  mobile title-overflow bug, and swaps the body font again (`Barlow` →
+  `Oswald`). v1.10 itself (site icon, human player avatars, font
+  bug fix, new SVG theme backgrounds, table-talk animation, jump-scare
+  overlay) shipped the same day. Both committed, pushed to
+  `origin/main`, and deployed to Cloudflare + Vercel — see
+  `PROJECT_STATE.md` top section and `SESSION_LOG.md` top entry.
+- **Current blockers:** None.
 - **Highest-priority next task:** None queued. `TASKS.md` → "Current
-  task" says "None queued" (but flags the uncommitted v1.10 work) — wait
-  for user direction rather than inventing work.
+  task" says "None queued" — wait for user direction rather than
+  inventing work.
 
 ## Technology stack
 

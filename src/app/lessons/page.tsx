@@ -98,7 +98,7 @@ export default function LessonsPage() {
             <GraduationCap className="size-3.5" />
             Lessons
           </p>
-          <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-6xl tracking-wide text-transparent">
+          <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-4xl tracking-wide text-transparent sm:text-5xl md:text-6xl">
             GET BETTER
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">

@@ -12,6 +12,28 @@ handoff memory system described in `CLAUDE.md`.
 
 ---
 
+## 2026-08-06 — v1.11: fixed v1.10's background contrast bug + mobile title overflow
+
+**Type:** Bug fix, in direct response to user feedback on v1.10 (deployed
+same day). Two real bugs, not taste: (1) the new background SVGs had a
+bright bulb-glow + lit-window grid positioned where every page's title
+sits, which mobile's `background-size: cover` crop blew up into glaring
+blocks — reported as "white background, can't see the text"; (2) several
+hero headings had no/inverted responsive sizing and overflowed on phones
+once the display face switched to the wider `Butcherman`. Fixed both,
+plus swapped the body font again (`Barlow` → `Oswald`) since the user
+felt the font change didn't read as covering "all the text." See
+`SESSION_LOG.md` top entry for full root-cause detail and
+`src/lib/changelog.ts` `v1.11` for the player-facing version.
+
+Verified via real WebKit (iPhone 13 viewport) + Chromium screenshots
+across all 6 top-level pages — deliberately not just a computed-style
+check, since that's exactly what let the v1.10 bug ship unnoticed.
+Committed, pushed, and deployed to both Cloudflare and Vercel; confirmed
+live via `curl`.
+
+---
+
 ## 2026-08-06 — v1.10: icon, human player avatars, real fonts, new backgrounds, jump-scare
 
 **Type:** Product/UI feature work, plus one real bug fix. See

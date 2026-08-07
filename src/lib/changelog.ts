@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.11",
+    date: "2026-08-06",
+    title: "Fixed the new backgrounds washing out text, and a real font everywhere",
+    changes: [
+      "The v1.10 backgrounds had a real contrast bug: a bright hanging-bulb glow and a grid of lit \"windows\" sat right behind page titles, and on phones the background gets cropped/zoomed hard enough that they turned into glaring blocks — exactly the \"white background, can't read the text\" problem some of you hit. Fixed: every background is now much darker overall, the glow/lighting elements are dimmed and pushed down and off to the side, away from where every page's title actually sits.",
+      "Also fixed: several page titles (\"CHAMBER SEVEN\", \"TOP SURVIVORS\", etc.) were sized to get BIGGER on small screens instead of smaller, so they ran off the edge of the screen on phones. Now they scale down properly on narrow viewports.",
+      "Body text swapped again, from Barlow to Oswald — a bolder, more distinct look so the font change reads across all the UI text, not just the big headline font.",
+    ],
+  },
+  {
     version: "1.10",
     date: "2026-08-06",
     title: "New site icon, human avatars, real fonts, and a jump-scare",

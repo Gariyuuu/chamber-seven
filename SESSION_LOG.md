@@ -5,6 +5,81 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Shipped v1.11: fixed v1.10's background contrast bug + mobile title overflow, font swapped again
+
+- **Goal:** User shipped v1.10, then reported: "the white background is
+  so bad, it makes the text not seeable... change font for all the text
+  not just the main text... add better backgrounds... if its dark keep
+  most of it dark no insane contrast of white with black i cant see."
+- **Root causes found (not guessed — reproduced via WebKit screenshots
+  at iPhone 13 viewport against live production):**
+  1. The v1.10 background SVGs had a bright hanging-bulb radial glow
+     (peak opacity 0.9) and a grid of lit "window" rects (opacity up to
+     0.7, with a flat **white** fallback for unlit ones) positioned near
+     the vertical/horizontal center of the 1920×1080 scene — exactly
+     where every page's title sits (`/`, `/leaderboard`, `/career`, etc.
+     all center their `h1` near the top). On a mobile viewport,
+     `background-size: cover` crops the image hard enough that these
+     blew up into glaring rectangular blocks directly behind the title
+     text. That's what read as "white background, can't see the text."
+  2. Separately, `page.tsx`'s "CHAMBER SEVEN" h1 was `text-7xl
+     sm:text-8xl` — i.e. it got **bigger**, not smaller, at wider
+     breakpoints, so mobile got the "small" `text-7xl` — which was still
+     too wide for `Butcherman`'s wider dripping letterforms and
+     overflowed the viewport on an iPhone. Same issue (flat, non-
+     responsive `text-6xl`) on `/leaderboard`, `/career`, `/changelog`,
+     `/lessons`, `/tutorial`, and `MatchEndView.tsx`'s result text —
+     pre-existing (not something this session introduced), but made
+     materially worse by switching to a wider display face.
+  3. Font: `--font-sans` correctly resolved to `Barlow` (v1.10's fix
+     verified working), but the user's complaint was that the change
+     didn't read as applying to "all the text" — `Barlow`'s fairly
+     neutral, humanist letterforms don't look dramatically different
+     from a default system sans at a glance, so only the big
+     `Butcherman` headlines felt like they'd actually changed.
+- **Fix:**
+  - Rewrote the background SVG generator (`/tmp` Python script, not
+    committed): capped every light source's opacity much lower (bulb
+    glow ≤0.3, windows ≤0.16), removed the white fallback for unlit
+    windows entirely, moved the bulb/windows down and off-center, kept
+    the top ~40% and horizontal centerline of the whole composition
+    near-black, moved rain out of that same zone. Regenerated all 5
+    `public/backgrounds/bg-<theme>.svg` files.
+  - Added mobile-first responsive text sizing (`text-4xl` base scaling
+    up via `sm:`/`md:`/`lg:`) to all 6 affected headings.
+  - Swapped body font `Barlow` → `Oswald` (bolder, more condensed,
+    visually distinct from a default sans) — `--font-sans` still points
+    at `--font-body`, only which font loads into that variable changed.
+- **Files changed:** `src/app/layout.tsx` (font swap), `public/
+  backgrounds/bg-*.svg` (regenerated), `src/app/page.tsx`,
+  `src/app/leaderboard/page.tsx`, `src/app/career/page.tsx`,
+  `src/app/changelog/page.tsx`, `src/app/lessons/page.tsx`,
+  `src/app/tutorial/page.tsx`, `src/components/game/MatchEndView.tsx`
+  (responsive heading sizes), `src/lib/changelog.ts` (new `v1.11` entry).
+- **Verification:** `npm run typecheck && npm run typecheck:party &&
+  npm run lint && npm run build` all clean. Re-ran the local `next dev`
+  + `wrangler dev` pair, drove real WebKit (iPhone 13 viewport) and
+  Chromium (desktop) browsers across all 6 top-level pages plus a live
+  vs-AI lobby/playing screen — confirmed no bright elements behind any
+  title, no text overflow, `Oswald`/`Butcherman` both rendering
+  correctly. This was **screenshotted and visually reviewed**, not just
+  computed-style-checked, specifically because the v1.10 bug had passed
+  a computed-style check while still being visually broken on mobile.
+- **Shipped:** committed, pushed to `origin/main`, `wrangler deploy`
+  (Worker — no `party/`/`state.ts` changes, ran anyway per explicit user
+  request to "deploy all"), `vercel deploy --prod`. Verified live via
+  `curl` against `chamber-seven-omega.vercel.app` (changelog text,
+  `/icon` 200, new SVG 200, old PNG 404).
+- **Lesson for future sessions:** a computed-style/DOM check (like
+  v1.10's `getComputedStyle(h1).fontFamily` check) can pass while a
+  background-image asset is still visually broken — it only proves the
+  *font* wired up correctly, not that the *composition* is legible.
+  When a background/art asset is involved, take actual screenshots
+  (ideally WebKit + a mobile viewport, not just Chromium desktop) before
+  calling it verified.
+
+---
+
 ## 2026-08-06 — Shipped v1.10: icon, human player avatars, real fonts, new backgrounds, table-talk animation, jump-scare
 
 - **Account or agent:** unknown (not disclosed in-session)

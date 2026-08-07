@@ -6,21 +6,20 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
-**None queued**, but **note: the working tree is currently dirty.** The
-2026-08-06 v1.10 pass (site icon, human player avatars, font fix/swap,
-new SVG backgrounds, table-talk animation, jump-scare overlay — see
-`PROJECT_STATE.md` top section and `SESSION_LOG.md` top entry for full
-detail) is implemented, verified via typecheck/lint/build and a real
-headless-browser run, but **not committed, not pushed, not deployed** —
-that wasn't part of what was asked. Before starting new work, check
-`git status`; before committing/deploying it, confirm with the user
-first (per standing git-safety rules, not because anything is wrong with
-the change).
+**None queued.** v1.10 shipped (committed/pushed/deployed), then the
+user reported it made text unreadable on mobile — a real background
+contrast bug plus a title-overflow bug, both found and fixed as v1.11,
+verified via real WebKit+Chromium screenshots (not just computed-style
+checks, which is how the v1.10 bug slipped through). v1.11 is
+**committed, pushed to `origin/main`, and deployed to both Cloudflare
+and Vercel** — see `PROJECT_STATE.md` top section and `SESSION_LOG.md`
+top entry for full detail. Verify with `git status` before starting
+anything new.
 
 Everything from the prior backlog (`TASK-001` through `TASK-008`, the
 2026-08-06 documentation audit) is complete, committed, deployed, and
 verified live in production — see "Recently completed" below for that
-record. This new v1.10 work is separate/on top of that.
+record.
 
 ## v1.8 ship — full record
 

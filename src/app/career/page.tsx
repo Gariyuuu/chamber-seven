@@ -80,7 +80,7 @@ export default function CareerPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-background/10" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-5 text-center">
           <p className="text-xs font-medium tracking-[0.4em] text-muted-foreground uppercase">Single player</p>
-          <h1 className="font-display text-5xl tracking-wide text-primary drop-shadow-[0_0_24px_color-mix(in_oklch,var(--primary)_50%,transparent)] sm:text-6xl">
+          <h1 className="font-display text-4xl tracking-wide text-primary drop-shadow-[0_0_24px_color-mix(in_oklch,var(--primary)_50%,transparent)] sm:text-5xl md:text-6xl">
             CAREER MODE
           </h1>
         </div>

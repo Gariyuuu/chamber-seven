@@ -4,7 +4,39 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest of all): v1.10 SHIPPED (icon, player avatars, real fonts, new backgrounds, jump-scare)
+## Status as of 2026-08-06 (latest of all): v1.11 SHIPPED — fixed v1.10's background contrast bug + mobile title overflow
+
+Eighth pass this same day. User reported v1.10's new backgrounds made
+text unreadable ("white background... insane contrast... keep most of
+it dark") and that the font change didn't feel like it covered "all the
+text." Reproduced with real WebKit screenshots at an iPhone 13 viewport
+against **live production** (not assumed) and found two concrete bugs:
+(1) the v1.10 background SVGs had a bright bulb glow + a lit-window grid
+(with a flat white fallback for unlit ones) positioned dead-center where
+every page's title sits, which `background-size: cover` blew up into
+glaring blocks on mobile; (2) several hero headings had no responsive
+downscaling — `page.tsx`'s title in particular got *bigger*, not
+smaller, on wider screens, so it overflowed on phones with the new wider
+`Butcherman` display face.
+
+Fixed: regenerated all 5 background SVGs with every light source capped
+much darker and moved away from the title-safe zone (top ~40% +
+horizontal centerline now stay near-black everywhere); added
+mobile-first responsive sizing to 6 affected headings; swapped the body
+font again, `Barlow` → `Oswald` (more visually distinct from a default
+sans, addressing "not just the main text"). New `v1.11` in-app changelog
+entry. Full detail in `SESSION_LOG.md` (top entry).
+
+Verified: `typecheck`×2/`lint`/`build` clean, plus real WebKit (mobile)
++ Chromium (desktop) screenshots across all 6 top-level pages and a live
+vs-AI lobby/playing screen — confirmed both bugs are actually fixed
+visually, not just "the font resolves correctly" (which v1.10 had
+already verified and was still visually broken). **Committed, pushed to
+`origin/main`, and deployed to both Cloudflare (`wrangler deploy`) and
+Vercel (`vercel deploy --prod`)** — confirmed live via `curl` against
+production.
+
+## Status as of 2026-08-06 (prior pass): v1.10 SHIPPED (icon, player avatars, real fonts, new backgrounds, jump-scare)
 
 Seventh pass this same day. User feedback, verbatim intent: add a site
 icon, give human players the same animated character treatment the bot

@@ -92,7 +92,7 @@ export default function HomePage() {
         <p className="mb-1 text-xs font-medium tracking-[0.4em] text-muted-foreground uppercase">
           An underground table game
         </p>
-        <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-7xl tracking-wide text-transparent drop-shadow-[0_0_28px_color-mix(in_oklch,var(--primary)_45%,transparent)] sm:text-8xl">
+        <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-4xl tracking-wide text-transparent drop-shadow-[0_0_28px_color-mix(in_oklch,var(--primary)_45%,transparent)] sm:text-6xl md:text-7xl lg:text-8xl">
           CHAMBER&nbsp;SEVEN
         </h1>
         <p className="mt-3 max-w-md text-balance text-muted-foreground">

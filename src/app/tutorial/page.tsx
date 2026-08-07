@@ -82,7 +82,7 @@ export default function TutorialPage() {
             <BookOpen className="size-3.5" />
             Tutorial
           </p>
-          <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-6xl tracking-wide text-transparent">
+          <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-4xl tracking-wide text-transparent sm:text-5xl md:text-6xl">
             HOW TO PLAY
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">

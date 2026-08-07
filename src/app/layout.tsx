@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Barlow, Geist_Mono, Butcherman } from "next/font/google";
+import { Oswald, Geist_Mono, Butcherman } from "next/font/google";
 import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { THEME_STORAGE_KEY } from "@/lib/themePresets";
 import "./globals.css";
 
-const barlow = Barlow({
+const oswald = Oswald({
   variable: "--font-body",
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${barlow.variable} ${geistMono.variable} ${butcherman.variable} h-full antialiased dark`}
+      className={`${oswald.variable} ${geistMono.variable} ${butcherman.variable} h-full antialiased dark`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">

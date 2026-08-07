@@ -132,12 +132,17 @@ pattern.
 
 ## Typography
 
-As of 2026-08-06 (v1.10):
+As of 2026-08-06 (v1.11):
 
-- **Body/sans:** `Barlow` (`--font-body`, mapped to Tailwind's
-  `--font-sans`), all body text and UI chrome.
+- **Body/sans:** `Oswald` (`--font-body`, mapped to Tailwind's
+  `--font-sans`), all body text and UI chrome. **v1.10 shipped `Barlow`
+  here first; swapped to `Oswald` in v1.11** because user feedback was
+  that the font change didn't read as applying to "all the text," only
+  the big display headlines — `Oswald`'s condensed, bolder letterforms
+  are a much more visually distinct departure from a default system sans
+  than `Barlow`'s fairly neutral humanist shapes were.
 - **Mono:** `Geist Mono` (`--font-geist-mono`), used for the event log
-  (`EventLog.tsx`, `font-mono`). Unchanged in the v1.10 font pass.
+  (`EventLog.tsx`, `font-mono`). Unchanged since before v1.10.
 - **Display:** `Butcherman` (`--font-display`), a distressed
   horror-poster face, used for large headline text (page titles, room
   code, match-end result) *and* the small nav wordmark ("CHAMBER SEVEN")
@@ -344,14 +349,39 @@ matrix in the repo.
   team-mode match starts.
 - ~~`--font-sans` was a self-referential CSS custom property, so the
   site's body font silently never rendered `Geist` at all~~ — **fixed
-  2026-08-06**, and the font was swapped to `Barlow`/`Butcherman` in the
-  same pass — see Typography above.
+  2026-08-06**, and the font was swapped (`Barlow` in v1.10, then
+  `Oswald` in v1.11 — see Typography above).
 - ~~All 5 theme backgrounds shared one moon-and-light-streaks template,
   just recolored~~ — **fixed 2026-08-06**: replaced with 5 genuinely
   different hand-drawn SVG alley scenes — see Themes above.
 - ~~Human players had no avatar at all (only bots did, via
   `DealerAvatar`)~~ — **fixed 2026-08-06**: `PlayerAvatar.tsx` gives
   every human seat, including your own, the same animated treatment.
+- ~~v1.10's new backgrounds had a real contrast bug: a bright hanging-bulb
+  glow (peak opacity 0.9) and a grid of lit "window" rects (opacity up
+  to 0.7, no dim fallback — unlit windows used flat white) sat near the
+  vertical/horizontal center of the 1920×1080 scene, which is exactly
+  where every page's title sits. On mobile, `background-size: cover`
+  crops hard enough that these blew up into glaring rectangular blocks
+  directly behind title text — user-reported as "white background,
+  can't see the text."~~ — **fixed 2026-08-06 (v1.11)**: all light
+  sources capped much lower (bulb glow ≤0.3, windows ≤0.16, no white
+  fallback), moved down/off-center away from the title-safe zone (the
+  top ~40% and horizontal centerline are now kept near-black across the
+  whole composition), rain confined below the title zone too. Verified
+  via WebKit + Chromium screenshots at both desktop and iPhone 13
+  viewport sizes across all 6 top-level pages.
+- ~~Several `font-display` hero headings (`page.tsx`'s "CHAMBER SEVEN",
+  and `text-6xl` titles on `/leaderboard`, `/changelog`, `/lessons`,
+  `/tutorial`, plus `MatchEndView.tsx`'s result text) had *no* responsive
+  downscaling, and `page.tsx`'s specifically went `text-7xl` →
+  `sm:text-8xl` (bigger on larger breakpoints only, meaning mobile got
+  the *smaller* of the two — but `text-7xl` alone was still too wide for
+  `Butcherman`'s letterforms on a narrow phone, overflowing the
+  viewport)~~ — **fixed 2026-08-06 (v1.11)**: all of these now scale
+  mobile-first (`text-4xl` base, up through `sm:`/`md:`/`lg:` to the
+  original desktop size), verified not to overflow on an iPhone 13
+  viewport.
 - Default Next.js starter SVGs (`file.svg`, `globe.svg`, `next.svg`,
   `vercel.svg`, `window.svg`) remain in `public/` unused — cosmetic
   repo-cleanliness issue only, not a rendering bug.
