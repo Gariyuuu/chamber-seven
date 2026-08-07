@@ -20,7 +20,6 @@ export const CAREER_ITEM_UNLOCK_ORDER: ItemId[] = [
   "point_blank",
   "false_confession",
   "sleight_of_hand",
-  "overdose",
   "second_wind",
   "last_rites",
   "molotov",

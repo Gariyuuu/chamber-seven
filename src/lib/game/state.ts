@@ -271,7 +271,10 @@ const DRAW_REROLL_ATTEMPTS = 20;
 
 /** Items capped at holding one per player at a time (per round, since hands reset each round). */
 function canHoldAnother(room: RoomState, seat: SeatId, item: ItemId): boolean {
-  if (item === "irons" || item === "vultures_due") {
+  // patch_kit is capped at one so it can't be stacked for a burst heal in a
+  // single turn — Overdose (which allowed a 2 HP heal on top of it) has been
+  // removed from the pool entirely for the same reason.
+  if (item === "irons" || item === "vultures_due" || item === "patch_kit") {
     return !room.players[seat].items.includes(item);
   }
   if (item === "scapegoat") {
@@ -764,14 +767,6 @@ function applyItemEffect(
       }
       return { ok: true };
     }
-    case "overdose": {
-      const before = actor.hp;
-      actor.hp = Math.min(actor.maxHp, actor.hp + 2);
-      const healed = actor.hp - before;
-      actor.forceLiveNext = true;
-      log(room, actingSeat, `${actor.name} takes an Overdose, healing ${healed} HP — but the next shell is forced live.`);
-      return { ok: true };
-    }
     case "second_wind":
       return { ok: false, error: "Second Wind triggers automatically and can't be used directly." };
   }
@@ -897,10 +892,6 @@ export function runBotStep(room: RoomState, botSeat: SeatId): "used_item" | "fir
     }
     if (!peeked && lowHp && bot.items.includes("flask")) {
       playItem(room, botSeat, "flask");
-      return "used_item";
-    }
-    if (lowHp && bot.items.includes("overdose")) {
-      playItem(room, botSeat, "overdose");
       return "used_item";
     }
     if (bot.hp < bot.maxHp && bot.items.includes("patch_kit") && bot.items.length > 1) {

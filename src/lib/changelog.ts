@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.19",
+    date: "2026-08-07",
+    title: "Balance pass: Overdose removed, no more stacked heals",
+    changes: [
+      "Removed Overdose from the item pool entirely — healing 2 HP for a forced-live next shell was landing too strong, especially stacked with Patch Kit in the same turn.",
+      "Patch Kit is now capped at one held at a time, so it can't be stacked for a burst heal in a single turn either. Item pool is now 22 items, down from 23.",
+    ],
+  },
+  {
     version: "1.18",
     date: "2026-08-06",
     title: "10 background styles",

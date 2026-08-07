@@ -13,7 +13,6 @@ import {
   HeartPulse,
   Lock,
   MessageCircle,
-  Pill,
   ScanEye,
   ScrollText,
   Search,
@@ -49,5 +48,4 @@ export const ITEM_ICONS: Record<ItemId, LucideIcon> = {
   scapegoat: CornerUpRight,
   magnum_load: Bomb,
   patch_kit: Bandage,
-  overdose: Pill,
 };

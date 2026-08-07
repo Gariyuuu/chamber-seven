@@ -24,7 +24,6 @@ export const ITEM_POOL_WEIGHTS: Record<ItemId, number> = {
   scapegoat: 2,
   magnum_load: 1.5,
   patch_kit: 4,
-  overdose: 2,
 };
 
 export const ALL_ITEM_IDS = Object.keys(ITEM_POOL_WEIGHTS) as ItemId[];
@@ -167,13 +166,7 @@ export const ITEM_INFO: Record<ItemId, ItemInfo> = {
   },
   patch_kit: {
     name: "Patch Kit",
-    description: "Heal 1 HP. Costs you a random other item from your hand, if you have one.",
-    usable: true,
-    requiresTarget: false,
-  },
-  overdose: {
-    name: "Overdose",
-    description: "Heal 2 HP, but your next shell is forced live no matter what it really was.",
+    description: "Heal 1 HP. Costs you a random other item from your hand, if you have one. Only one held at a time.",
     usable: true,
     requiresTarget: false,
   },

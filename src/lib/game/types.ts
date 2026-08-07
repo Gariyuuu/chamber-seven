@@ -22,8 +22,7 @@ export type ItemId =
   | "last_rites"
   | "scapegoat"
   | "magnum_load"
-  | "patch_kit"
-  | "overdose";
+  | "patch_kit";
 
 export type SeatId = "p1" | "p2" | "p3" | "p4";
 export const ALL_SEATS: SeatId[] = ["p1", "p2", "p3", "p4"];
