@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.12",
+    date: "2026-08-06",
+    title: "Killed the background glow for good",
+    changes: [
+      "v1.11's dimmer glow still wasn't dim enough. Ripped out the soft light-source halos (the hanging bulb and neon sign) entirely instead of tuning them again — backgrounds are now just dark brick, rain, and a faint outline here and there, nothing bright.",
+    ],
+  },
+  {
     version: "1.11",
     date: "2026-08-06",
     title: "Fixed the new backgrounds washing out text, and a real font everywhere",
