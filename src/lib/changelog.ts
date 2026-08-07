@@ -7,6 +7,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.15",
+    date: "2026-08-06",
+    title: "Backgrounds you can actually see, plus upload your own",
+    changes: [
+      "v1.14's felt background was so subtle it barely showed up — turned up the suit watermarks and table texture so it actually reads as a real background instead of a flat dark screen, still no glow anywhere.",
+      "New: upload your own background image from the table vibe picker (🎨, top corner). Stays on this device only, swap back to a built-in vibe any time to drop it.",
+    ],
+  },
+  {
     version: "1.14",
     date: "2026-08-06",
     title: "New backgrounds, take three: a dark felt table instead of an alley",

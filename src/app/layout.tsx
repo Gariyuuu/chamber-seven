@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Oswald, Geist_Mono, Butcherman } from "next/font/google";
 import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { THEME_STORAGE_KEY } from "@/lib/themePresets";
+import { THEME_STORAGE_KEY, CUSTOM_BG_STORAGE_KEY } from "@/lib/themePresets";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -37,7 +37,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Script id="theme-init" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t)document.documentElement.dataset.theme=t;}catch(e){}`}
+          {`try{
+            var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});
+            if(t)document.documentElement.dataset.theme=t;
+            var b=localStorage.getItem(${JSON.stringify(CUSTOM_BG_STORAGE_KEY)});
+            if(b)document.documentElement.style.setProperty("--bg-image","url(\\""+b+"\\")");
+          }catch(e){}`}
         </Script>
         <TooltipProvider delayDuration={150}>{children}</TooltipProvider>
       </body>

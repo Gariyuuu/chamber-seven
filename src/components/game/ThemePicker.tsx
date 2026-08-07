@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Palette } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ImageUp, Palette, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +10,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DEFAULT_THEME_ID, THEME_PRESETS, THEME_STORAGE_KEY } from "@/lib/themePresets";
+import {
+  CUSTOM_BG_MAX_BYTES,
+  CUSTOM_BG_STORAGE_KEY,
+  DEFAULT_THEME_ID,
+  THEME_PRESETS,
+  THEME_STORAGE_KEY,
+} from "@/lib/themePresets";
 import { cn } from "@/lib/utils";
 
 function readStoredTheme(): string {
@@ -18,9 +24,17 @@ function readStoredTheme(): string {
   return localStorage.getItem(THEME_STORAGE_KEY) ?? DEFAULT_THEME_ID;
 }
 
+function hasCustomBg(): boolean {
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem(CUSTOM_BG_STORAGE_KEY);
+}
+
 export function ThemePicker() {
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState(readStoredTheme);
+  const [customBg, setCustomBg] = useState(hasCustomBg);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = current;
@@ -29,6 +43,55 @@ export function ThemePicker() {
   function pick(id: string) {
     localStorage.setItem(THEME_STORAGE_KEY, id);
     setCurrent(id);
+    // A preset vibe should show that vibe's own background — drop any
+    // custom upload so it doesn't keep overriding --bg-image.
+    if (customBg) {
+      localStorage.removeItem(CUSTOM_BG_STORAGE_KEY);
+      document.documentElement.style.removeProperty("--bg-image");
+      setCustomBg(false);
+    }
+  }
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadError(null);
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("That's not an image file.");
+      return;
+    }
+    if (file.size > CUSTOM_BG_MAX_BYTES) {
+      setUploadError(`Keep it under ${Math.round(CUSTOM_BG_MAX_BYTES / 1_000_000)}MB.`);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      if (typeof dataUrl !== "string") {
+        setUploadError("Couldn't read that image.");
+        return;
+      }
+      try {
+        localStorage.setItem(CUSTOM_BG_STORAGE_KEY, dataUrl);
+      } catch {
+        setUploadError("That image is too big to save — try a smaller one.");
+        return;
+      }
+      document.documentElement.style.setProperty("--bg-image", `url("${dataUrl}")`);
+      setCustomBg(true);
+    };
+    reader.onerror = () => setUploadError("Couldn't read that image.");
+    reader.readAsDataURL(file);
+  }
+
+  function clearCustomBg() {
+    localStorage.removeItem(CUSTOM_BG_STORAGE_KEY);
+    document.documentElement.style.removeProperty("--bg-image");
+    setCustomBg(false);
+    setUploadError(null);
   }
 
   return (
@@ -53,7 +116,7 @@ export function ThemePicker() {
               onClick={() => pick(t.id)}
               className={cn(
                 "flex items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
-                current === t.id
+                current === t.id && !customBg
                   ? "border-primary bg-primary/10"
                   : "border-border hover:border-foreground/30",
               )}
@@ -62,6 +125,36 @@ export function ThemePicker() {
               <span className="font-medium">{t.name}</span>
             </button>
           ))}
+        </div>
+
+        <div className="mt-1 space-y-2 border-t border-border/60 pt-3">
+          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+            Custom background
+          </p>
+          {customBg ? (
+            <div className="flex items-center justify-between gap-2 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2">
+              <span className="text-sm font-medium">Using your own image</span>
+              <Button variant="ghost" size="icon-sm" aria-label="Remove custom background" onClick={clearCustomBg}>
+                <X className="size-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" className="w-full gap-2" onClick={() => fileInputRef.current?.click()}>
+              <ImageUp className="size-4" />
+              Upload an image
+            </Button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFile}
+          />
+          {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+          <p className="text-xs text-muted-foreground">
+            Stays on this device only, under {Math.round(CUSTOM_BG_MAX_BYTES / 1_000_000)}MB. Pick a vibe above to go back to a built-in background.
+          </p>
         </div>
       </DialogContent>
     </Dialog>
