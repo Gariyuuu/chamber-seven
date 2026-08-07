@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { RedactedPlayer } from "@/lib/game/types";
 import { cn } from "@/lib/utils";
 import { Crown, Skull, WifiOff } from "lucide-react";
@@ -21,6 +24,21 @@ export function PlayerHud({
 }) {
   const color = SEAT_COLOR[player.seat];
 
+  // Every player's HUD row flashes/shakes on damage, not just the local
+  // player's full-screen jump-scare — so bot-vs-bot hits still read as
+  // impactful, not just a number ticking down.
+  const [hit, setHit] = useState(false);
+  const prevHpRef = useRef(player.hp);
+  useEffect(() => {
+    if (player.hp < prevHpRef.current) {
+      setHit(true);
+      const timer = setTimeout(() => setHit(false), 500);
+      prevHpRef.current = player.hp;
+      return () => clearTimeout(timer);
+    }
+    prevHpRef.current = player.hp;
+  }, [player.hp]);
+
   return (
     <div
       className={cn(
@@ -28,6 +46,7 @@ export function PlayerHud({
         !player.eliminated && COLOR_BORDER_L[color],
         isTurn && !player.eliminated && "bg-accent/10 shadow-[0_0_0_1px_var(--accent),0_0_16px_color-mix(in_oklch,var(--accent)_35%,transparent)]",
         player.eliminated && "opacity-50",
+        hit && "player-hud-hit",
       )}
     >
       <div className="flex items-center gap-3">

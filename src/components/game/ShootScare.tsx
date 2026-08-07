@@ -4,12 +4,16 @@ import { useEffect } from "react";
 
 export type ScareKind = "shooter" | "victim";
 
+const PARTICLE_COUNT = 8;
+const SCARE_DURATION_MS = 1950;
+
 /**
- * A brief full-screen jump-scare overlay for a LIVE (damaging) shot: a big
- * gunman figure pops up with a flash and a screen shake. `victim` aims the
- * gun straight at the viewer (you got hit, whether by yourself or someone
- * else); `shooter` shows the side-on recoil (you just fired at someone).
- * Auto-dismisses itself after the animation plays out.
+ * A full-screen jump-scare overlay for a LIVE (damaging) shot — a multi-beat
+ * sequence (charge → muzzle flash/kick → shockwave → hold → fade) rather
+ * than a single pop, so it reads as a real "moment" instead of a blip.
+ * `victim` aims the gun straight at the viewer (you got hit, whether by
+ * yourself or someone else); `shooter` shows the side-on recoil (you just
+ * fired at someone). Auto-dismisses itself once the sequence finishes.
  */
 export function ShootScare({
   kind,
@@ -23,13 +27,38 @@ export function ShootScare({
   onDone: () => void;
 }) {
   useEffect(() => {
-    const timer = setTimeout(onDone, 620);
+    const timer = setTimeout(onDone, SCARE_DURATION_MS);
     return () => clearTimeout(timer);
   }, [onDone]);
 
+  const particleOrigin = kind === "victim" ? { left: "50%", top: "54%" } : { left: "76%", top: "60%" };
+
   return (
     <div className="shoot-scare" style={{ ["--scare-color" as string]: color }}>
+      <div className="shoot-scare__vignette" />
       <div className="shoot-scare__flash" />
+      <div className="shoot-scare__shockwave" />
+
+      {Array.from({ length: PARTICLE_COUNT }).map((_, i) => {
+        const angle = (360 / PARTICLE_COUNT) * i;
+        const rad = (angle * Math.PI) / 180;
+        const radius = 90 + (i % 3) * 20;
+        const px = Math.round(Math.cos(rad) * radius);
+        const py = Math.round(Math.sin(rad) * radius);
+        return (
+          <span
+            key={i}
+            className="shoot-scare__particle"
+            style={{
+              ...particleOrigin,
+              ["--px" as string]: `${px}px`,
+              ["--py" as string]: `${py}px`,
+              animationDelay: `${i * 12}ms`,
+            }}
+          />
+        );
+      })}
+
       <svg viewBox="0 0 100 130" className="shoot-scare__figure" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <filter id="scare-glow" x="-100%" y="-100%" width="300%" height="300%">

@@ -278,7 +278,11 @@
     100% { transform: translateX(0) rotate(0deg); }
   }
 
-  /* Full-screen jump-scare overlay, shown for a live/damaging shot. */
+  /* Full-screen jump-scare overlay, shown for a live/damaging shot. A
+     multi-beat sequence — charge, flash/kick, shockwave, hold, fade —
+     choreographed as percentage keyframes across one shared ~1.9s timeline
+     so every layer (shake, flash, figure, shockwave, caption, particles)
+     stays in sync without separate JS-driven phases. */
   .shoot-scare {
     position: fixed;
     inset: 0;
@@ -287,21 +291,38 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    animation: scare-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    animation: scare-shake 1.9s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  .shoot-scare__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, color-mix(in oklch, var(--scare-color) 45%, black) 100%);
+    opacity: 0;
+    animation: scare-vignette 1.9s ease-out both;
   }
   .shoot-scare__flash {
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse 70% 60% at 50% 50%, color-mix(in oklch, var(--scare-color) 55%, white 35%), transparent 70%);
     opacity: 0;
-    animation: scare-flash 0.5s ease-out;
+    animation: scare-flash 1.9s ease-out both;
+  }
+  .shoot-scare__shockwave {
+    position: absolute;
+    width: min(50vw, 360px);
+    height: min(50vw, 360px);
+    border-radius: 50%;
+    border: 3px solid color-mix(in oklch, var(--scare-color) 80%, white 20%);
+    box-shadow: 0 0 40px color-mix(in oklch, var(--scare-color) 60%, transparent);
+    opacity: 0;
+    animation: scare-shockwave 1.9s cubic-bezier(0.1, 0.6, 0.3, 1) both;
   }
   .shoot-scare__figure {
     position: relative;
     width: min(60vw, 420px);
     height: min(78vh, 540px);
     filter: drop-shadow(0 0 30px color-mix(in oklch, var(--scare-color) 60%, transparent));
-    animation: scare-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    animation: scare-pop 1.9s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
   }
   .shoot-scare__caption {
     position: absolute;
@@ -312,33 +333,70 @@
     letter-spacing: 0.08em;
     color: color-mix(in oklch, var(--scare-color) 75%, white 25%);
     text-shadow: 0 0 18px color-mix(in oklch, var(--scare-color) 70%, transparent), 0 2px 0 black;
-    animation: scare-caption 0.5s ease-out;
+    animation: scare-caption 1.9s ease-out both;
     white-space: nowrap;
   }
-  @keyframes scare-flash {
-    0% { opacity: 0; }
-    12% { opacity: 1; }
+  .shoot-scare__particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--scare-color);
+    box-shadow: 0 0 8px color-mix(in oklch, var(--scare-color) 70%, transparent);
+    opacity: 0;
+    animation: scare-particle 1.9s cubic-bezier(0.15, 0.7, 0.3, 1) both;
+  }
+  @keyframes scare-vignette {
+    0%, 14% { opacity: 0; }
+    20% { opacity: 0.9; }
+    30% { opacity: 0.55; }
+    80% { opacity: 0.4; }
     100% { opacity: 0; }
   }
+  @keyframes scare-flash {
+    0%, 10% { opacity: 0; }
+    16% { opacity: 1; }
+    26% { opacity: 0.12; }
+    78% { opacity: 0.08; }
+    100% { opacity: 0; }
+  }
+  @keyframes scare-shockwave {
+    0%, 15% { transform: scale(0); opacity: 0; }
+    22% { transform: scale(0.3); opacity: 0.95; }
+    55% { transform: scale(1.9); opacity: 0; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
   @keyframes scare-pop {
-    0% { transform: scale(0.6); opacity: 0; }
-    18% { transform: scale(1.06); opacity: 1; }
-    30% { transform: scale(1); }
-    82% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(1.04); opacity: 0; }
+    0% { transform: scale(0.25); opacity: 0; }
+    12% { transform: scale(0.7); opacity: 0.75; }
+    17% { transform: scale(1.12); opacity: 1; }
+    22% { transform: scale(0.96); }
+    27% { transform: scale(1.03); }
+    33% { transform: scale(1); }
+    80% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.07); opacity: 0; }
   }
   @keyframes scare-caption {
-    0%, 20% { opacity: 0; transform: translateY(6px); }
-    32%, 78% { opacity: 1; transform: translateY(0); }
+    0%, 20% { opacity: 0; transform: translateY(10px) scale(0.92); }
+    26% { opacity: 1; transform: translateY(0) scale(1.06); }
+    33% { transform: translateY(0) scale(1); }
+    82% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(0) scale(1); }
+  }
+  @keyframes scare-particle {
+    0%, 15% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+    20% { transform: translate(0, 0) scale(1.2); opacity: 1; }
+    55% { transform: translate(var(--px, 60px), var(--py, -20px)) scale(0.5); opacity: 0; }
     100% { opacity: 0; }
   }
   @keyframes scare-shake {
-    0% { transform: translate(0, 0); }
-    10% { transform: translate(-1.2%, 0.6%); }
-    20% { transform: translate(1.4%, -0.8%); }
-    30% { transform: translate(-1%, 1%); }
-    40% { transform: translate(1%, -0.5%); }
-    50%, 100% { transform: translate(0, 0); }
+    0%, 15% { transform: translate(0, 0) rotate(0deg); }
+    17% { transform: translate(-2.2%, 1.1%) rotate(-0.6deg); }
+    19% { transform: translate(2.4%, -1.5%) rotate(0.7deg); }
+    21% { transform: translate(-1.8%, 1.6%) rotate(-0.5deg); }
+    23% { transform: translate(1.6%, -0.9%) rotate(0.4deg); }
+    26% { transform: translate(-0.8%, 0.5%) rotate(-0.2deg); }
+    30%, 100% { transform: translate(0, 0) rotate(0deg); }
   }
 
   /* Table talk (EventLog) message entrance + emphasis. */
@@ -364,5 +422,71 @@
   @keyframes table-talk-bullet {
     0% { opacity: 0; transform: translateX(-3px); }
     100% { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Health bar damage flash — the row shakes and flashes red for a beat
+     whenever hp drops, independent of the ghost-trail bar drain itself. */
+  .health-bar-hit {
+    animation: health-hit-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes health-hit-shake {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-3px); }
+    30% { transform: translateX(3px); }
+    45% { transform: translateX(-2px); }
+    60% { transform: translateX(2px); }
+    75% { transform: translateX(-1px); }
+  }
+
+  /* Player HUD row hit-flash — fires for every seat's damage, not just the
+     local player's full-screen jump-scare, so bot-vs-bot hits register too. */
+  .player-hud-hit {
+    animation: hud-hit 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes hud-hit {
+    0% { transform: translateX(0); box-shadow: 0 0 0 2px color-mix(in oklch, var(--destructive) 70%, transparent), 0 0 22px color-mix(in oklch, var(--destructive) 45%, transparent); }
+    15% { transform: translateX(-4px); }
+    30% { transform: translateX(4px); }
+    45% { transform: translateX(-2.5px); }
+    60% { transform: translateX(2.5px); box-shadow: 0 0 0 2px color-mix(in oklch, var(--destructive) 35%, transparent), 0 0 12px color-mix(in oklch, var(--destructive) 20%, transparent); }
+    80% { transform: translateX(-1px); }
+    100% { transform: translateX(0); box-shadow: none; }
+  }
+
+  /* Chamber bar flash + shell-eject flourish when a shot is fired. */
+  .chamber-bar-fired {
+    animation: chamber-fired 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes chamber-fired {
+    0% { box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 70%, transparent), 0 0 20px color-mix(in oklch, var(--primary) 40%, transparent); }
+    20% { transform: translateX(-3px); }
+    40% { transform: translateX(3px); }
+    60% { transform: translateX(-1.5px); }
+    100% { transform: translateX(0); box-shadow: 0 0 0 0 transparent; }
+  }
+  .shell-pip-eject {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0.875rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, color-mix(in oklch, var(--primary) 85%, white 10%), var(--primary));
+    box-shadow: 0 0 10px color-mix(in oklch, var(--primary) 60%, transparent);
+    animation: shell-eject 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    pointer-events: none;
+  }
+  @keyframes shell-eject {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translate(-6px, -34px) rotate(-50deg) scale(0.6); opacity: 0; }
+  }
+
+  /* Action button breathing glow while it's actually your turn to fire. */
+  .action-bar-ready {
+    animation: action-ready-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes action-ready-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--accent) 55%, transparent); }
+    50% { box-shadow: 0 0 0 7px color-mix(in oklch, var(--accent) 0%, transparent); }
   }
 }

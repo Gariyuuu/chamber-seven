@@ -7,6 +7,18 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.20",
+    date: "2026-08-07",
+    title: "A much bigger jump-scare, and animation everywhere",
+    changes: [
+      "The shooting jump-scare is now a real multi-beat sequence instead of a single pop: a quick charge-up, a hard muzzle flash with a screen shake, an expanding shockwave ring, a burst of sparks, a held beat with the caption, then a fade — about 2 seconds total, worth the wait.",
+      "Health bars now show a lagging \"damage trail\" — the real HP drops instantly but a red afterimage bleeds down to meet it a beat later, like a proper fighting-game health bar.",
+      "Every player's HUD row now flashes and shakes on damage, not just your own screen — bot-on-bot hits register too.",
+      "The chamber flashes and a shell visibly ejects and flies off whenever a shot is fired.",
+      "The fire button now pulses gently whenever it's actually your turn.",
+    ],
+  },
+  {
     version: "1.19",
     date: "2026-08-07",
     title: "Balance pass: Overdose removed, no more stacked heals",
