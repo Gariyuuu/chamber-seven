@@ -6,15 +6,16 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
-**None queued.** v1.10 shipped (committed/pushed/deployed), then the
-user reported it made text unreadable on mobile — a real background
-contrast bug plus a title-overflow bug, both found and fixed as v1.11,
-verified via real WebKit+Chromium screenshots (not just computed-style
-checks, which is how the v1.10 bug slipped through). v1.11 is
-**committed, pushed to `origin/main`, and deployed to both Cloudflare
-and Vercel** — see `PROJECT_STATE.md` top section and `SESSION_LOG.md`
-top entry for full detail. Verify with `git status` before starting
-anything new.
+**None queued.** v1.10 shipped, then v1.11 fixed a real background
+contrast bug + mobile title overflow, then the user still found the
+background glow too bright — v1.12 removed the glow elements entirely
+rather than dimming further. All three committed, pushed to
+`origin/main`, and deployed to both Cloudflare and Vercel — see
+`PROJECT_STATE.md` top section and `SESSION_LOG.md` top entry for full
+detail. **If background lighting/mood is touched again, do not
+re-introduce a soft glow element** — this user has twice rejected
+"dimmer" as still too bright; go straight to flat/no-glow. Verify with
+`git status` before starting anything new.
 
 Everything from the prior backlog (`TASK-001` through `TASK-008`, the
 2026-08-06 documentation audit) is complete, committed, deployed, and

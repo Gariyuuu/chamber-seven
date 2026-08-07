@@ -5,6 +5,39 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-06 — Shipped v1.12: removed the background glow entirely
+
+- **Goal:** User, immediately after v1.11 shipped: "still has white
+  background get rid of that b[r]ight glow, its still light."
+- v1.11's dimming pass (bulb glow ≤0.3, window opacity ≤0.16) wasn't
+  enough per the user. Rather than tune opacity a third time, removed
+  the soft radial "halo" light sources (`bulbGlow`/`signGlow`) entirely.
+  Backgrounds are now flat dark brick/floor gradients + rain + a few
+  low-opacity outline strokes, no light-source blooms anywhere.
+- **Also**, defensively: rewrote the SVGs to use plain precomputed hex
+  colors instead of `oklch()`/`color-mix()` (computed via a manual
+  OKLCh→sRGB conversion in Python — Björn Ottosson's standard formulas).
+  This wasn't confirmed as the actual root cause of anything (WebKit/
+  Firefox/Chromium via Playwright all rendered the oklch() version
+  correctly), but it's a real, if unconfirmed, risk for browsers/engines
+  with incomplete CSS Color 4 support in a standalone SVG-as-image
+  context, and removing it costs nothing.
+- **Files changed:** `public/backgrounds/bg-*.svg` (regenerated),
+  `src/lib/changelog.ts` (`v1.12`).
+- **Verification:** typecheck/lint/build clean; real WebKit iPhone-13
+  screenshots (home + leaderboard, full page) confirm no glow/bright
+  spots remain — essentially flat near-black with faint brick texture.
+  Committed, pushed, deployed to Cloudflare + Vercel, confirmed live via
+  a fresh screenshot against `chamber-seven-omega.vercel.app` and a
+  `curl` check for the new changelog text.
+- **Note for future sessions:** this was the third pass at the same
+  background-brightness complaint (v1.10 introduced it, v1.11 dimmed it,
+  v1.12 removed it). If background "mood lighting" is revisited, default
+  to *no* soft glow elements at all rather than re-introducing dimmed
+  ones — this user has now twice found dimmed glows still too bright.
+
+---
+
 ## 2026-08-06 — Shipped v1.11: fixed v1.10's background contrast bug + mobile title overflow, font swapped again
 
 - **Goal:** User shipped v1.10, then reported: "the white background is

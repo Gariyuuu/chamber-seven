@@ -12,6 +12,24 @@ handoff memory system described in `CLAUDE.md`.
 
 ---
 
+## 2026-08-06 — v1.12: removed the background glow entirely
+
+**Type:** Bug fix / follow-up to v1.11, same day. User: "still has white
+background get rid of that bright glow, its still light." Rather than
+tune the glow's opacity a third time, removed the soft radial
+"halo" light-source elements from all 5 background SVGs entirely — flat
+dark brick/floor + rain + faint outlines now, no blooms anywhere.
+Defensively also swapped `oklch()`/`color-mix()` for plain hex colors in
+those SVGs (unconfirmed as the actual cause, but removes the risk
+class). See `SESSION_LOG.md` top entry — includes a note for future
+sessions not to re-introduce a dimmed glow here.
+
+Verified via real WebKit screenshots (iPhone 13, full page) against live
+production after deploying. Committed, pushed, deployed to both
+Cloudflare and Vercel.
+
+---
+
 ## 2026-08-06 — v1.11: fixed v1.10's background contrast bug + mobile title overflow
 
 **Type:** Bug fix, in direct response to user feedback on v1.10 (deployed

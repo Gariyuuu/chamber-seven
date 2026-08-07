@@ -4,7 +4,25 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest of all): v1.11 SHIPPED — fixed v1.10's background contrast bug + mobile title overflow
+## Status as of 2026-08-06 (latest of all): v1.12 SHIPPED — background glow removed entirely
+
+Ninth pass this same day. v1.11's dimmed glow still read as "white
+background... get rid of that bright glow" to the user. Rather than
+tune opacity again, removed the soft radial light-source halos (hanging
+bulb, neon sign) from all 5 background SVGs entirely — they're now flat
+dark brick/floor + rain + faint outlines, no blooms. Also defensively
+rewrote the SVGs to use plain hex colors instead of `oklch()`/
+`color-mix()` (unconfirmed as the actual cause, but removes the risk
+class entirely). See `SESSION_LOG.md` top entry for full detail,
+including a note for future sessions: don't re-introduce a dimmed glow
+here, this user has twice found "dimmer" still too bright.
+
+Verified via real WebKit iPhone-13 full-page screenshots against a
+local dev build, then against **live production** after deploying —
+confirmed no glow/bright spots remain anywhere. Committed, pushed to
+`origin/main`, deployed to both Cloudflare and Vercel.
+
+## Status as of 2026-08-06 (prior pass): v1.11 SHIPPED — fixed v1.10's background contrast bug + mobile title overflow
 
 Eighth pass this same day. User reported v1.10's new backgrounds made
 text unreadable ("white background... insane contrast... keep most of
