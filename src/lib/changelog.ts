@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.18",
+    date: "2026-08-06",
+    title: "10 background styles",
+    changes: [
+      "Grew the background style picker from 3 to 10: Felt Table, Smoke & Embers, Chip Scatter, Shell Scatter, Card Fan, Dice Roll, Roulette, Velvet Drape, Smoke Wisps, and Crosshair. Every style still follows your chosen table vibe's two colors, still no white or glow.",
+    ],
+  },
+  {
     version: "1.17",
     date: "2026-08-06",
     title: "Two-tone backgrounds + 3 selectable styles",

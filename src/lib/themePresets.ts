@@ -31,6 +31,13 @@ export const BG_STYLES: BgStyle[] = [
   { id: "felt", name: "Felt Table", emoji: "🃏" },
   { id: "embers", name: "Smoke & Embers", emoji: "✨" },
   { id: "chips", name: "Chip Scatter", emoji: "🔴" },
+  { id: "shells", name: "Shell Scatter", emoji: "🔫" },
+  { id: "cards", name: "Card Fan", emoji: "🂡" },
+  { id: "dice", name: "Dice Roll", emoji: "🎲" },
+  { id: "roulette", name: "Roulette", emoji: "🎡" },
+  { id: "velvet", name: "Velvet Drape", emoji: "🎭" },
+  { id: "smoke", name: "Smoke Wisps", emoji: "💨" },
+  { id: "crosshair", name: "Crosshair", emoji: "🎯" },
 ];
 export const DEFAULT_BG_STYLE_ID = "felt";
 export const BG_STYLE_STORAGE_KEY = "chamber-seven:bg-style";

@@ -128,7 +128,7 @@ export function ThemePicker() {
           <Palette className="size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-h-[85vh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Palette className="size-4 text-primary" />
@@ -158,21 +158,22 @@ export function ThemePicker() {
           <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
             Background style
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-5 gap-1.5">
             {BG_STYLES.map((s) => (
               <button
                 key={s.id}
                 type="button"
+                title={s.name}
                 onClick={() => pickStyle(s.id)}
                 className={cn(
-                  "flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-center transition-colors",
+                  "flex flex-col items-center gap-0.5 rounded-lg border px-1 py-2 text-center transition-colors",
                   style === s.id && !customBg
                     ? "border-primary bg-primary/10"
                     : "border-border hover:border-foreground/30",
                 )}
               >
-                <span className="text-lg">{s.emoji}</span>
-                <span className="text-xs font-medium">{s.name}</span>
+                <span className="text-base">{s.emoji}</span>
+                <span className="truncate text-[10px] font-medium">{s.name}</span>
               </button>
             ))}
           </div>
