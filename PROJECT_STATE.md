@@ -4,7 +4,85 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-06 (latest of all): v1.12 SHIPPED — background glow removed entirely
+## Status as of 2026-08-07 (latest of all): DOCUMENTATION CHECKPOINT — 9-version catch-up, git state re-verified fully pushed
+
+A fresh account-switch checkpoint, requested with no new product work in
+scope. Re-ran `git status`/`git log --oneline`/`git fetch origin`
+read-only, then re-verified all 17 memory files against the actual
+current code.
+
+**Git state — the big finding:** the 2026-08-06 checkpoint below recorded
+`main` as **9 commits ahead of `origin/main`, never pushed**. That is no
+longer true. `git fetch origin` + `git rev-list --left-right --count
+origin/main...main` now shows **0 ahead, 0 behind** — `main` is fully
+pushed and identical to `origin/main` at `1f9ec83`. Exactly when the push
+happened is not recorded anywhere in this repo's memory system (no
+session between the two checkpoints logged it) — only that it did, and
+that **9 additional commits (v1.13 through v1.21) were shipped and also
+pushed** since the last documentation sync (`3582e69`, "Docs: record
+v1.12"). Working tree is clean, nothing uncommitted or untracked before
+this checkpoint's own doc edits.
+
+**The 9 undocumented versions**, all real Claude-authored commits on
+`main` (`ae9524f`..`1f9ec83`), all confirmed live in production via a
+direct `curl` against `/changelog` (shows v1.17–v1.21 text) and
+`/leaderboard` (200, real data) on 2026-08-07:
+- **v1.13** (`ae9524f`) — removed the landing page's giant background
+  skull icon.
+- **v1.14** (`df59d79`) — replaced the v1.10 SVG alley backgrounds with a
+  dark felt-table PNG design.
+- **v1.15** (`6dc44fd`) — richer felt-table art (opacity turned up) +
+  new feature: upload-your-own background image (data URL, localStorage,
+  3MB cap, device-only).
+- **v1.16** (`1317dea`) — fixed an off-center landing-page subtitle
+  (missing `mx-auto`).
+- **v1.17** (`5d0fd4a`) — two-tone (primary+accent) backgrounds + 3
+  selectable background styles.
+- **v1.18** (`cbbf69d`) — grew the background style picker from 3 to 10
+  options (50 PNGs total: 5 themes × 10 styles).
+- **v1.19** (`6faf820`) — **removed Overdose from the item pool
+  entirely** (stacked with Patch Kit it produced too strong a burst
+  heal) **and capped Patch Kit at one held per player**. This dropped
+  the item count from 23 to **22** — a figure that was hardcoded in
+  prose across `CLAUDE.md`, `HANDOFF.md`, `FEATURES.md`, `README.md`,
+  and `ROADMAP.md`, all of which had gone stale (README.md still named
+  "Overdose" as an existing item). **Fixed in all of those files this
+  checkpoint** — see `SESSION_LOG.md`'s top entry for the full list.
+- **v1.20** (`5afd3e6`) — multi-beat jump-scare sequence (choreographed
+  ~1.9s CSS-timeline animation) + damage-trail/shake animation across
+  the HUD (`HealthBar.tsx` and others).
+- **v1.21** (`1f9ec83`) — slower, heavier jump-scare (~2.7s) with a
+  tumbling ejected shell casing and drifting muzzle smoke.
+
+**Verification re-run fresh this checkpoint** (not trusted from any
+prior file): `npm run typecheck`, `npm run typecheck:party`,
+`npm run lint`, `npm run build` — **all four pass clean** on the current
+`main`.
+
+**`.env.example` re-confirmed still correctly tracked:** present in
+`git ls-files`, and `.gitignore` still has the `!.env.example` negation
+line immediately after the broad `.env*` pattern (the fix from the
+2026-08-06 checkpoint held). No secrets found in any tracked file or any
+of the 17 doc files — `.env.example` contains only placeholder/example
+values, `VERCEL_OIDC_TOKEN` is documented but never has a real value
+present in any tracked file.
+
+**Cross-file contradictions found and fixed:** the "23 items" figure
+(now 22, see v1.19 above) across `CLAUDE.md`, `HANDOFF.md`,
+`FEATURES.md`, `README.md`, `ROADMAP.md`; `UI_SYSTEM.md`'s background-art
+section, which still described the v1.10 SVG-scene system as current
+when it had been replaced twice more since (v1.14 PNG felt-table, then
+the v1.17/v1.18 multi-style picker) — patched with a catch-up note rather
+than a full rewrite (flagged in-file as needing one). `HANDOFF.md`'s
+"Prompt for the next Claude Code account" section referenced the
+now-resolved 9-ahead git state — refreshed.
+
+**No product code was changed this checkpoint** — documentation only,
+per the standing rule in `CLAUDE.md` → "Recurring workflow."
+
+---
+
+## Status as of 2026-08-06 (prior pass): v1.12 SHIPPED — background glow removed entirely
 
 Ninth pass this same day. v1.11's dimmed glow still read as "white
 background... get rid of that bright glow" to the user. Rather than

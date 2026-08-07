@@ -94,7 +94,8 @@ exist").
   below), otherwise fully wired end-to-end.
 - **Purpose:** Single-player progression: beat the bot in front of you
   on the ladder to unlock a little more max HP and one new item,
-  starting from a 3-item kit and ending with the full 23-item pool.
+  starting from a 3-item kit and ending with the full 22-item pool
+  (was 23 before v1.19 removed Overdose — see "Item system" below).
 - **User flow:** Landing page → "Career Mode" → hub page shows rank,
   HP range, items unlocked, and a 12-card bot grid (locked / current /
   defeated) → "Fight `<bot>`" → single-round vs-AI match at that bot's
@@ -131,13 +132,21 @@ exist").
   not carried into the in-match view — not part of the original
   changelog claim, so not treated as required.)
 
-## Item system (23 items)
+## Item system (22 items, as of v1.19 — was 23 before Overdose's removal)
 
-- **Status:** Verified complete for all 23 items — every `ItemId` has a
-  matching `applyItemEffect` case, `ITEM_INFO` entry, icon
-  (`itemIcons.tsx`), and category (`colors.ts`). Traced every case
-  individually against `ITEM_INFO`'s description to confirm behavior
-  matches the described effect; no mismatches found.
+- **Status:** Verified complete for all 22 current items (re-counted
+  directly from `ITEM_POOL_WEIGHTS` in `src/lib/game/items.ts` during the
+  2026-08-07 checkpoint — Overdose was removed in v1.19, `6faf820`,
+  "remove Overdose, cap Patch Kit to prevent stacked healing"). Every
+  remaining `ItemId` has a matching `applyItemEffect` case, `ITEM_INFO`
+  entry, icon (`itemIcons.tsx`), and category (`colors.ts`).
+  **Note for future sessions:** this "23 items" figure was hardcoded in
+  prose across multiple memory files and went stale the moment Overdose
+  was removed — prefer phrasing that doesn't require updating a count by
+  hand (e.g. "the full item pool"), or re-derive the count from
+  `ALL_ITEM_IDS.length` rather than typing a number, since the
+  `/tutorial` glossary itself already does this correctly and never went
+  stale.
 - **Frontend:** `ItemCard.tsx` (rendering + tooltip), hand rendering in
   `PlayingView.tsx`.
 - **Backend:** `state.ts`'s `applyItemEffect()` switch, `playItem()`
@@ -145,7 +154,9 @@ exist").
 - **Validation:** Per-item `requireTarget()` helper rejects self-targeting,
   eliminated targets, and (team modes) teammates. `canHoldAnother()`
   caps Irons/Vulture's Due at one held per player, Scapegoat at one
-  drawn per match.
+  drawn per match, and (as of v1.19) Patch Kit at one held per player too
+  (prevents stacking a burst multi-heal in one turn — this is what
+  Overdose's removal was paired with).
 - **Edge cases handled:** Adrenal Shot stealing Second Wind is
   special-cased (added directly to the thief's hand rather than
   recursively "used"); Adrenal Shot stealing an item with no valid
@@ -157,8 +168,9 @@ exist").
 
 - **Status:** Verified complete.
 - **Frontend:** `GameSettingsForm.tsx`'s item-pool grid (toggle each of
-  the 23 items, counted directly from `types.ts`'s `ItemId` union and
-  `items.ts`'s `ITEM_POOL_WEIGHTS` — both agree; "All"/"None" shortcuts).
+  the 22 items (see "Item system" above re: this count), counted directly
+  from `types.ts`'s `ItemId` union and `items.ts`'s `ITEM_POOL_WEIGHTS` —
+  both agree; "All"/"None" shortcuts).
 - **Backend:** `clampSettings()` filters `enabledItems` to valid IDs,
   falls back to the full pool if the resulting list would be empty.
   `weightedRandomItem(allowed?)` in `items.ts` restricts draws to the
@@ -242,7 +254,9 @@ exist").
 - **Status:** Verified complete. Shipped and confirmed live in
   production 2026-08-06, via screenshot (both local and production).
 - **Purpose:** `/tutorial` — the full rules, every game mode explained,
-  and a complete glossary of all 23 items grouped by category
+  and a complete glossary of the full item pool (22 as of v1.19; the page
+  auto-generates from `ALL_ITEM_IDS` so this number is never hand-typed
+  here and can't go stale) grouped by category
   (offense/defense/info/utility). `/lessons` — strategy tips tied
   directly to the actual mechanics (reading chamber odds, when to shoot
   yourself, item sequencing, mode-specific plays).
@@ -262,9 +276,14 @@ exist").
 - **Validation / error / loading / empty states:** Not applicable —
   static informational pages with no user input or async data.
 - **Tests:** None automated (no test suite exists in this repo). Verified
-  via screenshot: all 23 items render across all 4 categories with
-  correct colors/icons/descriptions; both pages confirmed live in
-  production.
+  via screenshot at the time of shipping (v1.9, when the pool was still
+  23 items): all items rendered across all 4 categories with correct
+  colors/icons/descriptions; both pages confirmed live in production.
+  Not independently re-screenshotted after v1.19's Overdose removal
+  during this checkpoint, but since the page derives its list from
+  `ALL_ITEM_IDS` at render time (not a hand-maintained list), there is no
+  code path by which it could still be showing Overdose — confirmed by
+  reading `tutorial/page.tsx`'s source, not just inference.
 - **Known issues:** None.
 - **Remaining work:** None. (Optional, unrelated: neither page is
   cross-linked from `/career`, `/leaderboard`, or `/changelog`'s own

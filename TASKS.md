@@ -6,16 +6,19 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
-**None queued.** v1.10 shipped, then v1.11 fixed a real background
-contrast bug + mobile title overflow, then the user still found the
-background glow too bright — v1.12 removed the glow elements entirely
-rather than dimming further. All three committed, pushed to
-`origin/main`, and deployed to both Cloudflare and Vercel — see
-`PROJECT_STATE.md` top section and `SESSION_LOG.md` top entry for full
-detail. **If background lighting/mood is touched again, do not
-re-introduce a soft glow element** — this user has twice rejected
-"dimmer" as still too bright; go straight to flat/no-glow. Verify with
-`git status` before starting anything new.
+**None queued.** As of the 2026-08-07 documentation checkpoint, the repo
+is at **v1.21** (`main` fully pushed to `origin/main`, 0 ahead/behind).
+Nine versions shipped since the last time this file was updated
+(v1.13–v1.21 — background art overhaul including PNG felt-table +
+10-style picker + custom upload, a subtitle-centering fix, Overdose
+removed from the item pool with Patch Kit capped, and a two-stage
+jump-scare animation upgrade). See `PROJECT_STATE.md`'s top section and
+`SESSION_LOG.md`'s top entry for the full catch-up record. **If
+background lighting/mood is touched again, do not re-introduce a soft
+glow element** — this user has twice rejected "dimmer" as still too
+bright; go straight to flat/no-glow (this rule from the v1.12 era still
+holds — the v1.14+ redesign kept it). Verify with `git status` before
+starting anything new.
 
 Everything from the prior backlog (`TASK-001` through `TASK-008`, the
 2026-08-06 documentation audit) is complete, committed, deployed, and
@@ -260,6 +263,12 @@ below.
 ## Technical debt
 
 - ~~`zustand` unused dependency~~ — **removed**, TASK-006 (`71c3956`).
+- `UI_SYSTEM.md`'s background-art section describes the v1.10 SVG-scene
+  system, not the actual current system (PNG felt-table art, then a
+  10-style picker + custom upload, shipped v1.14–v1.18). Patched with a
+  flagged catch-up note during the 2026-08-07 checkpoint rather than a
+  full rewrite — whoever next works on background art in depth should
+  replace that section properly.
 - No shared `<Nav>`/header component — every page repeats its own header
   JSX (`src/app/**/page.tsx`). Not urgent, but a future page addition
   would benefit from extracting this.
@@ -297,6 +306,18 @@ below.
 ## Recently completed (terse history — see the detailed section above
 for the full v1.8 record)
 
+- v1.13–v1.21 (2026-08-06/07) — shipped as 9 separate commits
+  (`ae9524f`..`1f9ec83`), all pushed, all confirmed live in production;
+  not individually tracked as TASKS.md entries at the time (see
+  `CLAUDE.md` → Known issues #8 for that process gap). Terse summary:
+  v1.13 removed the landing-page skull icon; v1.14 replaced the SVG alley
+  backgrounds with a felt-table PNG design; v1.15 richer felt art + a
+  custom background upload feature; v1.16 fixed an off-center subtitle;
+  v1.17 two-tone backgrounds + 3 selectable styles; v1.18 grew the style
+  picker to 10 options; v1.19 removed Overdose from the item pool and
+  capped Patch Kit (23 → 22 items); v1.20–v1.21 a multi-beat jump-scare
+  sequence + HUD animation polish. Full detail: `git log`, `CHANGELOG.md`,
+  `src/lib/changelog.ts`.
 - v1.9 — `/tutorial` (rules + full 23-item glossary, generated from
   `items.ts`/`itemIcons.tsx`/`colors.ts`) and `/lessons` (strategy tips
   tied to the actual mechanics). Linked from the landing footer and

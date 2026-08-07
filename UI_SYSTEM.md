@@ -95,8 +95,29 @@ these were replaced with hand-authored SVG scenes (a rain-slicked brick
 alley, a glowing neon bar-sign, a fire escape, an overhead bulb),
 generated via a throwaway Python script (not committed) that reads each
 theme's actual `oklch()` `--primary`/`--accent` values, so the art and
-the live theme colors are always in sync. If you add a 6th theme, follow
-this SVG convention, not the old PNG one.
+the live theme colors are always in sync.
+
+**Superseded again, v1.13–v1.18 (2026-08-06/07) — this section was not
+rewritten in full during the 2026-08-07 checkpoint, flagging the gap
+rather than leaving it silently wrong:** the SVG scenes above were
+replaced with **PNGs** (`public/backgrounds/bg-<theme>.png`, a "dark felt
+table" design, v1.14), then a **background *style* picker** was added on
+top of the theme picker — as of v1.18 there are **10 selectable styles
+per theme** (Felt Table, Smoke & Embers, Chip Scatter, Shell Scatter,
+Card Fan, Dice Roll, Roulette, Velvet Drape, Smoke Wisps, Crosshair),
+each rendered as a two-tone (primary+accent) PNG — **50 files total** in
+`public/backgrounds/` (`bg-<theme>-<style>.png`, confirmed via `ls`
+2026-08-07). `ThemePicker.tsx` also gained a **custom background upload**
+(v1.15): a user-supplied image, stored as a data URL in `localStorage`
+(3MB cap, device-only), applied via a `--bg-image` override through the
+same `beforeInteractive` theme-init script. If you add a 6th theme or a
+new style, follow the current PNG+style-grid convention in
+`ThemePicker.tsx`/`globals.css`, not the old single-SVG-per-theme
+description above — whoever next touches this file in depth should
+replace this whole subsection with a proper rewrite rather than another
+patch note. See `src/lib/changelog.ts` `v1.14`–`v1.18` and
+`CHANGELOG.md` for the full player-facing and commit-level detail this
+note is deliberately not duplicating.
 
 **Mechanism:** `ThemePicker.tsx` writes the chosen id to
 `localStorage["chamber-seven:theme"]` and sets

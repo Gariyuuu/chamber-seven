@@ -4,10 +4,10 @@ A real-time online shotgun-duel game for 2–4 players: a shared shotgun is
 loaded with a hidden, randomized sequence of live and blank shells, and each
 turn you choose to fire on yourself or someone else while a pocket of
 dirty-trick items shifts the odds. Original design inspired by the genre
-popularized by *Buckshot Roulette*, with its own theme, rules, and a 23-item
+popularized by *Buckshot Roulette*, with its own theme, rules, and a 22-item
 set — including several items with no equivalent in the reference game
 (Marked Bullet, Counterfeit Chip, Smoke Bomb, Second Wind, Silver Tongue,
-Patch Kit, Overdose, and more). Unlike that game, each player's item hand is
+Patch Kit, and more). Unlike that game, each player's item hand is
 private — opponents only see how many items you're holding, not what they
 are, which is what makes the peek/discard/steal items meaningful.
 
@@ -23,7 +23,7 @@ are, which is what makes the peek/discard/steal items meaningful.
 - **Career Mode** — a 12-bot single-player ladder (`/career`), increasing
   in skill from "barely knows the rules" to "perfect." Beat the bot in
   front of you to unlock a bit more health and one more item, starting
-  from a 3-item kit and ending with the full 23-item pool.
+  from a 3-item kit and ending with the full 22-item pool.
 
 A cross-match leaderboard (`/leaderboard`) tracks human match wins by name.
 5 selectable cosmetic table-vibe themes are available via the palette icon.

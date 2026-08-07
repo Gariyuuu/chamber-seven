@@ -12,6 +12,38 @@ handoff memory system described in `CLAUDE.md`.
 
 ---
 
+## 2026-08-07 — Documentation checkpoint (v1.13–v1.21 catch-up, git state re-verified)
+
+**Type:** Documentation only, no product code changed. Re-verified git
+state (the 9-commits-ahead-never-pushed gap noted in the 2026-08-06
+checkpoint below is resolved — `main` is now fully pushed, 0 ahead/behind
+`origin/main`), re-ran the full verification suite (clean), confirmed
+production is actually serving v1.21 (`curl` against `/changelog` and
+`/leaderboard`), fixed a real stale-fact contradiction (item count
+23 → 22 after v1.19 removed Overdose, which several files including
+`README.md` hadn't caught up to), and caught up the memory system's
+version history to the 9 versions shipped since the last doc sync
+(v1.13–v1.21, summarized below — see `src/lib/changelog.ts` for the full
+player-facing text of each and `git log` for exact commits). Full detail
+in `SESSION_LOG.md`'s top entry.
+
+- **v1.13** — removed the landing page's giant background skull icon.
+- **v1.14** — replaced the v1.10 SVG alley backgrounds with a dark
+  felt-table PNG design.
+- **v1.15** — richer felt-table art (opacity turned up) + new feature:
+  upload-your-own background image.
+- **v1.16** — fixed an off-center landing-page subtitle (`mx-auto`).
+- **v1.17** — two-tone (primary+accent) backgrounds + 3 selectable
+  background styles.
+- **v1.18** — grew the background style picker from 3 to 10 options (50
+  PNGs total).
+- **v1.19** — removed Overdose from the item pool, capped Patch Kit at
+  one held (prevents a stacked burst-heal); item count 23 → 22.
+- **v1.20** — multi-beat jump-scare sequence + animation across the HUD.
+- **v1.21** — slower, heavier jump-scare with a tumbling shell casing.
+
+---
+
 ## 2026-08-06 — v1.12: removed the background glow entirely
 
 **Type:** Bug fix / follow-up to v1.11, same day. User: "still has white

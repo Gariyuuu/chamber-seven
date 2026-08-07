@@ -50,7 +50,10 @@ where noted.
   it's the one file both `tsconfig.json` projects compile.
 
 ### `src/lib/game/items.ts`
-- **Purpose:** The 23-item catalog: `ITEM_POOL_WEIGHTS` (draw
+- **Purpose:** The item catalog (22 items as of v1.19, down from 23 —
+  Overdose was removed; re-derive from `ALL_ITEM_IDS.length` rather than
+  trusting a hardcoded number, since this one had gone stale before):
+  `ITEM_POOL_WEIGHTS` (draw
   probability weights), `ALL_ITEM_IDS` (derived from the weights object's
   keys), `ITEM_INFO` (name/description/usable/requiresTarget per item),
   `weightedRandomItem()`.

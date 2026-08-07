@@ -5,6 +5,61 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-07 — Documentation checkpoint: 9-version catch-up, git state re-verified fully pushed
+
+- **Goal:** User-requested account-switch checkpoint (no new product
+  work). Re-verify git ahead/behind state, re-verify docs against real
+  code, scan for secrets, re-check `.env.example` tracking, resolve
+  cross-file contradictions, refresh HANDOFF.md's resume prompt.
+- **Git state:** The 2026-08-06 checkpoint recorded `main` as 9 commits
+  ahead of `origin/main`, never pushed. Re-checked via a fresh
+  `git fetch origin` + `git rev-list --left-right --count
+  origin/main...main`: **now 0 ahead / 0 behind** — fully pushed, HEAD
+  `1f9ec83`. Exactly when the push happened isn't recorded anywhere. In
+  the interim, **9 more versions (v1.13–v1.21) were shipped and pushed**
+  without any accompanying documentation-sync commit — see `CLAUDE.md` →
+  Known issues #8 for this process-gap finding.
+- **Verification suite re-run fresh:** `npm run typecheck`,
+  `npm run typecheck:party`, `npm run lint`, `npm run build` — all four
+  clean on current `main`.
+- **Production re-verified directly (not assumed from git):** `curl`
+  against `https://chamber-seven-omega.vercel.app/changelog` shows
+  v1.17–v1.21 entry text present; `https://chamber-seven.chamber-seven.workers.dev/leaderboard`
+  responds 200 with real data. Confirms v1.21 is actually deployed, not
+  just committed.
+- **Secrets scan:** No real secret values found in any tracked file or
+  any of the 17 doc files. `.env.example` re-confirmed still tracked
+  (`git ls-files` includes it) and `.gitignore` still has the
+  `!.env.example` negation line right after the broad `.env*` pattern —
+  the 2026-08-06 fix held.
+- **Real cross-file contradiction found and fixed:** v1.19 (`6faf820`,
+  shipped 2026-08-07 pre-checkpoint) removed Overdose from the item pool
+  and capped Patch Kit, dropping the item count from 23 to 22 — but
+  `CLAUDE.md`, `HANDOFF.md`, `FEATURES.md`, `README.md`, and
+  `ROADMAP.md` all still said "23 items," and `README.md` specifically
+  still named "Overdose" as an existing item in its feature list. Fixed
+  in all five files.
+- **Other staleness found and fixed:** `PROJECT_STATE.md`/`CLAUDE.md`/
+  `HANDOFF.md`/`TASKS.md` all stopped their version history at v1.12;
+  added the v1.13–v1.21 catch-up record to each. `UI_SYSTEM.md`'s
+  background-art section still described the v1.10 SVG-scene system
+  (superseded twice more since, v1.14 and v1.17/v1.18) — patched with an
+  explicit catch-up note rather than a full rewrite (flagged as
+  remaining debt in `TASKS.md` → Technical debt, since a proper rewrite
+  was judged out of scope for a docs-only checkpoint pass).
+- **Files changed this session:** `CLAUDE.md`, `PROJECT_STATE.md`,
+  `HANDOFF.md`, `TASKS.md`, `FEATURES.md`, `README.md`, `ROADMAP.md`,
+  `UI_SYSTEM.md`, `CHANGELOG.md`, `SESSION_LOG.md` (this entry). No
+  application/product code touched.
+- **Not done / left for later:** A full rewrite of `UI_SYSTEM.md`'s
+  background-art section (only patched); individually re-verifying each
+  of v1.13–v1.21's specific runtime behavior beyond the two production
+  `curl` checks above (typecheck/lint/build passing plus a live
+  changelog-text/leaderboard check was judged sufficient evidence for a
+  docs-only pass, not a full re-QA of 9 versions of shipped work).
+
+---
+
 ## 2026-08-06 — Shipped v1.12: removed the background glow entirely
 
 - **Goal:** User, immediately after v1.11 shipped: "still has white

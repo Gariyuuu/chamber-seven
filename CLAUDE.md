@@ -25,7 +25,7 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
   randomly-loaded shotgun (a hidden sequence of live/blank shells) at
   themselves or another player. A self-fired blank keeps your turn; a
   self-fired live shell damages you and passes the turn; firing at someone
-  else always passes the turn. 23 items (peek, steal, heal, redirect damage,
+  else always passes the turn. 22 items (peek, steal, heal, redirect damage,
   reshuffle, etc.) are dealt from a per-match-configurable pool and let
   players manipulate the odds or the state. Modes: 2-4 player free-for-all,
   2v2 Duos, 1-vs-everyone Boss Battle, human vs AI bots (any mix of seats),
@@ -43,10 +43,16 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
 - **Production status:** **Deployed and publicly live** at
   **https://chamber-seven-omega.vercel.app** (Vercel, frontend) backed by
   the Cloudflare Worker at **https://chamber-seven.chamber-seven.workers.dev**
-  (confirmed via a real deploy — see `DEPLOYMENT.md`). As of 2026-08-06,
-  the deployed version is **v1.8** (2v2 Duos / Boss Battle team modes,
-  shipped and verified live in production this same day). See
-  `PROJECT_STATE.md` for the exact deploy record.
+  (confirmed via a real deploy — see `DEPLOYMENT.md`). As of the
+  2026-08-07 checkpoint, `git log`/`src/lib/changelog.ts` show the
+  in-repo record at **v1.21** (a jump-scare animation refinement); `main`
+  is confirmed fully pushed to `origin/main` (0 ahead / 0 behind — see
+  "Current status" below for the full git-state history). **Confirmed
+  actually deployed**, not just committed: a `curl` against the live
+  `/changelog` page (2026-08-07) shows the v1.17–v1.21 entry text
+  present, and the Worker's `/leaderboard` endpoint responds 200 with
+  real data — both checked directly against production, not assumed
+  from git state.
 - **Repository type:** Single app, **not** a monorepo. One `package.json`
   at the root runs both the Next.js app and (via `wrangler`) the Cloudflare
   Worker; they share TypeScript source under `src/lib/game/` but are two
@@ -62,15 +68,24 @@ labeled **Unverified** or **Inferred** rather than stated as fact.
 
 See `PROJECT_STATE.md` for the exact, timestamped snapshot. Summary:
 
-- **Latest deployed milestone:** v1.11 (2026-08-06) — fixes a real
-  contrast bug in v1.10's new backgrounds (bright glow/window elements
-  sat behind page titles, blew up into glaring blocks on mobile) plus a
-  mobile title-overflow bug, and swaps the body font again (`Barlow` →
-  `Oswald`). v1.10 itself (site icon, human player avatars, font
-  bug fix, new SVG theme backgrounds, table-talk animation, jump-scare
-  overlay) shipped the same day. Both committed, pushed to
-  `origin/main`, and deployed to Cloudflare + Vercel — see
-  `PROJECT_STATE.md` top section and `SESSION_LOG.md` top entry.
+- **Latest deployed milestone (re-verified 2026-08-07):** v1.21 —
+  slower/heavier jump-scare sequence with a tumbling shell casing. This
+  is the 9th version bump (v1.13–v1.21) since the memory system's last
+  documentation sync (which stopped at v1.12), covering: v1.13 (removed
+  the landing-page skull icon), v1.14 (felt-table PNG backgrounds,
+  replacing the v1.10 SVG scenes), v1.15 (richer felt art + custom
+  background upload), v1.16 (landing subtitle centering fix), v1.17
+  (two-tone backgrounds + 3 selectable styles), v1.18 (grew the style
+  picker to 10 options, 50 PNGs total), v1.19 (**removed Overdose from
+  the item pool — 23 items → 22 — and capped Patch Kit at one held**,
+  see "Item system" in `FEATURES.md`), v1.20–v1.21 (multi-beat jump-scare
+  sequence + HUD animation polish). All 9 are real commits on `main`
+  (`ae9524f`..`1f9ec83`), all Claude-authored, all confirmed pushed to
+  `origin/main` and live in production (`/changelog` + `/leaderboard`
+  checked directly, 2026-08-07) — **but none of them were accompanied by
+  a memory-file sync commit**, unlike every earlier version bump. This
+  checkpoint is the catch-up. See `SESSION_LOG.md`'s top entry and
+  `CHANGELOG.md` for the reconciliation record.
 - **Current blockers:** None.
 - **Highest-priority next task:** None queued. `TASKS.md` → "Current
   task" says "None queued" — wait for user direction rather than
@@ -195,7 +210,9 @@ chamber-seven/
 │   │   ├── career/page.tsx      # Career Mode hub: bot roster grid, rank/HP/items summary
 │   │   ├── leaderboard/page.tsx # Fetches and renders the global leaderboard (client component)
 │   │   ├── changelog/page.tsx   # Renders `src/lib/changelog.ts` as patch notes
-│   │   ├── tutorial/page.tsx    # Rules + full 23-item glossary, grouped by category
+│   │   ├── tutorial/page.tsx    # Rules + full item glossary (auto-generated from
+│   │   │                        # ALL_ITEM_IDS, so its count never needs manual updating;
+│   │   │                        # 22 items as of v1.19), grouped by category
 │   │   └── lessons/page.tsx     # Strategy tips tied to the actual mechanics
 │   ├── components/
 │   │   ├── game/               # All game-specific UI (one component per concern —
@@ -596,17 +613,16 @@ Headline items:
    not a "broken" state, but it means every change is currently verified
    by typecheck/lint/build plus manual/ad hoc browser testing only.
    Still unresolved — no test framework was introduced in this session.
-7a. **NEEDS USER DECISION — local `main` is 9 commits ahead of
-    `origin/main`.** Discovered 2026-08-06 during a checkpoint pass via a
-    read-only `git fetch origin`: everything from v1.8 (team modes)
-    onward — including this entire documentation system — is committed
-    locally and deployed live (Vercel/Cloudflare deploys run from the
-    local working tree, not from GitHub), but has never been `git push`ed.
-    `origin/main` on GitHub still reflects the pre-team-mode `3a26ab9`
-    (v1.7). No push was performed (out of scope for a docs-only
-    checkpoint) — see `PROJECT_STATE.md` and `HANDOFF.md` for the full
-    note. Ask the user before pushing, in case they want to review/reorder
-    commits first.
+7a. **RESOLVED — the 9-commits-ahead-of-`origin/main` gap from the
+    2026-08-06 checkpoint is gone.** Re-verified 2026-08-07 via a fresh
+    `git fetch origin` + `git rev-list --left-right --count
+    origin/main...main`: **0 ahead, 0 behind** — `main` is fully pushed
+    and matches `origin/main` exactly (`1f9ec83`, v1.21). Everything from
+    v1.8 through v1.21 is on GitHub. It is not recorded anywhere in this
+    memory system *when* the push happened between the two checkpoints —
+    only that it did, and that 9 more commits (v1.13–v1.21) were added
+    and pushed since. See "Current status" above for the full version
+    catch-up.
 7. **RESOLVED — `.env.example` was silently gitignored.** `.gitignore`'s
    broad `.env*` pattern was matching `.env.example` too, which would
    have silently prevented it from ever being committed. Fixed during
@@ -614,7 +630,24 @@ Headline items:
    immediately after the `.env*` pattern. If you ever add another
    `.env.*`-style template file meant to be committed, remember to add a
    matching negation line, or it will silently vanish from `git add`
-   the same way.
+   the same way. **Re-confirmed still tracked and still holding as of
+   2026-08-07** (`git ls-files` includes `.env.example`; `.gitignore`
+   still has the `!.env.example` negation line immediately after `.env*`).
+8. **NEW FINDING (2026-08-07) — the "update docs after every meaningful
+   session" rule (see Permanent rules below) was not followed for 9
+   consecutive shipped versions (v1.13–v1.21).** Every commit in that
+   range is a real, Claude-authored, verified, pushed, deployed feature/
+   fix commit — the product work itself was done correctly — but none of
+   them touched `CLAUDE.md`/`PROJECT_STATE.md`/`TASKS.md`/`SESSION_LOG.md`/
+   `CHANGELOG.md`/`FEATURES.md`, so this memory system silently drifted 9
+   versions out of date (including one real cross-file factual
+   contradiction: `README.md`/`FEATURES.md`/`HANDOFF.md` all still said
+   "23 items" and README even named "Overdose" as an existing item, after
+   v1.19 removed it). This checkpoint (2026-08-07) is the reconciliation.
+   **Lesson for future sessions: even a single-purpose, user-directed
+   "ship this one small fix" session should still touch `SESSION_LOG.md`
+   at minimum** — a one-line append costs almost nothing and prevents
+   exactly this kind of multi-version drift from accumulating silently.
 
 ## Recurring workflow: "account-switch checkpoints"
 

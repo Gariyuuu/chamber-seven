@@ -45,12 +45,15 @@ shipped. Do not add invented time estimates.
 
 ## MVP completion
 
-**Already reached, and then some.** By the time of this audit, the game
-already has: real-time multiplayer, AI opponents, a 12-bot single-player
-campaign, 23 items, 5 cosmetic themes, a cross-match leaderboard, and (in
-progress) team-based modes. There is no "MVP" gap remaining in the sense
-of "core loop doesn't work" — remaining work is polish, correctness
-verification, and technical debt, not missing fundamentals.
+**Already reached, and then some.** The game already has: real-time
+multiplayer, AI opponents, a 12-bot single-player campaign, a 22-item pool
+(23 at the original time of this audit; Overdose was removed in v1.19,
+2026-08-07 — see `CHANGELOG.md`/`FEATURES.md`), 5 cosmetic themes plus a
+10-style/upload-your-own background picker (v1.15–v1.18), team-based
+modes (2v2 Duos, Boss Battle, shipped), and a cross-match leaderboard.
+There is no "MVP" gap remaining in the sense of "core loop doesn't work"
+— remaining work is polish, correctness verification, and technical
+debt, not missing fundamentals.
 
 ## Post-MVP
 

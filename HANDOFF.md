@@ -1,13 +1,13 @@
 # HANDOFF.md — Start Here
 
 You are picking up **Chamber Seven** with no memory of any prior
-conversation. This file is your fastest path to being useful. Everything
-here is backed by the other memory files in this repo root, all written
-2026-08-06 from a direct audit of the actual code — not from chat
-history. **As of the latest session (2026-08-06), v1.8 (team modes) has
-shipped AND the entire backlog that followed it (TASK-004 through
-TASK-008) has also shipped** — see `SESSION_LOG.md`'s latest entry for
-the full record. There is no open task right now.
+conversation. This file is your fastest path to being useful. The memory
+files were originally written 2026-08-06 from a direct audit of the
+actual code, and refreshed 2026-08-07 via a documentation checkpoint that
+caught up 9 shipped-but-undocumented versions. **As of the latest
+checkpoint (2026-08-07), the repo is at v1.21, `main` is fully pushed to
+`origin/main` (0 ahead/behind), and there is no open task.** See
+`SESSION_LOG.md`'s top entry for the full record.
 
 ## What is this project?
 
@@ -41,20 +41,38 @@ next direction.
 
 ## Something the user needs to confirm/decide
 
-A checkpoint pass on 2026-08-06 ran `git fetch origin` and found local
-`main` is **9 commits ahead of `origin/main`** — `origin/main` is still
-at the pre-team-mode `3a26ab9` (v1.7). Everything from v1.8 onward (team
-modes, the backlog cleanup, and this entire documentation system) is
-committed locally and deployed live via CLI (Vercel/Cloudflare deploys
-don't require a GitHub push), but **has never been pushed to GitHub.**
-No `push` was run to fix this (out of scope for a docs-only checkpoint,
-and the user may want to review/squash before pushing) — ask the user
-whether/how they want this pushed before assuming it's fine to leave as
-is.
+**Nothing outstanding.** The 2026-08-06 checkpoint below flagged local
+`main` as 9 commits ahead of `origin/main`, never pushed. Re-checked
+2026-08-07 via a fresh `git fetch origin`: that gap is gone — `main` is
+now **0 ahead / 0 behind `origin/main`**, fully pushed at `1f9ec83`
+(v1.21). Nine more commits (v1.13–v1.21) were also shipped and pushed in
+the interim. No git action is needed from the user right now.
 
 ## What was the previous agent doing?
 
-Five things, in order, across what reads as one continuous engagement:
+**Most recently (2026-08-07):** a pure documentation checkpoint — no
+product code changed. Re-verified git state (found the 9-ahead gap from
+2026-08-06 had been resolved, and 9 further versions shipped, v1.13
+through v1.21), re-ran the full verification suite (all four commands
+clean), fixed a real cross-file contradiction (item count "23" →
+"22" after v1.19 removed Overdose — `README.md` had even still named
+Overdose as an existing item), re-confirmed `.env.example` is still
+correctly tracked, and refreshed this file plus `PROJECT_STATE.md` /
+`CLAUDE.md` / `TASKS.md` / `FEATURES.md` / `ROADMAP.md` / `UI_SYSTEM.md`
+/ `SESSION_LOG.md` / `CHANGELOG.md`. Full detail in `SESSION_LOG.md`'s
+top entry.
+
+**Before that (2026-08-06/07, undocumented at the time — reconstructed
+from `git log` during the above checkpoint):** 9 more shipped versions,
+v1.13–v1.21 — background art overhaul (PNG felt-table design, then a
+10-style picker + custom upload), a UI bugfix (off-center subtitle), a
+balance change (Overdose removed, Patch Kit capped), and a jump-scare
+animation upgrade across two versions. All committed and pushed, but
+none of these sessions updated the memory-file system — see `CLAUDE.md`
+→ Known issues #8 for the process-gap note this created.
+
+**Earlier (2026-08-06), five things, in order, across what reads as one
+continuous engagement:**
 1. Implementing the team-mode feature (engine changes, UI changes).
 2. At the user's request, pausing to perform a full documentation/
    handoff audit (the memory system you're reading now).
@@ -77,14 +95,21 @@ Five things, in order, across what reads as one continuous engagement:
 
 ## What works right now?
 
-Everything through v1.9, confirmed live in production: core duel loop,
-2–4 player FFA, vs-AI bots, all 23 items, customizable item pools, 5
-cosmetic themes, Career Mode (12-bot ladder, with escalating venue
-backdrops), the global leaderboard, reconnect handling, 2v2 Duos / Boss
-Battle team modes (previewed in the lobby before the match starts), and
-now a `/tutorial` page (rules + full item glossary) and a `/lessons`
-page (strategy tips). See `FEATURES.md` for the full,
-individually-verified status of each.
+Everything through **v1.21**, confirmed live in production (checked
+directly via `curl` against `/changelog` and `/leaderboard`, 2026-08-07):
+core duel loop, 2–4 player FFA, vs-AI bots, a 22-item pool (23 before
+v1.19 removed Overdose) with customizable item pools, 5 cosmetic themes
+each with 10 selectable background styles plus a custom-upload option,
+Career Mode (12-bot ladder, with escalating venue backdrops), the global
+leaderboard, reconnect handling, 2v2 Duos / Boss Battle team modes
+(previewed in the lobby before the match starts), a `/tutorial` page
+(rules + full item glossary, auto-generated so it can't drift), a
+`/lessons` page (strategy tips), and a multi-beat jump-scare animation
+with HUD damage-trail polish. See `FEATURES.md` for the full,
+individually-verified status of each (note: `FEATURES.md`'s deep-dive
+descriptions of the background-style system and jump-scare weren't
+rewritten in full this checkpoint, only the item count — see
+`UI_SYSTEM.md`'s flagged gap).
 
 ## What is broken?
 
@@ -95,10 +120,16 @@ deliberately-deferred item: `npm audit` (surfaced while removing
 Worker runtime) — the automatic fix would force-downgrade `wrangler` by
 ~80 versions, judged too risky to apply as a side effect of an
 unrelated cleanup task. See `SECURITY.md` / `TASKS.md` → Technical debt.
+Not re-verified this checkpoint (no `npm install`/lockfile change
+happened), so treat as last-checked 2026-08-06.
 
 ## What should I do next?
 
-Nothing is blocking or urgent. Ask the user what they want next.
+Nothing is blocking or urgent. Ask the user what they want next. If
+you're touching the background-art system or `UI_SYSTEM.md`, note that
+file has a flagged, not-yet-done rewrite (see its background-art
+section) — a good candidate task if the user wants documentation debt
+paid down rather than new features.
 
 ## Which files are most important?
 
@@ -158,21 +189,27 @@ anything else. Then:
 
 1. Run `git status`, `git log --oneline -5`, and `git fetch origin`
    (read-only) and confirm the repo state matches what PROJECT_STATE.md
-   describes — including that `main` is currently 9 commits ahead of
-   `origin/main` (unpushed, as of the 2026-08-06 checkpoint; confirm
-   whether that's still true or whether I've since pushed it myself). If
-   anything doesn't match, stop and tell me what's different before
-   proceeding.
+   describes — as of the 2026-08-07 checkpoint, `main` is fully pushed
+   to `origin/main` (0 ahead / 0 behind, HEAD `1f9ec83`, v1.21). Don't
+   trust that this is still true — confirm it fresh; a prior checkpoint
+   (2026-08-06) recorded a 9-commits-ahead-never-pushed gap that this
+   memory system didn't catch for a full day and 9 more versions. If
+   anything doesn't match what PROJECT_STATE.md says, stop and tell me
+   what's different before proceeding.
 2. Run the verification suite: `npm run typecheck && npm run
    typecheck:party && npm run lint && npm run build`. Confirm all four
-   still pass.
+   still pass (all four were clean as of 2026-08-07).
 3. In 3-5 sentences, summarize your understanding of: what this
    project is, what the current task is, and what specifically is
    blocking it. I want to confirm you've actually absorbed the memory
    files, not just skimmed them.
 4. Flag anything in CLAUDE.md/PROJECT_STATE.md/TASKS.md/FEATURES.md
    that looks stale or contradicts what you find in the actual code —
-   don't silently work around a contradiction, surface it.
+   don't silently work around a contradiction, surface it. Known
+   pre-existing gap as of this writing: `UI_SYSTEM.md`'s background-art
+   section describes the v1.10 SVG system, not the actual current
+   PNG/10-style/upload system shipped in v1.14–v1.18 — it has a patch
+   note flagging this but hasn't been fully rewritten.
 5. Check TASKS.md's "Current task" section — if it says nothing is in
    progress or queued (true as of this writing), ask me what to work on
    next rather than guessing or inventing work.
@@ -180,7 +217,10 @@ anything else. Then:
    the shared src/lib/game/ engine, the redact() information boundary)
    unless you find a genuinely strong reason to change it — and if you
    do, write it up in DECISIONS.md rather than changing it silently.
-7. After completing any meaningful work, update PROJECT_STATE.md,
-   TASKS.md, and append to SESSION_LOG.md before ending your session —
-   don't let the next handoff start from a stale snapshot.
+7. After completing any meaningful work — even a single small fix —
+   update PROJECT_STATE.md, TASKS.md, and append to SESSION_LOG.md
+   before ending your session. This was skipped for 9 consecutive
+   shipped versions (v1.13–v1.21) before this checkpoint caught it up;
+   don't repeat that. A one-line SESSION_LOG.md append is enough to
+   prevent multi-version drift — it doesn't need to be exhaustive.
 ```
