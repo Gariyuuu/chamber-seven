@@ -82,12 +82,6 @@ export default function HomePage() {
         <ThemePicker />
       </div>
 
-      <Skull
-        className="pointer-events-none absolute -top-16 left-1/2 size-[22rem] -translate-x-1/2 text-primary/[0.05] blur-[1px]"
-        strokeWidth={0.4}
-        aria-hidden="true"
-      />
-
       <div className="relative text-center animate-in fade-in slide-in-from-top-4 duration-700">
         <p className="mb-1 text-xs font-medium tracking-[0.4em] text-muted-foreground uppercase">
           An underground table game

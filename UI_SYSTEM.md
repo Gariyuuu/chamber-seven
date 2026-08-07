@@ -266,8 +266,12 @@ comes from Radix UI primitives underlying shadcn's `Dialog`/`Tooltip`
 (focus trapping, `Escape`-to-close, ARIA roles are handled by Radix
 itself). No custom ARIA labels were found beyond
 `aria-label="Choose a table vibe"` (`ThemePicker.tsx`'s trigger button)
-and `aria-hidden="true"` on purely decorative elements (`Flourish.tsx`,
-the landing page's giant background `Skull` icon). No documented
+and `aria-hidden="true"` on purely decorative elements (`Flourish.tsx`).
+The landing page previously also had a giant faint background `Skull`
+icon behind the title — **removed 2026-08-06 (v1.13)**: at large size
+even 5% opacity read as a visible glow/ring to the user, on top of the
+unrelated background-SVG glow already removed in v1.12 — see
+`SESSION_LOG.md`. No documented
 keyboard-navigation testing, no documented screen-reader testing, no
 color-contrast audit.
 

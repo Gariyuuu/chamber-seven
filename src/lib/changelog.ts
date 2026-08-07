@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.13",
+    date: "2026-08-06",
+    title: "Found the actual glow: a giant faint skull behind the landing page title",
+    changes: [
+      "The glow wasn't the background art at all — it was a separate giant Skull icon sitting behind the landing page title, faint on its own but visible enough as a ring/glow that it looked like the same problem. Removed it entirely.",
+    ],
+  },
+  {
     version: "1.12",
     date: "2026-08-06",
     title: "Killed the background glow for good",
