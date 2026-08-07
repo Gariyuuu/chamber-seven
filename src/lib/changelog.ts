@@ -7,6 +7,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.16",
+    date: "2026-08-06",
+    title: "Fixed the off-center subtitle on the landing page",
+    changes: [
+      "Found it: the \"One shotgun...\" subtitle had a max-width but no auto-centering margin, so it sat flush against the left edge of its (much wider) container instead of centered under the title. Fixed.",
+    ],
+  },
+  {
     version: "1.15",
     date: "2026-08-06",
     title: "Backgrounds you can actually see, plus upload your own",

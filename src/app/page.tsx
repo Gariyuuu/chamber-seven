@@ -89,7 +89,7 @@ export default function HomePage() {
         <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text font-display text-4xl tracking-wide text-transparent drop-shadow-[0_0_28px_color-mix(in_oklch,var(--primary)_45%,transparent)] sm:text-6xl md:text-7xl lg:text-8xl">
           CHAMBER&nbsp;SEVEN
         </h1>
-        <p className="mt-3 max-w-md text-balance text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-md text-balance text-muted-foreground">
           One shotgun. A hidden order of live and blank shells. A pocket full of dirty tricks.
           Up to four players, one survivor.
         </p>
