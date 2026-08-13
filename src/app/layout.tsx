@@ -28,10 +28,29 @@ const butcherman = Butcherman({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://chamber-seven-omega.vercel.app";
+const SITE_TITLE = "Chamber Seven — Multiplayer Shotgun Duel";
+const SITE_DESCRIPTION =
+  "A browser multiplayer shotgun-duel game — up to four players share one gun loaded with hidden live and blank shells, plus dirty-trick items.";
+
 export const metadata: Metadata = {
-  title: "Chamber Seven",
-  description:
-    "A tense two-player shotgun duel of hidden shells and dirty tricks — an original online game for the browser.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Chamber Seven",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/opengraph-image"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
