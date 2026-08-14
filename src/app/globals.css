@@ -545,3 +545,62 @@
     50% { box-shadow: 0 0 0 7px color-mix(in oklch, var(--accent) 0%, transparent); }
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Loading spinners: a small in-place rotation isn't the class of motion
+     reduced-motion targets, and freezing it makes "loading" look "stuck"
+     instead of "in progress." Keep spinning; everything else above still
+     stops. */
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  /* Jump-scare: this is exactly what reduced-motion protects against, so
+     killing only the duration isn't enough — an instant pop-in of a
+     full-screen flash + shockwave + screen-shake is still a jump-scare,
+     and the blanket rule above would otherwise resolve every layer to its
+     end-of-animation opacity, which for the figure/caption is 0 (i.e. the
+     whole overlay would flash on-screen and then render invisible for the
+     rest of its 2.7s lifetime — no shake, but also no information).
+     Replace it with a calm, static readout of the same information
+     instead: no flash, no shockwave, no shake, no particle/casing/smoke
+     burst, figure and caption held fully visible and motionless. */
+  .shoot-scare {
+    animation: none !important;
+  }
+  .shoot-scare__vignette,
+  .shoot-scare__flash,
+  .shoot-scare__shockwave,
+  .shoot-scare__particle,
+  .shoot-scare__casing,
+  .shoot-scare__smoke {
+    display: none !important;
+  }
+  .shoot-scare__figure {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .shoot-scare__caption {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Seated-avatar idle sway / eye pulse / firing recoil: purely decorative
+     motion layered on top of a hit already registered via the (now-static)
+     HUD/health-bar hit-flash below, safe to stop outright. */
+  .duel-avatar__figure,
+  .duel-avatar__eyes,
+  .duel-avatar__gun-recoil {
+    animation: none !important;
+  }
+}
