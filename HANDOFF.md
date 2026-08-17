@@ -3,11 +3,16 @@
 You are picking up **Chamber Seven** with no memory of any prior
 conversation. This file is your fastest path to being useful. The memory
 files were originally written 2026-08-06 from a direct audit of the
-actual code, and refreshed 2026-08-07 via a documentation checkpoint that
-caught up 9 shipped-but-undocumented versions. **As of the latest
-checkpoint (2026-08-07), the repo is at v1.21, `main` is fully pushed to
-`origin/main` (0 ahead/behind), and there is no open task.** See
-`SESSION_LOG.md`'s top entry for the full record.
+actual code, refreshed 2026-08-07 via a documentation checkpoint that
+caught up 9 shipped-but-undocumented versions, and refreshed again
+2026-08-17 via a checkpoint that found the exact same drift pattern
+recurring — plus direct evidence that this repo's checkout is shared
+across concurrent Claude Code sessions (like `~/Projects/yuuki-outreach`
+is documented to be). **As of the latest checkpoint (2026-08-17): `main`
+is fully pushed (`5be92bc`, 0 ahead/behind `origin/main`), a branch
+merge (`chore/polish` → `main`) happened mid-checkpoint via a concurrent
+session and is confirmed deployed, and there is no task in progress.**
+See `SESSION_LOG.md`'s top entry for the full record.
 
 ## What is this project?
 
@@ -33,24 +38,48 @@ In order:
 
 ## What is the current task?
 
-**Nothing is currently in progress and nothing is queued.** Both v1.8
-(team modes) and the full follow-up backlog (`TASK-004`–`TASK-008`)
-have shipped and been verified live in production. `TASKS.md` →
-"Current task" says "None." Don't invent new work — wait for the user's
-next direction.
+**`TASK-010` (`T-010`), and it's optional/non-blocking.** No feature
+work is in progress. `TASK-009` (merge `chore/polish` into `main`?) was
+resolved mid-checkpoint — see below. `TASKS.md` → "Current task" points
+at `TASK-010`: add `src/lib/changelog.ts` entries for the 3 commits
+shipped 2026-08-13–08-15 (all now on `main`). Nothing else is queued.
 
 ## Something the user needs to confirm/decide
 
-**Nothing outstanding.** The 2026-08-06 checkpoint below flagged local
-`main` as 9 commits ahead of `origin/main`, never pushed. Re-checked
-2026-08-07 via a fresh `git fetch origin`: that gap is gone — `main` is
-now **0 ahead / 0 behind `origin/main`**, fully pushed at `1f9ec83`
-(v1.21). Nine more commits (v1.13–v1.21) were also shipped and pushed in
-the interim. No git action is needed from the user right now.
+**Nothing outstanding right now.** `TASK-009` (should `chore/polish` be
+merged into `main`?) was the open question at the start of this
+checkpoint. Before it could be asked, **a different, concurrent Claude
+Code session sharing this checkout merged and deployed it** (`5be92bc`,
+2026-08-17T00:17:49-07:00, confirmed pushed to `origin/main` and
+deployed via `vercel ls`). This wasn't this session's action — flagging
+it so you don't assume a "resolved" task in this file always means a
+session actually did the work described. See `PROJECT_STATE.md`'s
+"2026-08-17, continued" section and `CLAUDE.md` → Known issues #9 for
+the shared-checkout finding this surfaced.
 
 ## What was the previous agent doing?
 
-**Most recently (2026-08-07):** a pure documentation checkpoint — no
+**Most recently (2026-08-17):** a repo-memory onboarding checkpoint, no
+user present to ask questions mid-task. Found and reconciled 3 real
+commits (2026-08-13–08-15) that had shipped with no memory-file update
+and no `src/lib/changelog.ts` entry — see `CLAUDE.md` → Known issues #9.
+Confirmed via direct `curl` against production that 2 of the 3
+(reduced-motion fix, OG/robots/sitemap metadata) were already live on
+`main`; the third (neon/glitch match-outcome effect) was found on an
+unmerged `chore/polish` branch and `TASK-009` was opened to ask the user
+about merging it — but **while this checkpoint was still writing
+documentation, a separate concurrent session merged and deployed it
+first.** This session re-verified the new state (`git branch`, `git
+log`, `vercel ls`) and updated the docs accordingly rather than leaving
+the now-stale "open decision" framing in place. Updated
+`PROJECT_STATE.md`, `CLAUDE.md`, `TASKS.md` (`TASK-009` done,
+`TASK-010` open), `FEATURES.md` (2 new entries), `UI_SYSTEM.md`
+(Accessibility additions), this file, `CHANGELOG.md`, `SESSION_LOG.md`.
+No product code, merge, deploy, or push was performed **by this
+session** — the merge/deploy that did happen was the concurrent
+session's action, observed and documented, not caused by this one.
+
+**Before that (2026-08-07):** a pure documentation checkpoint — no
 product code changed. Re-verified git state (found the 9-ahead gap from
 2026-08-06 had been resolved, and 9 further versions shipped, v1.13
 through v1.21), re-ran the full verification suite (all four commands
@@ -95,21 +124,27 @@ continuous engagement:**
 
 ## What works right now?
 
-Everything through **v1.21**, confirmed live in production (checked
-directly via `curl` against `/changelog` and `/leaderboard`, 2026-08-07):
-core duel loop, 2–4 player FFA, vs-AI bots, a 22-item pool (23 before
-v1.19 removed Overdose) with customizable item pools, 5 cosmetic themes
-each with 10 selectable background styles plus a custom-upload option,
-Career Mode (12-bot ladder, with escalating venue backdrops), the global
-leaderboard, reconnect handling, 2v2 Duos / Boss Battle team modes
-(previewed in the lobby before the match starts), a `/tutorial` page
-(rules + full item glossary, auto-generated so it can't drift), a
-`/lessons` page (strategy tips), and a multi-beat jump-scare animation
-with HUD damage-trail polish. See `FEATURES.md` for the full,
-individually-verified status of each (note: `FEATURES.md`'s deep-dive
-descriptions of the background-style system and jump-scare weren't
-rewritten in full this checkpoint, only the item count — see
-`UI_SYSTEM.md`'s flagged gap).
+Everything through **v1.21** plus 3 undocumented-until-now commits, all
+now confirmed merged into `main`: core duel loop, 2–4 player FFA, vs-AI
+bots, a 22-item pool (23 before v1.19 removed Overdose) with
+customizable item pools, 5 cosmetic themes each with 10 selectable
+background styles plus a custom-upload option, Career Mode (12-bot
+ladder, with escalating venue backdrops), the global leaderboard,
+reconnect handling, 2v2 Duos / Boss Battle team modes (previewed in the
+lobby before the match starts), a `/tutorial` page (rules + full item
+glossary, auto-generated so it can't drift), a `/lessons` page (strategy
+tips), a multi-beat jump-scare animation with HUD damage-trail polish
+(itself now `prefers-reduced-motion`-aware, `97185d3`), OpenGraph/
+robots.txt/sitemap metadata (`5816555` — confirmed live via `curl`
+2026-08-17), and a neon/glitch match-outcome headline effect (`42c03f9`,
+merged via `5be92bc` mid-checkpoint by a concurrent session — deployment
+inferred from a fresh Vercel Production listing, not independently
+re-`curl`'d/rendered by this session, see `PROJECT_STATE.md`). See
+`FEATURES.md` for the full, individually-verified status of each (note:
+`FEATURES.md`'s deep-dive descriptions of the background-style system
+and jump-scare weren't rewritten in full during the 2026-08-07
+checkpoint, only the item count — see `UI_SYSTEM.md`'s flagged gap,
+still open as of 2026-08-17).
 
 ## What is broken?
 
@@ -125,11 +160,15 @@ happened), so treat as last-checked 2026-08-06.
 
 ## What should I do next?
 
-Nothing is blocking or urgent. Ask the user what they want next. If
-you're touching the background-art system or `UI_SYSTEM.md`, note that
-file has a flagged, not-yet-done rewrite (see its background-art
-section) — a good candidate task if the user wants documentation debt
-paid down rather than new features.
+**Re-verify `git branch --show-current` and `git log -1` before doing
+anything else** — this checkpoint's own experience (see `CLAUDE.md` →
+Known issues #9) is proof that this repo's checkout can change under
+you mid-session via a concurrent Claude Code session. Beyond that,
+nothing is blocking or urgent; `TASK-010` (changelog reconciliation) is
+optional. If you're touching the background-art system or
+`UI_SYSTEM.md`, note that file has a flagged, not-yet-done rewrite (see
+its background-art section) — a good candidate task if the user wants
+documentation debt paid down rather than new features.
 
 ## Which files are most important?
 
@@ -145,10 +184,10 @@ Full annotated map: `FILE_MAP.md`.
 ## Which areas are dangerous to modify?
 
 See `CLAUDE.md` → "DO NOT CHANGE WITHOUT REVIEW" for the full list.
-Headline: `redact()` in `state.ts` (the only thing preventing hidden
+Headline: `redact()` in `src/lib/game/state.ts` (the only thing preventing hidden
 game information from leaking to clients), the Durable Object bindings/
 migrations in `wrangler.jsonc`, and the WS protocol shapes in
-`types.ts` (a mismatch between the two deploy targets breaks live
+`src/lib/game/types.ts` (a mismatch between the two deploy targets breaks live
 rooms).
 
 ## Which commands should I run first?
@@ -187,40 +226,56 @@ Copy-paste this to start a new session cleanly:
 Read CLAUDE.md, PROJECT_STATE.md, and TASKS.md in full before doing
 anything else. Then:
 
-1. Run `git status`, `git log --oneline -5`, and `git fetch origin`
-   (read-only) and confirm the repo state matches what PROJECT_STATE.md
-   describes — as of the 2026-08-07 checkpoint, `main` is fully pushed
-   to `origin/main` (0 ahead / 0 behind, HEAD `1f9ec83`, v1.21). Don't
-   trust that this is still true — confirm it fresh; a prior checkpoint
-   (2026-08-06) recorded a 9-commits-ahead-never-pushed gap that this
-   memory system didn't catch for a full day and 9 more versions. If
-   anything doesn't match what PROJECT_STATE.md says, stop and tell me
-   what's different before proceeding.
+1. Run `git status`, `git log --oneline -5`, `git branch -a`, and
+   `git fetch origin` (read-only) and confirm the repo state matches
+   what PROJECT_STATE.md describes — as of the 2026-08-17 checkpoint
+   (post-merge), `main` is fully pushed to `origin/main` (0
+   ahead/behind, HEAD `5be92bc`), `chore/polish` is merged in, and no
+   other feature branch is unmerged. **Don't trust that this is still
+   true — confirm it fresh, and re-check again right before you finish,
+   not just at the start.** This repo's checkout is shared across
+   concurrent Claude Code sessions/windows (proven directly: the
+   2026-08-17 checkpoint watched the branch change from `chore/polish`
+   to `main` mid-session, caused by a different session it had no
+   visibility into) — git state here can change without any command you
+   ran. This memory system has also now missed shipped commits for a
+   full day+ **twice** (2026-08-06→07, and 2026-08-13→17) — assume
+   drift by default and verify. If anything doesn't match what
+   PROJECT_STATE.md says, stop and tell me what's different before
+   proceeding.
 2. Run the verification suite: `npm run typecheck && npm run
    typecheck:party && npm run lint && npm run build`. Confirm all four
-   still pass (all four were clean as of 2026-08-07).
+   still pass (all four were clean as of 2026-08-07; not re-run
+   2026-08-17 since no source file changed under this session — re-run
+   fresh and don't assume, especially since a concurrent session's merge
+   added new code since the last time this suite ran).
 3. In 3-5 sentences, summarize your understanding of: what this
-   project is, what the current task is, and what specifically is
-   blocking it. I want to confirm you've actually absorbed the memory
-   files, not just skimmed them.
+   project is, what the current task is (`TASK-010`, optional), and
+   what it involves. I want to confirm you've actually absorbed the
+   memory files, not just skimmed them.
 4. Flag anything in CLAUDE.md/PROJECT_STATE.md/TASKS.md/FEATURES.md
    that looks stale or contradicts what you find in the actual code —
    don't silently work around a contradiction, surface it. Known
-   pre-existing gap as of this writing: `UI_SYSTEM.md`'s background-art
-   section describes the v1.10 SVG system, not the actual current
-   PNG/10-style/upload system shipped in v1.14–v1.18 — it has a patch
-   note flagging this but hasn't been fully rewritten.
-5. Check TASKS.md's "Current task" section — if it says nothing is in
-   progress or queued (true as of this writing), ask me what to work on
-   next rather than guessing or inventing work.
+   pre-existing gaps as of this writing: (a) `UI_SYSTEM.md`'s
+   background-art section describes the v1.10 SVG system, not the
+   actual current PNG/10-style/upload system shipped in v1.14–v1.18 —
+   flagged but not fully rewritten; (b) `src/lib/changelog.ts` (the
+   in-app patch notes) stops at `"1.21"` and doesn't cover the 3
+   commits from 2026-08-13–08-15 — see `TASK-010`; (c) the neon/glitch
+   match-outcome effect's deployment was inferred from `vercel ls`, not
+   independently confirmed by rendering it in a browser — worth a real
+   check if you're touching `MatchEndView.tsx`.
+5. Nothing needs to be asked before starting other work — `TASK-009` is
+   resolved. `TASK-010` is optional; ask me if you want direction beyond
+   it.
 6. Preserve the existing architecture (Durable Objects via partyserver,
    the shared src/lib/game/ engine, the redact() information boundary)
    unless you find a genuinely strong reason to change it — and if you
    do, write it up in DECISIONS.md rather than changing it silently.
 7. After completing any meaningful work — even a single small fix —
    update PROJECT_STATE.md, TASKS.md, and append to SESSION_LOG.md
-   before ending your session. This was skipped for 9 consecutive
-   shipped versions (v1.13–v1.21) before this checkpoint caught it up;
-   don't repeat that. A one-line SESSION_LOG.md append is enough to
-   prevent multi-version drift — it doesn't need to be exhaustive.
+   before ending your session. This exact omission has now happened
+   twice (v1.13–v1.21, then the 3 commits 2026-08-13–08-15) — don't be
+   the third. A one-line SESSION_LOG.md append is enough to prevent
+   multi-version drift — it doesn't need to be exhaustive.
 ```

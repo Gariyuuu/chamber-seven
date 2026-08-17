@@ -93,7 +93,7 @@ project shape — treat as brainstorm only:
 - Lobby team-mode preview (`TASK-007`).
 - Shared `<Nav>` component to de-duplicate the repeated page headers
   (see `TASKS.md` → Technical debt).
-- Splitting `state.ts` by concern if it continues to grow (see
+- Splitting `src/lib/game/state.ts` by concern if it continues to grow (see
   `TASKS.md` → Technical debt) — explicitly **not** urgent at its
   current size.
 

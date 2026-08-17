@@ -5,6 +5,85 @@ entries** — this is the project's institutional memory across sessions.
 
 ---
 
+## 2026-08-17 — Repo-memory onboarding checkpoint: found the same drift pattern recurring, then watched a concurrent session merge the unmerged branch mid-checkpoint
+
+- **Goal:** Routine repo-memory onboarding audit (part of a batch sweep
+  across multiple repos, no live user present to ask mid-task).
+  Read-only investigation plus documentation corrections only.
+- **Git state found (at ~00:05, start of checkpoint):** Checked-out
+  branch is `chore/polish`, HEAD `42c03f9`, working tree clean. `main` =
+  `origin/main` = `96a03e5` (0 ahead/0 behind). `chore/polish` =
+  `origin/chore/polish` (0 ahead/0 behind), and is exactly 1 commit
+  ahead of `main` (`42c03f9`, unmerged). Confirmed via `git rev-list
+  --left-right --count` in both directions and `git merge-base
+  --is-ancestor`.
+- **Mid-checkpoint discovery (~00:26):** while writing up `TASK-009` (a
+  request for the user to decide whether to merge `chore/polish`), a
+  routine re-check of `git branch --show-current` found the checked-out
+  branch had changed to `main`, with a new merge commit `5be92bc`
+  ("Merge branch 'chore/polish' into main", timestamped
+  2026-08-17T00:17:49-07:00) already pushed to `origin/main` (confirmed
+  via `git fetch origin` + `git rev-list --left-right --count`), and
+  `npx vercel ls chamber-seven` showing a Production deployment ~8
+  minutes old. This session made no `git checkout`/`merge`/`push`/
+  `vercel` command that could have caused this — `ps aux` showed
+  multiple other `claude` processes running concurrently on this
+  machine, consistent with a different session sharing this same
+  checkout (the same class of hazard documented for
+  `~/Projects/yuuki-outreach`, now confirmed to also apply here). Rather
+  than commit the now-stale "open decision" framing, this session
+  re-verified the post-merge state and rewrote the affected sections —
+  see `PROJECT_STATE.md`'s "2026-08-17, continued" section for the full
+  evidence, and every file listed below for what got corrected.
+- **3 real commits found undocumented in this memory system and in
+  `src/lib/changelog.ts` (which still stops at `"1.21"`):**
+  `97185d3` (2026-08-13, prefers-reduced-motion fix, on `main`),
+  `5816555` (2026-08-13, OG image/robots.txt/sitemap.xml, on `main`),
+  `42c03f9` (2026-08-15, neon/glitch match-outcome headline effect, on
+  `chore/polish` only).
+- **Production verification (direct `curl`, not assumed):**
+  `https://chamber-seven-omega.vercel.app/robots.txt` returns the exact
+  body added by `5816555`; `.../sitemap.xml` returns 200. Confirms
+  `main` through at least `96a03e5` is live in production. The
+  `chore/polish`-only commit's absence from production was **not**
+  independently confirmed (inferred from it not being on `main`), and
+  is flagged as such in `PROJECT_STATE.md`.
+- **No verification suite was re-run this session** (`npm run
+  typecheck`/`typecheck:party`/`lint`/`build`) — this was a pure
+  read-and-document pass with no source-file changes, so a re-run
+  wasn't triggered; the next session that touches source should still
+  run it fresh rather than trust the 2026-08-07 result.
+- **Secrets scan:** No secret values found in any tracked file or any
+  memory doc during this pass (spot-checked `.env.example`,
+  `wrangler.jsonc`, `.vercel/project.json` — all placeholder/public
+  values only).
+- **Files changed this session:** `PROJECT_STATE.md` (new top status
+  section), `CLAUDE.md` (Current status + new Known issue #9),
+  `TASKS.md` (new `TASK-009` set as current/blocked task, new
+  `TASK-010`), `HANDOFF.md` (current task, confirm/decide, previous-
+  agent log, what-works, what's-next, resume prompt), `FEATURES.md` (2
+  new feature entries: site metadata/SEO, match-outcome effects),
+  `UI_SYSTEM.md` (2 new Accessibility entries: reduced-motion,
+  neon/glitch), `CHANGELOG.md` (this checkpoint's entry, below).
+  `src/lib/changelog.ts` was **deliberately not edited** — see
+  `TASKS.md` `TASK-010`.
+- **What was NOT done, deliberately, by this session:** No merge, no
+  deploy, no `git push`, no branch switch, no `npm install`/build was
+  run *by this session*. The merge (`5be92bc`) and its deployment were
+  a **different, concurrent session's** action, only observed and
+  documented here.
+- **`TASK-009` outcome:** closed as DONE — resolved by the concurrent
+  session, not this one. `TASK-010` (changelog reconciliation) remains
+  open, now covering all 3 commits since all 3 are confirmed on `main`.
+- **Lessons, two distinct ones this checkpoint:** (1) repeated from the
+  2026-08-07 entry below — the "update docs after every meaningful
+  session" rule was skipped again for 3 more shipped commits across 3
+  branches, a two-time pattern now — see `CLAUDE.md` → Known issues #9.
+  (2) New — this repo's checkout is shared across concurrent sessions
+  and its git state can change mid-session with no warning; any future
+  session here should re-check `git branch --show-current`/`git log -1`
+  right before finishing, not just at the start.
+
 ## 2026-08-07 — Documentation checkpoint: 9-version catch-up, git state re-verified fully pushed
 
 - **Goal:** User-requested account-switch checkpoint (no new product
@@ -110,13 +189,13 @@ entries** — this is the project's institutional memory across sessions.
      `background-size: cover` crops the image hard enough that these
      blew up into glaring rectangular blocks directly behind the title
      text. That's what read as "white background, can't see the text."
-  2. Separately, `page.tsx`'s "CHAMBER SEVEN" h1 was `text-7xl
+  2. Separately, `src/app/page.tsx`'s "CHAMBER SEVEN" h1 was `text-7xl
      sm:text-8xl` — i.e. it got **bigger**, not smaller, at wider
      breakpoints, so mobile got the "small" `text-7xl` — which was still
      too wide for `Butcherman`'s wider dripping letterforms and
      overflowed the viewport on an iPhone. Same issue (flat, non-
      responsive `text-6xl`) on `/leaderboard`, `/career`, `/changelog`,
-     `/lessons`, `/tutorial`, and `MatchEndView.tsx`'s result text —
+     `/lessons`, `/tutorial`, and `src/components/game/MatchEndView.tsx`'s result text —
      pre-existing (not something this session introduced), but made
      materially worse by switching to a wider display face.
   3. Font: `--font-sans` correctly resolved to `Barlow` (v1.10's fix
@@ -154,7 +233,7 @@ entries** — this is the project's institutional memory across sessions.
   computed-style-checked, specifically because the v1.10 bug had passed
   a computed-style check while still being visually broken on mobile.
 - **Shipped:** committed, pushed to `origin/main`, `wrangler deploy`
-  (Worker — no `party/`/`state.ts` changes, ran anyway per explicit user
+  (Worker — no `party/`/`src/lib/game/state.ts` changes, ran anyway per explicit user
   request to "deploy all"), `vercel deploy --prod`. Verified live via
   `curl` against `chamber-seven-omega.vercel.app` (changelog text,
   `/icon` 200, new SVG 200, old PNG 404).
@@ -188,12 +267,12 @@ entries** — this is the project's institutional memory across sessions.
   2. Art approach for backgrounds/jump-scare — explained no raster
      image-generation tool is available in this environment, offered
      hand-drawn SVG scenes (same technique as the existing
-     `DealerAvatar.tsx`) as the alternative; user picked that over "just
+     `src/components/game/DealerAvatar.tsx`) as the alternative; user picked that over "just
      reduce the repetition, keep it simple."
 - **Files inspected:** `src/app/layout.tsx`, `src/app/globals.css`
   (found the actual root cause of the font complaint — see below),
-  `src/components/game/DealerAvatar.tsx`, `PlayerHud.tsx`, `Lobby.tsx`,
-  `EventLog.tsx`, `PlayingView.tsx`, `ActionBar.tsx`, `GameRoom.tsx`,
+  `src/components/game/DealerAvatar.tsx`, `src/components/game/PlayerHud.tsx`, `src/components/game/Lobby.tsx`,
+  `src/components/game/EventLog.tsx`, `src/components/game/PlayingView.tsx`, `src/components/game/ActionBar.tsx`, `src/components/game/GameRoom.tsx`,
   `src/lib/game/state.ts` (`fire()` — exact log message formats used to
   detect LIVE shots), `src/lib/game/colors.ts`, `src/lib/themePresets.ts`,
   `public/backgrounds/bg-crimson.png` (viewed directly — confirmed the
@@ -222,14 +301,14 @@ entries** — this is the project's institutional memory across sessions.
     `--dealer-color` to `--avatar-color` so `PlayerAvatar` can share
     them; new `.shoot-scare*` and `.table-talk__*` keyframes/classes;
     repointed all 5 `--bg-image` urls from `.png` to `.svg`),
-    `DealerAvatar.tsx` (class rename only, no visual change),
-    `PlayerHud.tsx` / `Lobby.tsx` (render `PlayerAvatar` for non-bot
-    seats, `DealerAvatar` for bot seats), `EventLog.tsx` (table-talk
-    entrance animation classes), `PlayingView.tsx` (new `useShootScare`
+    `src/components/game/DealerAvatar.tsx` (class rename only, no visual change),
+    `src/components/game/PlayerHud.tsx` / `src/components/game/Lobby.tsx` (render `PlayerAvatar` for non-bot
+    seats, `DealerAvatar` for bot seats), `src/components/game/EventLog.tsx` (table-talk
+    entrance animation classes), `src/components/game/PlayingView.tsx` (new `useShootScare`
     hook + `<ShootScare>` render, wrapped return in a Fragment),
     `src/lib/changelog.ts` (new `v1.10` entry).
 - **Root cause found, not just a taste fix:** the font complaint wasn't
-  purely subjective — `--font-sans: var(--font-sans)` in `globals.css`
+  purely subjective — `--font-sans: var(--font-sans)` in `src/app/globals.css`
   is a circular CSS custom property reference, which is invalid, so the
   whole site had been silently falling back to the browser's default
   system font this whole time. `Geist` was loaded and its CSS variable
@@ -513,8 +592,9 @@ entries** — this is the project's institutional memory across sessions.
 - **Files inspected:** `git status`/`git log` (re-confirmed unchanged
   from the prior checkpoint), `src/components/game/GameSettingsForm.tsx`
   (to check a "two dialogs mounted" theory), `party/game.ts` /
-  `src/lib/ui/dialog.tsx` equivalent (Radix Dialog mounting behavior),
-  the live production site (via `curl` and Playwright/screenshots).
+  `src/components/ui/dialog.tsx` (the underlying Radix Dialog mounting
+  behavior), the live production site (via `curl` and
+  Playwright/screenshots).
 - **Files changed (product code):** None — the team-mode source files
   were already complete from the prior session; this session only
   committed and deployed what already existed.
@@ -533,7 +613,7 @@ entries** — this is the project's institutional memory across sessions.
   `SESSION_LOG.md` entry.
 - **Commands run:**
   - Code-inspection only (no browser) to debunk a loose thread from the
-    prior session: grepped `GameSettingsForm.tsx` for "single round" and
+    prior session: grepped `src/components/game/GameSettingsForm.tsx` for "single round" and
     confirmed the "2v2 Duos"/"Boss Battle" hint text *itself* contains
     that substring, separately from the Match Length section's own hint
     — fully explaining an earlier "2 matches found" diagnostic result
@@ -583,7 +663,7 @@ entries** — this is the project's institutional memory across sessions.
     unverified in the docs) and Vercel
     (`https://chamber-seven-omega.vercel.app`), and re-verified against
     the live production URLs.
-  - **One residual, non-blocking gap:** the `MatchEndView.tsx` win/loss
+  - **One residual, non-blocking gap:** the `src/components/game/MatchEndView.tsx` win/loss
     screen itself was not captured by screenshot (matches didn't finish
     within the scripted turn budget in either local or production
     checks). This code was manually reviewed line-by-line in the prior
@@ -694,7 +774,7 @@ entries** — this is the project's institutional memory across sessions.
   `components.json`, `.gitignore`, `.env.local` (names only, values
   redacted from any output), `README.md`, `AGENTS.md`, the pre-existing
   placeholder `CLAUDE.md`, every file under `src/` and `party/`
-  (all `.ts`/`.tsx` source, `globals.css`), `public/`'s asset listing,
+  (all `.ts`/`.tsx` source, `src/app/globals.css`), `public/`'s asset listing,
   `.vercel/project.json`, git history (`log`, `status`, `diff --stat`,
   `branch -a`, `remote -v`).
 - **Files changed:** Created `PROJECT_STATE.md`, `ARCHITECTURE.md`,
@@ -706,7 +786,7 @@ entries** — this is the project's institutional memory across sessions.
   `.env.example`. Rewrote `CLAUDE.md` from a one-line `@AGENTS.md`
   include into a full operating manual. **No product/game source files
   were intentionally modified** — the pre-existing uncommitted
-  team-mode work (in `src/lib/game/state.ts`, `types.ts`, and several
+  team-mode work (in `src/lib/game/state.ts`, `src/lib/game/types.ts`, and several
   `src/components/game/*.tsx` files) was left exactly as found (dirty,
   uncommitted) and only *documented*, not changed.
 - **Commands run:**

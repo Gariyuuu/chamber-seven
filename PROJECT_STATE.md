@@ -4,7 +4,118 @@
 It will go stale the instant more work happens — update it after every
 meaningful session (see `CLAUDE.md` → Permanent rules).
 
-## Status as of 2026-08-07 (latest of all): DOCUMENTATION CHECKPOINT — 9-version catch-up, git state re-verified fully pushed
+## Status as of 2026-08-17 (latest of all): ONBOARDING AUDIT — current open item `TASK-010` (`T-010`); `TASK-009` was resolved mid-checkpoint by a concurrent session (found 3 shipped, undocumented commits since the 2026-08-07 checkpoint)
+
+**UPDATE, same checkpoint, ~9 minutes later:** while this documentation
+pass was in progress, `TASK-009` (below, originally "open — needs the
+user") **was resolved by a different, concurrent Claude Code session
+sharing this same checkout** — merge commit `5be92bc` ("Merge branch
+'chore/polish' into main", 2026-08-17T00:17:49-07:00) appeared on
+`main`, already pushed to `origin/main`, with a fresh Vercel Production
+deployment (`vercel ls`, ~8 minutes old at time of observation). **This
+repo's checkout is apparently shared across concurrent sessions/windows
+the same way `~/Projects/yuuki-outreach` is (see that project's own
+memory note) — git branch/HEAD state can change under you mid-session
+without any command you ran causing it.** The repo is now on `main`
+(not `chore/polish`), fully pushed, with the neon/glitch effect merged
+in. See `TASKS.md` `TASK-009`'s updated status and the "2026-08-17,
+continued" entry below for what was re-verified after this was
+discovered. **Everything below this note, through the next `---`, is
+the checkpoint's original finding as of ~00:05–00:17, before the
+concurrent merge — kept verbatim as an accurate record of what was true
+at that moment, not corrected in place.**
+
+A routine repo-memory onboarding pass (no user present to ask questions
+mid-task; read-only investigation plus documentation corrections only —
+no product code touched by this session). Re-ran `git status`/
+`git log`/`git branch -a`/`git fetch origin` fresh rather than trusting
+the 2026-08-07 section below, per the standing rule.
+
+**Git state — the finding:**
+- **Checked-out branch: `chore/polish`**, not `main`. HEAD `42c03f9`.
+  Working tree **clean** (`git status --porcelain` empty) — this is not
+  a stopped-mid-task state, everything is committed.
+- `main` (local) = `origin/main` = `96a03e5` (0 ahead / 0 behind —
+  confirmed via `git rev-list --left-right --count origin/main...main`).
+- `chore/polish` (local) = `origin/chore/polish` (0 ahead / 0 behind) —
+  pushed, but **not merged into `main`**. `chore/polish` is exactly one
+  commit ahead of `main`: `42c03f9`.
+- **Three real commits exist that neither the 2026-08-07 doc checkpoint
+  nor `src/lib/changelog.ts` (still stops at `"1.21"`, confirmed via
+  `grep`) ever recorded:**
+  1. `97185d3` (2026-08-13) — "fix: respect prefers-reduced-motion in
+     globals.css." Merged into `main` via `22087b9`.
+  2. `5816555` (2026-08-13) — "feat(metadata): add OpenGraph image,
+     robots, and sitemap." Merged into `main` via `96a03e5`.
+  3. `42c03f9` (2026-08-15) — "feat(ui): add neon/glitch match-outcome
+     headline effects." **On `chore/polish` only — not merged into
+     `main`, not deployed.** (`git merge-base --is-ancestor 42c03f9
+     main` → false.)
+- **Production deploy state, checked directly (not assumed):**
+  `curl https://chamber-seven-omega.vercel.app/robots.txt` returns the
+  exact body `5816555` adds, and `.../sitemap.xml` returns `200` — this
+  **confirms `main` (through at least `96a03e5`, i.e. commits #1 and #2
+  above) is live in production.** Commit #3 (`42c03f9`, the neon/glitch
+  effect) is not on `main`, so by inference it is **not** deployed — this
+  was not independently confirmed by inspecting rendered CSS/DOM in
+  production (out of scope for a quick read-only check), so treat "not
+  live" as **[Inferred]**, not directly observed.
+- **Open decision for the user [Needs confirmation]:** should
+  `chore/polish` (`42c03f9`) be merged into `main` and deployed, or is it
+  intentionally held back? No commit message, branch name, or memory
+  file gives a reason for the delay. See `TASKS.md` `TASK-009`.
+- **Documentation gap this pass fixes:** `UI_SYSTEM.md` (new
+  Accessibility entries for both the reduced-motion rule and the
+  neon/glitch effect), `FEATURES.md` (two new feature entries: site
+  metadata/SEO, and the match-outcome effects), `TASKS.md` (new
+  `TASK-009`/`TASK-010`), `CLAUDE.md` (Current status + Known issues),
+  `HANDOFF.md`, `CHANGELOG.md`, `SESSION_LOG.md` — see each file's own
+  changes for detail. `src/lib/changelog.ts` (the **player-facing**
+  in-app patch notes) was deliberately **not** edited — inventing a
+  version number/entry for unreleased or undocumented-by-the-user
+  changes is a product decision, not a docs-sync one; flagged in
+  `TASKS.md` instead.
+- **No product code was changed this pass.** No `npm install`/build/
+  deploy/merge/push was run — this was a read-and-document pass per the
+  standing "account-switch checkpoint" convention in `CLAUDE.md`.
+
+## Status as of 2026-08-17, continued: post-merge re-verification
+
+Re-ran `git status`, `git branch --show-current`, `git log -1`, and
+`git fetch origin` fresh after noticing the branch had changed. Confirmed:
+
+- **Branch: `main`.** HEAD `5be92bc` (the merge commit above). `main` =
+  `origin/main`, 0 ahead / 0 behind — the merge is pushed.
+- **Working tree:** clean except this session's own in-progress
+  documentation edits (no application/source file changes — confirmed
+  via `git status --porcelain -- ':!*.md'` returning empty).
+- **`chore/polish`, `chore/metadata-og`, `fix/motion-a11y` local
+  branches still exist** (now fully merged into `main`) — not deleted;
+  not this session's call to clean up.
+- **Deployment:** `npx vercel ls chamber-seven` shows a Production
+  deployment marked Ready, ~8 minutes old at time of check — consistent
+  with the concurrent session having deployed right after merging.
+  **Not independently re-confirmed via a fresh `curl`/DOM check of the
+  neon/glitch CSS classes specifically this pass** — inferred live from
+  the merge-to-`main` + fresh-Production-deploy combination, which is
+  strong but not a direct rendering check. Whoever verifies this next
+  should do a real browser check of a completed match's outcome screen.
+- **`src/lib/changelog.ts` still stops at `"1.21"`** (re-confirmed via
+  `grep` — 0 matches for `"1.2[2-9]"`) — the concurrent session merged
+  and deployed the code but did not add a player-facing changelog entry
+  either. `TASK-010` (changelog reconciliation) still applies, now
+  covering all 3 of the originally-found commits since all 3 are
+  confirmed on `main`.
+- **Revised conclusion:** `TASK-009` is **DONE** — merged and deployed,
+  just not by this session, and not by the user directly either (by
+  whichever concurrent agent session was also working in this checkout).
+  No code review of the merge was performed by this session (out of
+  scope for a docs-only pass) — if the merge/deploy needs a correctness
+  check, that's separate follow-up work, not assumed done here.
+
+---
+
+## Status as of 2026-08-07 (prior pass): DOCUMENTATION CHECKPOINT — 9-version catch-up, git state re-verified fully pushed
 
 A fresh account-switch checkpoint, requested with no new product work in
 scope. Re-ran `git status`/`git log --oneline`/`git fetch origin`
@@ -50,7 +161,7 @@ direct `curl` against `/changelog` (shows v1.17–v1.21 text) and
   checkpoint** — see `SESSION_LOG.md`'s top entry for the full list.
 - **v1.20** (`5afd3e6`) — multi-beat jump-scare sequence (choreographed
   ~1.9s CSS-timeline animation) + damage-trail/shake animation across
-  the HUD (`HealthBar.tsx` and others).
+  the HUD (`src/components/game/HealthBar.tsx` and others).
 - **v1.21** (`1f9ec83`) — slower, heavier jump-scare (~2.7s) with a
   tumbling ejected shell casing and drifting muzzle smoke.
 
@@ -111,7 +222,7 @@ against **live production** (not assumed) and found two concrete bugs:
 (with a flat white fallback for unlit ones) positioned dead-center where
 every page's title sits, which `background-size: cover` blew up into
 glaring blocks on mobile; (2) several hero headings had no responsive
-downscaling — `page.tsx`'s title in particular got *bigger*, not
+downscaling — `src/app/page.tsx`'s title in particular got *bigger*, not
 smaller, on wider screens, so it overflowed on phones with the new wider
 `Butcherman` display face.
 
@@ -143,7 +254,7 @@ on a live/damaging shot — plus patch notes. All six were implemented in
 one pass, confirmed feasible up front via `AskUserQuestion` (font vibe:
 grunge/horror display; art approach: hand-drawn SVG since no raster
 image-generation tool is available in this environment — same technique
-already used for `DealerAvatar.tsx`).
+already used for `src/components/game/DealerAvatar.tsx`).
 
 - **Site icon:** `src/app/icon.tsx` + `src/app/apple-icon.tsx` (Next.js
   file-convention dynamic icons via `next/og` `ImageResponse`) — a
@@ -153,7 +264,7 @@ already used for `DealerAvatar.tsx`).
   `○ /apple-icon` routes generated) and a live browser check (`<link
   rel="icon" href="/icon?...">` present, correct PNG served).
 - **Font bug fix + swap:** Found and fixed a real bug while investigating
-  the "I don't like the font" complaint — `globals.css`'s `@theme inline`
+  the "I don't like the font" complaint — `src/app/globals.css`'s `@theme inline`
   block had `--font-sans: var(--font-sans)`, a self-referential/circular
   CSS custom property. That's invalid, so the property fell back to the
   browser's default system font — **Geist was never actually rendering**
@@ -170,10 +281,10 @@ already used for `DealerAvatar.tsx`).
   a bare-headed, jacketed humanoid SVG figure (vs. `DealerAvatar`'s
   hooded specter), sharing the same idle-sway/firing-recoil animation
   system. The shared CSS classes were renamed from `dealer-avatar*` to
-  `duel-avatar*` in `globals.css` (and `DealerAvatar.tsx` updated to
+  `duel-avatar*` in `src/app/globals.css` (and `src/components/game/DealerAvatar.tsx` updated to
   match) so both avatars run off one animation implementation. Wired into
-  `PlayerHud.tsx` (every human seat, including your own — previously
-  human players had no avatar at all, just a name) and `Lobby.tsx`
+  `src/components/game/PlayerHud.tsx` (every human seat, including your own — previously
+  human players had no avatar at all, just a name) and `src/components/game/Lobby.tsx`
   (roster list). Verified live: a real vs-AI match screenshot shows both
   "The Dealer" (hooded, blue glow) and "Tester (you)" (bare-headed, red
   glow) each with their own animated avatar.
@@ -185,10 +296,10 @@ already used for `DealerAvatar.tsx`).
   glowing neon bar-sign, a fire escape, and an overhead bulb, generated
   programmatically (`/tmp` Python script, not committed) using each
   theme's actual `oklch()` primary/accent CSS variables so the art and
-  the UI palette are exactly in sync. `globals.css`'s five `--bg-image`
+  the UI palette are exactly in sync. `src/app/globals.css`'s five `--bg-image`
   declarations were repointed `.png` → `.svg`. Verified via `qlmanage`
   thumbnail renders of each file plus a live browser screenshot.
-- **Table talk animation:** `EventLog.tsx` — new lines now slide in
+- **Table talk animation:** `src/components/game/EventLog.tsx` — new lines now slide in
   (`table-talk-in` keyframe) instead of just fading, private reveals get
   a slightly different entrance (`table-talk-in-private`), and the `›`
   bullet has its own micro-entrance. Only genuinely new log lines
@@ -203,7 +314,7 @@ already used for `DealerAvatar.tsx`).
   swings the gun to point straight at the viewer. Deliberately does
   **not** fire for shots that don't involve you (e.g. two bots dueling
   in a 3-4 player game), to avoid spamming the screen. Detected via a
-  `useShootScare` hook in `PlayingView.tsx` that diffs `state.log` for a
+  `useShootScare` hook in `src/components/game/PlayingView.tsx` that diffs `state.log` for a
   fresh `": LIVE."`-suffixed entry, same pattern as the existing
   `useDealerFx` hook. Verified live: a real vs-AI match, screenshotted
   mid-animation, shows the correct hooded figure, red flash, muzzle
@@ -230,7 +341,7 @@ items, plus a lesson/strategy page. Built and shipped both:
 - **`/tutorial`** — full rules, every game mode, and a complete glossary
   of all 23 items grouped by category (offense/defense/info/utility).
   Generated from the existing `ALL_ITEM_IDS`/`ITEM_INFO`/`ITEM_ICONS`/
-  `ITEM_CATEGORY` data (same source of truth `ItemCard.tsx` uses) —
+  `ITEM_CATEGORY` data (same source of truth `src/components/game/ItemCard.tsx` uses) —
   never hand-duplicated, so a future new item appears here automatically.
 - **`/lessons`** — 9 strategy lessons, each tied to a real, verifiable
   mechanic (odds math from the chamber panel, why shooting yourself on
@@ -245,7 +356,7 @@ items, plus a lesson/strategy page. Built and shipped both:
 Verified: `typecheck` × 2, `lint`, `build` all clean; screenshot-checked
 locally (all 23 items rendered correctly across all 4 categories) and
 against **production** after deploying. Committed as `ae1219c` (feature)
-— no backend/`party/`/`state.ts` changes were needed, so only the
+— no backend/`party/`/`src/lib/game/state.ts` changes were needed, so only the
 frontend (`vercel deploy --prod`) was redeployed, not the Worker.
 
 **No task remains queued.** `TASKS.md` → "Current task" still says "None."
@@ -295,8 +406,8 @@ targets, and verified live in production via screenshots:
    Career hub's hero banner layers in the tier-appropriate venue image
    (escalating with the next opponent's tier), and the match-end
    level-up panel gets a soft `victory-burst.png` glow.
-2. **TASK-005** — `useGameRoom.ts`'s dev-host fallback now matches
-   `leaderboardApi.ts`'s (`127.0.0.1:8787`).
+2. **TASK-005** — `src/hooks/useGameRoom.ts`'s dev-host fallback now matches
+   `src/lib/leaderboardApi.ts`'s (`127.0.0.1:8787`).
 3. **TASK-006** — `zustand` removed from `package.json` (re-confirmed
    unused via a fresh grep first) and `package-lock.json` regenerated.
    Running `npm install` for this surfaced 3 pre-existing `npm audit`
@@ -307,7 +418,7 @@ targets, and verified live in production via screenshots:
    `SECURITY.md`/`TASKS.md` as a deliberate non-action, not an oversight.
 4. **TASK-007** — Team assignments (and the boss) now preview in the
    pre-game lobby, via a new pure `teamForSeatIndex()` helper in
-   `state.ts` shared by both the real `assignTeams()` and the lobby's
+   `src/lib/game/state.ts` shared by both the real `assignTeams()` and the lobby's
    preview — so the preview can never drift from the real rule.
 5. **TASK-008** — `README.md` rewritten to describe the actual current
    feature set instead of the original 2-player-only description.
@@ -443,16 +554,16 @@ verification (see below):
    and `clampSettings()` enforcing "duos requires exactly 4 players" +
    "any team mode forces `roundsToWin = 1`".
 3. **Bot AI** — `runBotStep()`'s target selection excludes teammates.
-4. **Settings UI** — `GameSettingsForm.tsx` has a Team Mode selector
+4. **Settings UI** — `src/components/game/GameSettingsForm.tsx` has a Team Mode selector
    (Free-for-all / 2v2 Duos / Boss Battle) with the player-count and
    match-length fields kept in sync with the invariants above.
-5. **Client UI** — `PlayerHud.tsx` shows a Team A/Team B badge and a
-   crown icon for the boss; `TargetSelector.tsx` excludes teammates from
+5. **Client UI** — `src/components/game/PlayerHud.tsx` shows a Team A/Team B badge and a
+   crown icon for the boss; `src/components/game/TargetSelector.tsx` excludes teammates from
    the pickable list and shows a crown for the boss;
-   `MatchEndView.tsx` computes "did you win" correctly for team modes
+   `src/components/game/MatchEndView.tsx` computes "did you win" correctly for team modes
    (comparing team membership, not just literal winner seat) and shows
    team-aware outcome text and a team-grouped standings list.
-6. **`career.ts`** — fixed to supply the new required `teamMode: "none"`
+6. **`src/lib/career.ts`** — fixed to supply the new required `teamMode: "none"`
    field in `careerMatchSettings()` (career matches are never team
    matches).
 7. **Changelog** — a `v1.8` entry drafted in `src/lib/changelog.ts`
@@ -482,7 +593,7 @@ both modes:
 - **Root cause of the earlier contradictory evidence:** two separate
   false leads were identified and debunked by direct code inspection —
   (1) the "2 elements matched 'Single round' text" oddity was not a
-  double-mounted-dialog bug; it's simply that `GameSettingsForm.tsx`'s
+  double-mounted-dialog bug; it's simply that `src/components/game/GameSettingsForm.tsx`'s
   "2v2 Duos"/"Boss Battle" hint text *itself* contains the substring
   "single round" (e.g. "Requires 4 players, single round."), separate
   from the Match Length section's own "Single round — team modes decide
@@ -495,7 +606,7 @@ both modes:
   a more generous settle delay show the badges rendering correctly and
   consistently.
 - **Not independently re-confirmed by this pass:** the exact
-  `MatchEndView.tsx` win/loss framing screen itself (neither scripted
+  `src/components/game/MatchEndView.tsx` win/loss framing screen itself (neither scripted
   match reached full completion within a reasonable turn budget — bot
   turn delays plus large item hands make forced-AI playouts slow). This
   code was manually reviewed line-by-line in the original audit and
@@ -528,7 +639,7 @@ both modes:
    - **One unexplained data point worth carrying forward:** a diagnostic
      script queried `page.locator("p", { hasText: "Single round" })`
      (the Match-length section's team-mode hint text in
-     `GameSettingsForm.tsx`) and got a count of **2**, even though a
+     `src/components/game/GameSettingsForm.tsx`) and got a count of **2**, even though a
      simultaneous check of `page.locator("[role=dialog]")` reported only
      **1** open dialog. This was never explained. It's *possible* this
      is nothing (a Playwright `hasText` quirk matching an element via
@@ -582,7 +693,7 @@ both modes:
 
 ## Errors observed this session (all resolved except the one above)
 
-- `career.ts` initially failed `npm run typecheck` with `TS2741:
+- `src/lib/career.ts` initially failed `npm run typecheck` with `TS2741:
   Property 'teamMode' is missing` — fixed by adding
   `teamMode: "none"` to `careerMatchSettings()`'s return object. Resolved,
   confirmed by clean typecheck.

@@ -86,10 +86,24 @@ See `PROJECT_STATE.md` for the exact, timestamped snapshot. Summary:
   a memory-file sync commit**, unlike every earlier version bump. This
   checkpoint is the catch-up. See `SESSION_LOG.md`'s top entry and
   `CHANGELOG.md` for the reconciliation record.
+- **[Verified, 2026-08-17] Since the 2026-08-07 checkpoint above, 3 more
+  real commits shipped but were never reconciled into this memory system
+  or `src/lib/changelog.ts`** (which still stops at `"1.21"`): a
+  `prefers-reduced-motion` accessibility fix (`97185d3`) and OpenGraph/
+  robots.txt/sitemap metadata (`5816555`), both merged into `main`
+  (`96a03e5`) and confirmed live in production via direct `curl`; plus a
+  neon/glitch match-outcome headline effect (`42c03f9`), which was
+  merged into `main` (`5be92bc`) and deployed **during this same
+  checkpoint, by a different concurrent Claude Code session sharing this
+  checkout** (not by this session, not confirmed to be the user
+  directly) — see `PROJECT_STATE.md`'s "2026-08-17, continued" section.
+  All 3 are now on `main`, fully pushed. Full detail: `PROJECT_STATE.md`'s
+  2026-08-17 status, `TASKS.md` `TASK-010` (`T-010`) / `TASK-009` (now done).
 - **Current blockers:** None.
-- **Highest-priority next task:** None queued. `TASKS.md` → "Current
-  task" says "None queued" — wait for user direction rather than
-  inventing work.
+- **Highest-priority next task:** None queued/urgent. `TASK-010`
+  (`T-010`, add `src/lib/changelog.ts` entries for the 3 commits above)
+  is open but not blocking — wait for user direction rather than
+  starting it unprompted.
 
 ## Technology stack
 
@@ -291,7 +305,7 @@ version:
   hand). It is the only place game logic executes — clients never compute
   outcomes locally.
 - Clients connect over WebSocket via `partysocket`. Every state broadcast
-  is **redacted per-recipient** (`redact()` in `state.ts`) before being
+  is **redacted per-recipient** (`redact()` in `src/lib/game/state.ts`) before being
   sent, so a given player's browser never receives another player's hidden
   hand or the unrevealed shell order — this is enforced server-side, not
   just hidden in the UI.
@@ -341,7 +355,7 @@ codebase) unless marked Inferred/Recommended.
   which case they're `"use client"`).
 - **Hooks:** Custom hooks in `src/hooks/`, prefixed `use*`. Prefer
   `useSyncExternalStore` for localStorage-backed reactive values over ad
-  hoc `useEffect` + `useState` (see `useLocalStorage.ts`) to avoid
+  hoc `useEffect` + `useState` (see `src/hooks/useLocalStorage.ts`) to avoid
   hydration mismatches.
 - **API routes / server actions:** None exist — there is no
   `src/app/api/` directory. All server logic lives in the Worker
@@ -350,11 +364,11 @@ codebase) unless marked Inferred/Recommended.
   Next.js API route, there is no existing convention to follow — decide
   deliberately and document it.
 - **Game/state logic:** All game-rule mutations happen through named
-  functions in `state.ts` that take `(room: RoomState, ...)` and mutate
+  functions in `src/lib/game/state.ts` that take `(room: RoomState, ...)` and mutate
   `room` in place, returning an `ActionResult` (`{ok:true}` or
   `{ok:false,error:string}`) for player-triggered actions. Never mutate
   `RoomState` from a React component or from `party/game.ts` directly —
-  always go through a `state.ts` function.
+  always go through a `src/lib/game/state.ts` function.
 - **Validation:** All player input (settings, target seat, item choice) is
   validated/clamped server-side in the Worker (`clampSettings()`,
   target/turn/phase checks inside `fire()`/`playItem()`) — the client-side
@@ -362,7 +376,7 @@ codebase) unless marked Inferred/Recommended.
   trusted as the real gate.
 - **Types:** `strict: true` in both `tsconfig.json`s. Discriminated unions
   used for the WS protocol (`ClientMessage`/`ServerMessage` in
-  `types.ts`) and for `ActionResult`. Prefer exhaustive `switch` over
+  `src/lib/game/types.ts`) and for `ActionResult`. Prefer exhaustive `switch` over
   `if/else` chains when branching on an `ItemId`/`TeamMode`-like union.
 - **Styling:** Tailwind utility classes inline in JSX; `cn()`
   (`src/lib/utils.ts`) for conditional class composition. Per-seat and
@@ -403,23 +417,23 @@ Full detail in `UI_SYSTEM.md`. Key facts and exact file locations:
   `src/lib/themePresets.ts`, applied via a `data-theme` attribute on
   `<html>`, persisted in `localStorage` (`chamber-seven:theme`), and
   flash-avoided via a `beforeInteractive` inline `<Script>` in
-  `layout.tsx`. Each preset overrides `--bg-image` to a matching PNG in
+  `src/app/layout.tsx`. Each preset overrides `--bg-image` to a matching PNG in
   `public/backgrounds/`. **This is a light/dark-independent color-vibe
   picker, not a light-mode/dark-mode toggle** — the app is hardcoded dark
-  (`className="... dark"` on `<html>` in `layout.tsx`); there is no light
+  (`className="... dark"` on `<html>` in `src/app/layout.tsx`); there is no light
   mode.
 - **Typography:** `Geist` (sans), `Geist Mono` (mono), `Bebas Neue`
   (`--font-display`, used for big headline text) via `next/font/google` in
-  `layout.tsx`.
+  `src/app/layout.tsx`.
 - **Radius/spacing/shadows:** Tailwind defaults plus a custom `--radius`
   scale (`--radius-sm` through `--radius-4xl`, all derived from one
-  `--radius: 0.5rem` base) in `globals.css`.
+  `--radius: 0.5rem` base) in `src/app/globals.css`.
 - **Icon system:** `lucide-react` exclusively. Per-item icons mapped in
   `src/components/game/itemIcons.tsx` (`ITEM_ICONS: Record<ItemId,
   LucideIcon>`) — every new `ItemId` needs an entry here.
 - **Reusable components:** `src/components/ui/*` (shadcn primitives) +
   `src/components/game/*` (game-specific, see `FILE_MAP.md`).
-- **Custom animated asset:** `DealerAvatar.tsx` is a hand-authored inline
+- **Custom animated asset:** `src/components/game/DealerAvatar.tsx` is a hand-authored inline
   SVG (not a raster image) with CSS-keyframe idle sway and a
   React-prop-driven firing/recoil animation — used for every bot seat's
   avatar in the lobby, HUD, and while playing.
@@ -436,7 +450,7 @@ Full detail in `UI_SYSTEM.md`. Key facts and exact file locations:
 
 | Variable | Purpose | Required? | Where used | Client/Server | Format | Example (safe) | Sensitive? |
 |---|---|---|---|---|---|---|---|
-| `NEXT_PUBLIC_PARTYKIT_HOST` | Host (no protocol) the client connects the WebSocket to, and that the leaderboard HTTP fetch is built from | Required for the client to reach a Worker at all (falls back to `127.0.0.1:1999` in `useGameRoom.ts` / `127.0.0.1:8787` in `leaderboardApi.ts` — **the two fallback defaults are inconsistent**, see `SECURITY.md`/known issues) | `src/hooks/useGameRoom.ts`, `src/lib/leaderboardApi.ts` | Client (must be `NEXT_PUBLIC_*` to be exposed) | `host:port`, no `http(s)://` prefix, e.g. `127.0.0.1:8787` locally or `chamber-seven.<subdomain>.workers.dev` in production | `127.0.0.1:8787` | No — it's a public hostname, not a secret |
+| `NEXT_PUBLIC_PARTYKIT_HOST` | Host (no protocol) the client connects the WebSocket to, and that the leaderboard HTTP fetch is built from | Required for the client to reach a Worker at all (falls back to `127.0.0.1:1999` in `src/hooks/useGameRoom.ts` / `127.0.0.1:8787` in `src/lib/leaderboardApi.ts` — **the two fallback defaults are inconsistent**, see `SECURITY.md`/known issues) | `src/hooks/useGameRoom.ts`, `src/lib/leaderboardApi.ts` | Client (must be `NEXT_PUBLIC_*` to be exposed) | `host:port`, no `http(s)://` prefix, e.g. `127.0.0.1:8787` locally or `chamber-seven.<subdomain>.workers.dev` in production | `127.0.0.1:8787` | No — it's a public hostname, not a secret |
 | `VERCEL_OIDC_TOKEN` | Vercel-internal OIDC token, auto-injected by the Vercel CLI/platform | Not something you set manually | Present in `.env.local`, not read by any app code found in this repo | Server (build/runtime injected) | Opaque token | — | **Yes** — do not commit or print its value |
 
 No other environment variables were found (no `.env.example` existed
@@ -529,13 +543,13 @@ Full detail in `DEPLOYMENT.md`. Summary:
 
 ## Critical rules — DO NOT CHANGE WITHOUT REVIEW
 
-- **`src/lib/game/state.ts`, `types.ts`, `items.ts`** — the shared
+- **`src/lib/game/state.ts`, `src/lib/game/types.ts`, `src/lib/game/items.ts`** — the shared
   engine. A change here affects both the Worker (real games) and the
   client (settings validation). An incompatible change deployed to only
   one side (e.g. Worker updated, Vercel not redeployed, or vice versa)
   will desync the WS protocol and can break every in-flight room. Always
   deploy both sides together after touching these files.
-- **`RoomState` / `RedactedState` shape (`types.ts`)** — `redact()` is the
+- **`RoomState` / `RedactedState` shape (`src/lib/game/types.ts`)** — `redact()` is the
   only thing standing between a player's browser and another player's
   hidden hand / the real shell order. Any change to `redact()` or to what
   fields get added to `PlayerState` must be checked against what
@@ -552,8 +566,8 @@ Full detail in `DEPLOYMENT.md`. Summary:
   `src/` (outside `lib/game`) import anything Workers-specific. This
   boundary is what keeps both TypeScript projects typechecking
   independently.
-- **`ITEM_POOL_WEIGHTS` (`items.ts`) and the hand-cap/rarity logic in
-  `state.ts` (`canHoldAnother`, `HAND_CAP`, `DRAW_REROLL_ATTEMPTS`)** —
+- **`ITEM_POOL_WEIGHTS` (`src/lib/game/items.ts`) and the hand-cap/rarity logic in
+  `src/lib/game/state.ts` (`canHoldAnother`, `HAND_CAP`, `DRAW_REROLL_ATTEMPTS`)** —
   these encode deliberate, previously-tuned game balance (e.g. Irons
   weighted at `0.5` vs. everything else `1.5`–`5`, capped at one held at a
   time; Scapegoat capped at one per match). Changing these numbers is a
@@ -563,7 +577,7 @@ Full detail in `DEPLOYMENT.md`. Summary:
   invariant "`duos` requires exactly 4 players" and "`roundsToWin` is
   forced to 1 whenever `teamMode !== "none"`" is relied on by
   `assignTeams()`, `bossSeatOf()`, and the UI's conditional rendering
-  (`GameSettingsForm.tsx`). Breaking this invariant server-side without
+  (`src/components/game/GameSettingsForm.tsx`). Breaking this invariant server-side without
   updating all three call sites will desync team assignment from what the
   UI displays.
 - **Leaderboard win-recording gate (`party/game.ts` `saveState()`,
@@ -581,9 +595,9 @@ Headline items:
 1. **RESOLVED — `public/venues/tier1.png`–`tier6.png` and
    `public/victory-burst.png` are now wired up.** As of 2026-08-06, the
    Career hub's hero banner layers in the tier-appropriate venue image
-   (escalating with the next opponent's tier, `career/page.tsx`), and
+   (escalating with the next opponent's tier, `src/app/career/page.tsx`), and
    `victory-burst.png` provides a soft glow behind the level-up panel on
-   the match-end screen (`MatchEndView.tsx`). The v1.7 changelog's claim
+   the match-end screen (`src/components/game/MatchEndView.tsx`). The v1.7 changelog's claim
    is now actually true of the shipped UI. Verified via screenshot,
    both locally and against production.
 2. **RESOLVED — Team modes (2v2 Duos, Boss Battle) are live and verified.**
@@ -596,8 +610,8 @@ Headline items:
    resolution" section for the full evidence and the (benign) root cause
    of the earlier contradictory results.
 3. **RESOLVED — Inconsistent local dev fallback host.**
-   `useGameRoom.ts` now defaults to `127.0.0.1:8787`, matching
-   `leaderboardApi.ts` and `wrangler dev --port 8787`.
+   `src/hooks/useGameRoom.ts` now defaults to `127.0.0.1:8787`, matching
+   `src/lib/leaderboardApi.ts` and `wrangler dev --port 8787`.
 4. **RESOLVED — `zustand` removed.** Re-confirmed unused via a fresh
    grep, then removed from `package.json`/`package-lock.json`
    (2026-08-06). Removing it surfaced 3 pre-existing `npm audit`
@@ -648,6 +662,36 @@ Headline items:
    "ship this one small fix" session should still touch `SESSION_LOG.md`
    at minimum** — a one-line append costs almost nothing and prevents
    exactly this kind of multi-version drift from accumulating silently.
+9. **NEW FINDING (2026-08-17) — the exact same drift pattern recurred,
+   AND this repo's checkout is shared across concurrent sessions.**
+   Three more real commits shipped between 2026-08-13 and 2026-08-15
+   (`97185d3` reduced-motion fix, `5816555` OG/robots/sitemap metadata,
+   `42c03f9` neon/glitch match-outcome headline effect) with no
+   accompanying memory-file update and no `src/lib/changelog.ts` entry.
+   Additionally, this checkpoint found the repo checked out on
+   `chore/polish` (one commit — `42c03f9` — ahead of `main`, unmerged)
+   rather than `main`, and opened `TASK-009` to ask the user about it —
+   **but while this same checkpoint was still writing documentation, a
+   different, concurrent Claude Code session sharing this checkout
+   merged `chore/polish` into `main` (`5be92bc`) and deployed it,
+   without this session doing anything to cause it.** This repo's
+   working directory is apparently shared across concurrent sessions/
+   windows the same way `~/Projects/yuuki-outreach` is documented to be
+   (see that project's own memory notes, outside this repo) — **branch/
+   HEAD state can change mid-session here, not just in yuuki-outreach.**
+   Reconciled this checkpoint (including the mid-checkpoint branch
+   change): see `PROJECT_STATE.md`'s 2026-08-17 status (both the
+   original finding and the "continued" post-merge re-verification),
+   `FEATURES.md` (2 new entries), `UI_SYSTEM.md` (Accessibility
+   additions), `TASKS.md` `TASK-009` (done)/`TASK-010` (open). **Lesson
+   repeats: lesson #8 above was written specifically to prevent
+   documentation drift, and it still happened** — the one-line-
+   `SESSION_LOG.md`-append habit did not stick across account/session
+   boundaries. Consider this a two-time pattern, not a one-off. **New
+   lesson: any future session in this repo should re-check `git branch
+   --show-current` and `git log -1` right before finishing/committing,
+   even if it checked at the start** — this session's own experience is
+   the proof that it can change in between.
 
 ## Recurring workflow: "account-switch checkpoints"
 

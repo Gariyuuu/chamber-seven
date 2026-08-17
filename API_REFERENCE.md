@@ -43,7 +43,7 @@ Both are defined in `party/game.ts`. Message/type shapes are defined in
 - **Source:** `party/game.ts`, `onMessage`'s `if (msg.type === "join")`
   block.
 - **Auth:** None beyond an optional `token` (see `claimSeat()` in
-  `state.ts` — tries token match first, falls back to claiming any open
+  `src/lib/game/state.ts` — tries token match first, falls back to claiming any open
   non-bot seat).
 - **Side effects:**
   - If `settings` is present, `!state.settingsLocked`, and the host seat
@@ -86,7 +86,7 @@ Both are defined in `party/game.ts`. Message/type shapes are defined in
 ```
 - **Purpose:** Fire the shotgun at `target` (which may equal the acting
   seat, for a self-shot).
-- **Validation (`fire()` in `state.ts`):** phase must be `"playing"`;
+- **Validation (`fire()` in `src/lib/game/state.ts`):** phase must be `"playing"`;
   must be the acting seat's turn; chamber must be non-empty; target must
   be an active, non-eliminated seat; target must not be the acting
   seat's teammate (team modes only).

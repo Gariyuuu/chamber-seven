@@ -76,13 +76,13 @@ flowchart TB
   `GameRoom` down.
 - **Server/client boundaries:** Only components that need
   `localStorage`, WebSocket, or interactive state are marked
-  `"use client"` (e.g. `GameRoom.tsx`, `GameSettingsForm.tsx`,
-  `ThemePicker.tsx`, `Lobby.tsx`, `EventLog.tsx`, all of
-  `src/hooks/`). Static/presentational pieces (`Flourish.tsx`,
-  `HealthBar.tsx`, `ChamberBar.tsx`, `ActionBar.tsx`, `itemIcons.tsx`)
+  `"use client"` (e.g. `src/components/game/GameRoom.tsx`, `src/components/game/GameSettingsForm.tsx`,
+  `src/components/game/ThemePicker.tsx`, `src/components/game/Lobby.tsx`, `src/components/game/EventLog.tsx`, all of
+  `src/hooks/`). Static/presentational pieces (`src/components/game/Flourish.tsx`,
+  `src/components/game/HealthBar.tsx`, `src/components/game/ChamberBar.tsx`, `src/components/game/ActionBar.tsx`, `src/components/game/itemIcons.tsx`)
   have no directive and can run as Server Components when their parent
   allows it, though in practice most are rendered inside an already
-  client-boundary parent (`PlayingView.tsx`).
+  client-boundary parent (`src/components/game/PlayingView.tsx`).
 - **State management:** No global store. All game state lives in
   `useGameRoom`'s React state (`seat`, `state: RedactedState | null`,
   `error`, `connected`), fed entirely by WebSocket messages from the
@@ -95,7 +95,7 @@ flowchart TB
   (used for the one plain HTTP route, `/leaderboard`, and for routing
   WebSocket upgrade requests via `routePartykitRequest` from
   `partyserver`) and exports the `Main` class (extends `partyserver`'s
-  `Server<Env>`) plus re-exports `Leaderboard` from `leaderboard.ts`.
+  `Server<Env>`) plus re-exports `Leaderboard` from `party/leaderboard.ts`.
   `wrangler.jsonc` binds both classes as Durable Objects.
 - **Per-room authority:** Each `Main` instance corresponds to exactly one
   room code (the Durable Object's `name`, lowercased room code — see
@@ -155,7 +155,7 @@ sends a message and waits for the next authoritative `state` broadcast.
 The only "local-only" computation on the client is UI-level (which
 target is currently selected in the picker, animation timing for the
 dealer avatar's firing flash — driven by diffing consecutive `log`
-arrays in `PlayingView.tsx`'s `useDealerFx`).
+arrays in `src/components/game/PlayingView.tsx`'s `useDealerFx`).
 
 ## Authentication flow
 
@@ -248,7 +248,7 @@ codebase configures or relies on that).
   connection; they never mutate or broadcast state.
 - **Client:** `useGameRoom` surfaces the latest error message for 4
   seconds (`setTimeout` in a `useEffect`), rendered as a dismissing
-  banner in `GameRoom.tsx`.
+  banner in `src/components/game/GameRoom.tsx`.
 - **No error boundary / Sentry-style reporting** exists anywhere in the
   repo. An unhandled client-side exception would fall through to
   Next.js's default error UI; no custom `error.tsx` was found under
@@ -259,7 +259,7 @@ codebase configures or relies on that).
 - **Game event log:** `RoomState.log` (public, capped at 200 entries,
   FIFO-trimmed) and `RoomState.privateLog[seat]` (per-seat private
   reveals, capped at 50) — both are *game-domain* logs shown to players
-  in `EventLog.tsx`, not operational/debug logs.
+  in `src/components/game/EventLog.tsx`, not operational/debug logs.
 - **No operational logging/observability** (no `console.log` calls found
   in `src/` or `party/` outside of what a fresh `wrangler dev` session
   reports to its own terminal; no external log drain configured).

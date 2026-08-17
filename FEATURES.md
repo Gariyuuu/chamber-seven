@@ -20,8 +20,8 @@ exist").
   each turn: optionally use items, then fire at self or a target →
   round ends when only one seat (or, in team modes, one team) remains
   alive → match ends when a player reaches `roundsToWin` round wins.
-- **Frontend:** `PlayingView.tsx`, `ActionBar.tsx`, `ChamberBar.tsx`,
-  `TargetSelector.tsx`, `PlayerHud.tsx`, `HealthBar.tsx`.
+- **Frontend:** `src/components/game/PlayingView.tsx`, `src/components/game/ActionBar.tsx`, `src/components/game/ChamberBar.tsx`,
+  `src/components/game/TargetSelector.tsx`, `src/components/game/PlayerHud.tsx`, `src/components/game/HealthBar.tsx`.
 - **Backend:** `party/game.ts` (`fire` message handler) →
   `src/lib/game/state.ts` (`fire()`, `resolveHit()`, `applyDamage()`,
   `passTurnFrom()`, `reload()`, `maybeReload()`).
@@ -31,9 +31,9 @@ exist").
   the acting seat's turn, chamber must be non-empty, target must be a
   valid non-eliminated active seat, and (team modes) not a teammate.
 - **Error states:** Invalid actions return `{ok:false, error}`, shown as
-  a 4-second banner (`GameRoom.tsx`).
+  a 4-second banner (`src/components/game/GameRoom.tsx`).
 - **Loading states:** `Loader2` spinner while `!connected || !state ||
-  !seat` in `ConnectedRoom` (`GameRoom.tsx`).
+  !seat` in `ConnectedRoom` (`src/components/game/GameRoom.tsx`).
 - **Edge cases handled:** empty chamber mid-round auto-reloads
   (`maybeReload`); Second Wind survives a lethal hit at 1 HP once;
   Riot Vest absorbs one hit; Scapegoat redirects one hit.
@@ -49,10 +49,10 @@ exist").
 - **Status:** Verified complete.
 - **Purpose:** Extends the duel to up to 4 seats, elimination-based, last
   seat standing wins the round.
-- **Frontend:** `GameSettingsForm.tsx` (player-count selector),
-  `PlayingView.tsx`'s "others" grid (`sm:grid-cols-2`).
+- **Frontend:** `src/components/game/GameSettingsForm.tsx` (player-count selector),
+  `src/components/game/PlayingView.tsx`'s "others" grid (`sm:grid-cols-2`).
 - **Backend:** `activeSeats()`, `aliveActiveSeats()`, `nextAliveSeat()`,
-  `roundOver()` in `state.ts`, all parameterized over
+  `roundOver()` in `src/lib/game/state.ts`, all parameterized over
   `GameSettings.playerCount`.
 - **Validation:** `clampSettings()` restricts `playerCount` to `2 | 3 |
   4`.
@@ -70,12 +70,12 @@ exist").
   `GameSettingsForm`, labeled "Table size (you + AI)") → "Start Match" →
   auto-navigates to a fresh room with `?ai=1`.
 - **Frontend:** `src/app/page.tsx` (`aiOpen` dialog, `createRoom(...,
-  true)`), `DealerAvatar.tsx` (bot avatar + firing animation),
-  `PlayingView.tsx`'s `useDealerFx` (detects fresh "fires at" log lines
+  true)`), `src/components/game/DealerAvatar.tsx` (bot avatar + firing animation),
+  `src/components/game/PlayingView.tsx`'s `useDealerFx` (detects fresh "fires at" log lines
   from bot seats to trigger the animation cue).
 - **Backend:** `party/game.ts`'s `join` handler
   (`fillRemainingSeatsWithBots` when `msg.vsAI && seat === hostSeat`),
-  `state.ts`'s `fillBotSeat`/`fillRemainingSeatsWithBots`,
+  `src/lib/game/state.ts`'s `fillBotSeat`/`fillRemainingSeatsWithBots`,
   `runBotIfNeeded`/`runBotStep` (the actual bot decision logic, skill-
   gated via `GameSettings.botSkill`).
 - **Validation:** Bots always fill non-host, non-connected seats only;
@@ -103,7 +103,7 @@ exist").
   records the win to `localStorage` and shows a reward panel
   (level-up / new item, or "already beaten" if refought).
 - **Frontend:** `src/app/career/page.tsx`, `src/components/game/BotCard.tsx`,
-  `MatchEndView.tsx`'s career-reward panel.
+  `src/components/game/MatchEndView.tsx`'s career-reward panel.
 - **Client logic:** `src/lib/career.ts` — entirely `localStorage`-based,
   no server involvement in progression itself (only the underlying match
   is a real server-authoritative vs-AI game).
@@ -120,12 +120,12 @@ exist").
 - **RESOLVED (2026-08-06):** the v1.7 changelog entry's claim of "6
   mood-lit venue backdrops that escalate from a dim back alley to a
   blood-red penthouse as you climb the ladder" is now actually true.
-  `career/page.tsx` layers `public/venues/tier${venueTier}.png` (where
+  `src/app/career/page.tsx` layers `public/venues/tier${venueTier}.png` (where
   `venueTier = nextOpponent(career)?.tier ?? 6`) behind the existing
   hero banner, so the backdrop escalates with the next opponent's tier
   and settles on the final (tier 6) venue once the roster is cleared.
   `public/victory-burst.png` now provides a soft celebratory glow behind
-  the level-up panel on `MatchEndView.tsx`. Verified via screenshot,
+  the level-up panel on `src/components/game/MatchEndView.tsx`. Verified via screenshot,
   both locally and against production.
 - **Remaining work:** None for this discrepancy. (Optional, unrelated
   polish: the venue backdrop currently only appears on the Career hub,
@@ -139,7 +139,7 @@ exist").
   2026-08-07 checkpoint — Overdose was removed in v1.19, `6faf820`,
   "remove Overdose, cap Patch Kit to prevent stacked healing"). Every
   remaining `ItemId` has a matching `applyItemEffect` case, `ITEM_INFO`
-  entry, icon (`itemIcons.tsx`), and category (`colors.ts`).
+  entry, icon (`src/components/game/itemIcons.tsx`), and category (`src/lib/game/colors.ts`).
   **Note for future sessions:** this "23 items" figure was hardcoded in
   prose across multiple memory files and went stale the moment Overdose
   was removed — prefer phrasing that doesn't require updating a count by
@@ -147,9 +147,9 @@ exist").
   `ALL_ITEM_IDS.length` rather than typing a number, since the
   `/tutorial` glossary itself already does this correctly and never went
   stale.
-- **Frontend:** `ItemCard.tsx` (rendering + tooltip), hand rendering in
-  `PlayingView.tsx`.
-- **Backend:** `state.ts`'s `applyItemEffect()` switch, `playItem()`
+- **Frontend:** `src/components/game/ItemCard.tsx` (rendering + tooltip), hand rendering in
+  `src/components/game/PlayingView.tsx`.
+- **Backend:** `src/lib/game/state.ts`'s `applyItemEffect()` switch, `playItem()`
   (removes from hand, calls the effect, is turn/phase-gated).
 - **Validation:** Per-item `requireTarget()` helper rejects self-targeting,
   eliminated targets, and (team modes) teammates. `canHoldAnother()`
@@ -167,17 +167,17 @@ exist").
 ## Item-pool customization (per-match enabled items)
 
 - **Status:** Verified complete.
-- **Frontend:** `GameSettingsForm.tsx`'s item-pool grid (toggle each of
+- **Frontend:** `src/components/game/GameSettingsForm.tsx`'s item-pool grid (toggle each of
   the 22 items (see "Item system" above re: this count), counted directly
-  from `types.ts`'s `ItemId` union and `items.ts`'s `ITEM_POOL_WEIGHTS` —
+  from `src/lib/game/types.ts`'s `ItemId` union and `src/lib/game/items.ts`'s `ITEM_POOL_WEIGHTS` —
   both agree; "All"/"None" shortcuts).
 - **Backend:** `clampSettings()` filters `enabledItems` to valid IDs,
   falls back to the full pool if the resulting list would be empty.
-  `weightedRandomItem(allowed?)` in `items.ts` restricts draws to the
+  `weightedRandomItem(allowed?)` in `src/lib/game/items.ts` restricts draws to the
   allowed subset.
 - **Validation:** UI prevents disabling the last remaining item (clicking
   "None" leaves exactly one item enabled, not zero) — see
-  `GameSettingsForm.tsx`'s `"None"` button logic
+  `src/components/game/GameSettingsForm.tsx`'s `"None"` button logic
   (`set("enabledItems", [ALL_ITEM_IDS[0]])`).
 - **Remaining work:** None identified.
 
@@ -188,7 +188,7 @@ exist").
   field is clamped/defaulted server-side regardless of what the client
   sends, so a malformed or malicious `settings` payload cannot desync the
   room from valid bounds.
-- **Frontend:** `GameSettingsForm.tsx` mirrors the same invariants
+- **Frontend:** `src/components/game/GameSettingsForm.tsx` mirrors the same invariants
   client-side for UX (e.g. forcing `playerCount=4` when picking "2v2
   Duos") purely so the UI doesn't show a contradictory state while
   waiting on a round-trip — the server clamp is still the real gate.
@@ -198,9 +198,9 @@ exist").
 ## Table-vibe theme picker (5 presets)
 
 - **Status:** Verified complete.
-- **Frontend:** `ThemePicker.tsx`, `src/lib/themePresets.ts`,
-  `layout.tsx`'s flash-avoidance `beforeInteractive` script,
-  `globals.css`'s `:root[data-theme="..."]` blocks.
+- **Frontend:** `src/components/game/ThemePicker.tsx`, `src/lib/themePresets.ts`,
+  `src/app/layout.tsx`'s flash-avoidance `beforeInteractive` script,
+  `src/app/globals.css`'s `:root[data-theme="..."]` blocks.
 - **Persistence:** `localStorage["chamber-seven:theme"]` only — purely
   cosmetic, no server involvement.
 - **Edge cases:** Missing/invalid stored theme falls back to
@@ -225,7 +225,7 @@ exist").
 - **Validation:** AI wins explicitly excluded (`if (!winner.isBot)`
   check before recording). Name length capped at 20 chars, entries capped
   at 500 total (least-wins entry evicted when exceeded).
-- **Error states:** `leaderboard/page.tsx` shows "Couldn't load the
+- **Error states:** `src/app/leaderboard/page.tsx` shows "Couldn't load the
   leaderboard right now" on fetch failure; empty state ("No wins recorded
   yet...") when the list is empty.
 - **Known gap (see `SECURITY.md`):** entries are keyed by
@@ -264,12 +264,12 @@ exist").
   — both plain Server Components, no client state, no server
   round-trip. The item glossary is generated from `ALL_ITEM_IDS` +
   `ITEM_INFO` + `ITEM_ICONS` + `ITEM_CATEGORY`/`CATEGORY_COLOR` (the
-  same single source of truth used by `ItemCard.tsx` and
-  `GameSettingsForm.tsx`) rather than duplicating item text — a new
-  item added to `items.ts` automatically appears here with no further
+  same single source of truth used by `src/components/game/ItemCard.tsx` and
+  `src/components/game/GameSettingsForm.tsx`) rather than duplicating item text — a new
+  item added to `src/lib/game/items.ts` automatically appears here with no further
   edit needed.
 - **Navigation:** Linked from the landing page footer
-  (`src/app/page.tsx`) and the in-game header (`GameRoom.tsx`'s
+  (`src/app/page.tsx`) and the in-game header (`src/components/game/GameRoom.tsx`'s
   `ConnectedRoom`), next to the existing Leaderboard/Patch notes links.
 - **Backend:** None — fully static content.
 - **Database dependency:** None.
@@ -283,7 +283,7 @@ exist").
   during this checkpoint, but since the page derives its list from
   `ALL_ITEM_IDS` at render time (not a hand-maintained list), there is no
   code path by which it could still be showing Overdose — confirmed by
-  reading `tutorial/page.tsx`'s source, not just inference.
+  reading `src/app/tutorial/page.tsx`'s source, not just inference.
 - **Known issues:** None.
 - **Remaining work:** None. (Optional, unrelated: neither page is
   cross-linked from `/career`, `/leaderboard`, or `/changelog`'s own
@@ -293,7 +293,7 @@ exist").
 ## Room / lobby / reconnect
 
 - **Status:** Verified complete.
-- **Frontend:** `Lobby.tsx` — room code display + copy-invite-link (for
+- **Frontend:** `src/components/game/Lobby.tsx` — room code display + copy-invite-link (for
   non-vsAI rooms), player list with connected/waiting indicators,
   "Start the Game" gated on `allConnected`.
 - **Backend:** `claimSeat()` (join-or-reconnect-by-token),
@@ -303,10 +303,10 @@ exist").
   the same seat without losing game state; failing to reconnect within
   the grace period forfeits the seat (`forfeitSeat()`), which can end the
   round/match if it leaves only one team/seat alive.
-- **RESOLVED (2026-08-06):** `Lobby.tsx` now previews team assignments
+- **RESOLVED (2026-08-06):** `src/components/game/Lobby.tsx` now previews team assignments
   (and the boss crown) before the match starts, whenever
   `teamMode !== "none"` — via a new pure `teamForSeatIndex()` helper in
-  `state.ts`, shared with the real `assignTeams()` so the preview can't
+  `src/lib/game/state.ts`, shared with the real `assignTeams()` so the preview can't
   drift from the actual rule. Verified via screenshot for both Duos and
   Boss Battle, both locally and against production.
 - **Remaining work:** None.
@@ -320,7 +320,7 @@ exist").
   including a check run **directly against the production URL**. See
   `PROJECT_STATE.md`'s "TASK-002 resolution" and "Status as of
   2026-08-06 (latest): SHIPPED" sections for the full evidence.
-  **One residual gap:** the exact `MatchEndView.tsx` win/loss framing
+  **One residual gap:** the exact `src/components/game/MatchEndView.tsx` win/loss framing
   screen was not itself captured by screenshot (scripted matches didn't
   reach completion within a reasonable turn budget) — this code was
   manually reviewed line-by-line and is simple team-membership
@@ -330,19 +330,19 @@ exist").
 - **Purpose:** 2v2 Duos (seats 1+3 vs 2+4, no friendly fire, single
   round) and Boss Battle (everyone vs. the last seat, who gets HP scaling
   and bonus item draws, single round).
-- **Frontend:** `GameSettingsForm.tsx` (Team Mode selector — confirmed
-  working), `PlayerHud.tsx` (team badge + boss crown — **confirmed
+- **Frontend:** `src/components/game/GameSettingsForm.tsx` (Team Mode selector — confirmed
+  working), `src/components/game/PlayerHud.tsx` (team badge + boss crown — **confirmed
   rendering correctly via screenshot, both locally and in production**),
-  `TargetSelector.tsx` (excludes teammates — **confirmed via screenshot**,
+  `src/components/game/TargetSelector.tsx` (excludes teammates — **confirmed via screenshot**,
   the target picker correctly omits teammates in both modes),
-  `MatchEndView.tsx` (team-aware win/loss framing + standings — code
+  `src/components/game/MatchEndView.tsx` (team-aware win/loss framing + standings — code
   reviewed and judged correct, not itself screenshot-confirmed; see the
   residual gap noted above).
 - **Backend:** `assignTeams()`, `bossSeatOf()`, `isTeammate()`,
   team-aware `roundOver()`, boss HP/item scaling in `beginRound()`/
   `reload()`, friendly-fire blocks in `fire()`/`applyItemEffect()`,
   Molotov excluding teammates, bot AI excluding teammates from targeting
-  — all in `state.ts`, all code-reviewed line-by-line this session, no
+  — all in `src/lib/game/state.ts`, all code-reviewed line-by-line this session, no
   logic error found.
 - **Database dependency:** Same `RoomState`/Durable Object storage as
   everything else — `team`/`isBoss` fields added to
@@ -365,7 +365,57 @@ exist").
   it was resolved.
 - **Known issues:** None blocking. See the residual match-end-screen
   gap noted above under Status.
-- **Remaining work:** Optional only — update `Lobby.tsx` to preview
+- **Remaining work:** Optional only — update `src/components/game/Lobby.tsx` to preview
   team assignments before the match starts (`TASKS.md` `TASK-007`), and
   optionally do a manual full-match playthrough to directly confirm the
   match-end screen (see Status above).
+
+## Site metadata / SEO (OpenGraph, robots.txt, sitemap) — shipped, live in production
+
+- **Status:** Verified complete and **confirmed live in production**
+  [Verified, 2026-08-17]. Commit `5816555` ("feat(metadata): add
+  OpenGraph image, robots, and sitemap", 2026-08-13), merged into `main`
+  via `96a03e5`. `curl https://chamber-seven-omega.vercel.app/robots.txt`
+  returns the expected `Allow: /` / `Disallow: /room/` / `Sitemap:` body
+  this session; `curl .../sitemap.xml` returns `200`.
+- **Purpose:** OpenGraph/Twitter card metadata for link previews, a
+  generated OG image, and `robots.txt`/`sitemap.xml` for search
+  crawlers (deliberately disallowing `/room/` — live game rooms
+  shouldn't be indexed).
+- **Frontend:** `src/app/layout.tsx` (metadata fields),
+  `src/app/opengraph-image.tsx` (Next.js file-convention dynamic OG
+  image via `next/og`), `src/app/robots.ts`, `src/app/sitemap.ts`.
+- **Backend:** None — static/build-time metadata only.
+- **Tests:** None automated; verified this session via direct `curl`
+  against the production URLs (see Status above), not via a browser
+  link-preview check.
+
+## Match-outcome neon/glitch headline effects (2026-08-15, merged into `main` 2026-08-17)
+
+- **Status:** Merged into `main` (commit `5be92bc`, "Merge branch
+  'chore/polish' into main") and deployed — [Verified, 2026-08-17] the
+  merge is pushed to `origin/main` (`git rev-list --left-right --count
+  origin/main...main` → 0/0) and a fresh Vercel Production deployment
+  was observed via `vercel ls` shortly after. **Merge/deploy performed
+  by a different, concurrent Claude Code session sharing this checkout,
+  not by the session that wrote this entry** — see `PROJECT_STATE.md`'s
+  2026-08-17 "continued" section. The effect's actual on-screen
+  rendering has **not** been independently re-confirmed by a real
+  browser check (`[Inferred]` live, not directly observed).
+- **Purpose:** A win gets a pulsing neon-glow headline; a loss gets a
+  glitch-flicker headline, on the match-end result text.
+- **Frontend:** `src/components/game/MatchEndView.tsx:58` applies
+  `match-outcome--win` or `match-outcome--lose` conditionally on the
+  outcome headline; the animations themselves (`fx-neon`,
+  `fx-glitch-a`/`fx-glitch-b` keyframes) are defined in
+  `src/app/globals.css` (~line 638 onward).
+- **Backend:** None — purely presentational, no server/state changes.
+- **Accessibility:** Deliberately designed to cooperate with the existing
+  `prefers-reduced-motion` rule (see `UI_SYSTEM.md` → Accessibility)
+  without needing a per-effect override — both keyframes already resolve
+  to an acceptable static end-state at 100%.
+- **Tests:** None automated; not runtime-verified in a browser this
+  session (code-reviewed only, both the diff and the merged CSS/TSX).
+- **Remaining work:** A real-browser confirmation that this renders
+  correctly on the live match-end screen (win and loss cases both), and
+  a `src/lib/changelog.ts` entry — see `TASKS.md` `TASK-010`.

@@ -21,7 +21,7 @@ where noted.
 - **Risk:** High. Adding a field to `PlayerState` does **not**
   automatically make it safe to expose to clients — it must be
   deliberately added (or deliberately *not* added) to `RedactedPlayer`
-  and to the mapping inside `redact()` in `state.ts`. Changing the
+  and to the mapping inside `redact()` in `src/lib/game/state.ts`. Changing the
   `ClientMessage`/`ServerMessage` shape requires redeploying both the
   Worker and the frontend together (see `CLAUDE.md` → Critical rules).
 
@@ -57,14 +57,14 @@ where noted.
   probability weights), `ALL_ITEM_IDS` (derived from the weights object's
   keys), `ITEM_INFO` (name/description/usable/requiresTarget per item),
   `weightedRandomItem()`.
-- **Imported by:** `state.ts` (draws), `colors.ts` (categorization),
-  every UI component that renders an item (`ItemCard.tsx`,
-  `GameSettingsForm.tsx`, `MatchEndView.tsx`'s career reward panel).
+- **Imported by:** `src/lib/game/state.ts` (draws), `src/lib/game/colors.ts` (categorization),
+  every UI component that renders an item (`src/components/game/ItemCard.tsx`,
+  `src/components/game/GameSettingsForm.tsx`, `src/components/game/MatchEndView.tsx`'s career reward panel).
 - **Imports:** `./types`.
 - **Edit when:** adding a brand-new item (also requires: an `ItemId`
-  union entry in `types.ts`, an effect case in `state.ts`'s
-  `applyItemEffect`, an icon in `itemIcons.tsx`, a category in
-  `colors.ts`'s `ITEM_CATEGORY`, and a slot in `career.ts`'s
+  union entry in `src/lib/game/types.ts`, an effect case in `src/lib/game/state.ts`'s
+  `applyItemEffect`, an icon in `src/components/game/itemIcons.tsx`, a category in
+  `src/lib/game/colors.ts`'s `ITEM_CATEGORY`, and a slot in `src/lib/career.ts`'s
   `CAREER_ITEM_UNLOCK_ORDER`) or rebalancing draw weights.
 - **Risk:** Medium. Rebalancing weights is a deliberate game-design
   change, not a casual edit — see `CLAUDE.md` → Critical rules.
@@ -134,7 +134,7 @@ where noted.
 ### `party/leaderboard.ts`
 - **Purpose:** `Leaderboard` Durable Object — `recordWin(name)`,
   `getTop(limit)`. Single global instance
-  (`env.LEADERBOARD.idFromName("global")` in `game.ts`).
+  (`env.LEADERBOARD.idFromName("global")` in `party/game.ts`).
 - **Risk:** Medium — see `SECURITY.md` for the no-ownership caveat before
   changing win-recording trust assumptions.
 
@@ -188,9 +188,9 @@ where noted.
 - **Purpose:** Self-contained pages for Career Mode hub, the global
   leaderboard (client-fetches `LEADERBOARD_URL`), rendered patch notes
   (reads `src/lib/changelog.ts`), the rules + item glossary
-  (`tutorial/page.tsx`, generated from `items.ts`/`itemIcons.tsx`/
-  `colors.ts` — never hand-duplicate item text here), and strategy tips
-  (`lessons/page.tsx`, hand-written content in a local `LESSONS` array).
+  (`src/app/tutorial/page.tsx`, generated from `src/lib/game/items.ts`/`src/components/game/itemIcons.tsx`/
+  `src/lib/game/colors.ts` — never hand-duplicate item text here), and strategy tips
+  (`src/app/lessons/page.tsx`, hand-written content in a local `LESSONS` array).
 - **Edit when:** career hub layout changes; leaderboard display changes;
   **every release should add a new entry to `src/lib/changelog.ts`**,
   which the changelog page renders automatically — no page edit needed
@@ -203,7 +203,7 @@ where noted.
   / `Geist_Mono` mono, as of 2026-08-06 v1.10 — flash-free theme-init
   script, `TooltipProvider`) and **all** design tokens/theme
   presets/keyframes/utility classes. See `UI_SYSTEM.md`.
-- **Risk:** Medium — `globals.css` is the single source of truth for
+- **Risk:** Medium — `src/app/globals.css` is the single source of truth for
   every color token in the app; a change here is instantly global. Note:
   `--font-sans` must reference the actual font variable
   (`var(--font-body)`), not itself — a prior self-referential bug here
@@ -222,29 +222,29 @@ where noted.
 
 | File | Purpose | Risk notes |
 |---|---|---|
-| `GameSettingsForm.tsx` | The settings editor used by both "Host a Table" and "Play vs AI" dialogs. Owns player-count/team-mode/rounds/HP/items-per-reload/enabled-items controls and their cross-field invariants. | High — must keep its client-side invariants in sync with `clampSettings()` server-side, or the UI will show states the server will silently correct/reject. |
-| `PlayerHud.tsx` | One player's row: animated avatar (`DealerAvatar` for bots, `PlayerAvatar` for humans — every seat gets one as of 2026-08-06, previously humans had none), team badge, boss crown, connection/elimination icons, health bar, item count, turn indicator. | Medium |
-| `TargetSelector.tsx` | The row of target chips shown on your turn; excludes eliminated players and (in team modes) your own teammates. | Medium — must stay in sync with server-side `isTeammate()` targeting rules, or the UI will let you attempt an action the server then rejects. |
-| `MatchEndView.tsx` | End-of-match screen: win/loss framing, career reward panel (now with a `victory-burst.png` glow on level-up), FFA standings or team-mode standings, rematch/leave or "back to career" actions. | Medium |
-| `PlayingView.tsx` | The main in-round layout: opponent HUDs, chamber bar, event log, your HUD, target selector, hand, action bar. Derives the per-seat avatar firing animation cue from fresh log lines (`useDealerFx`) and the full-screen jump-scare cue (`useShootScare`, added 2026-08-06) from fresh LIVE-shot log lines. | Medium |
-| `Lobby.tsx` | Pre-game waiting room: room code display, invite-link copy, player list (now with a team badge / boss crown preview via `teamForSeatIndex()`, see `state.ts`), "Start the Game" (disabled until everyone's connected). | Low |
-| `ActionBar.tsx` | The big "Fire" button (self vs. target framing). | Low |
-| `ItemCard.tsx` | One item in your hand — icon, name, tooltip description, click-to-use. | Low |
-| `ChamberBar.tsx` | Visual pip row for remaining shells + the peeked-shell reveal. | Low |
-| `EventLog.tsx` | Scrolling public + private log feed, titled "Table talk." Entries slide in on arrival (`table-talk-in`/`table-talk-in-private` keyframes, added 2026-08-06); only genuinely new lines animate (keyed by stable `entry.id`). | Low |
-| `HealthBar.tsx` | Simple proportional HP bar. | Low |
-| `DealerAvatar.tsx` | Hand-authored inline SVG bot avatar (hooded specter) with CSS-keyframe idle animation + prop-driven firing/recoil, via the shared `duel-avatar*` CSS classes (`globals.css`). | Low — purely cosmetic, self-contained. |
-| `PlayerAvatar.tsx` | Hand-authored inline SVG human-player avatar (bare-headed, jacketed — vs. the dealer's hooded look), sharing `DealerAvatar`'s `duel-avatar*` animation classes and firing/aim prop API. Added 2026-08-06. | Low — purely cosmetic, self-contained. |
-| `ShootScare.tsx` | Full-screen jump-scare overlay for a LIVE/damaging shot involving the local player — scaled-up avatar art, flash, screen-shake, auto-dismisses via `onDone`. Added 2026-08-06. | Low — purely cosmetic, self-contained; must call `onDone` or the overlay snaps back to fully visible after its CSS animation ends (no `fill-mode: forwards` set). |
-| `BotCard.tsx` | Career Mode roster grid card (locked/current/defeated states). | Low |
-| `ThemePicker.tsx` | Table-vibe picker dialog; writes `data-theme` + `localStorage`. | Low |
-| `Flourish.tsx` | Decorative divider. | Trivial |
-| `itemIcons.tsx` | `ItemId → LucideIcon` map. | Low — **must** get a new entry whenever a new `ItemId` is added, or that item renders with `undefined` as its icon component (a runtime error). |
+| `src/components/game/GameSettingsForm.tsx` | The settings editor used by both "Host a Table" and "Play vs AI" dialogs. Owns player-count/team-mode/rounds/HP/items-per-reload/enabled-items controls and their cross-field invariants. | High — must keep its client-side invariants in sync with `clampSettings()` server-side, or the UI will show states the server will silently correct/reject. |
+| `src/components/game/PlayerHud.tsx` | One player's row: animated avatar (`DealerAvatar` for bots, `PlayerAvatar` for humans — every seat gets one as of 2026-08-06, previously humans had none), team badge, boss crown, connection/elimination icons, health bar, item count, turn indicator. | Medium |
+| `src/components/game/TargetSelector.tsx` | The row of target chips shown on your turn; excludes eliminated players and (in team modes) your own teammates. | Medium — must stay in sync with server-side `isTeammate()` targeting rules, or the UI will let you attempt an action the server then rejects. |
+| `src/components/game/MatchEndView.tsx` | End-of-match screen: win/loss framing, career reward panel (now with a `victory-burst.png` glow on level-up), FFA standings or team-mode standings, rematch/leave or "back to career" actions. | Medium |
+| `src/components/game/PlayingView.tsx` | The main in-round layout: opponent HUDs, chamber bar, event log, your HUD, target selector, hand, action bar. Derives the per-seat avatar firing animation cue from fresh log lines (`useDealerFx`) and the full-screen jump-scare cue (`useShootScare`, added 2026-08-06) from fresh LIVE-shot log lines. | Medium |
+| `src/components/game/Lobby.tsx` | Pre-game waiting room: room code display, invite-link copy, player list (now with a team badge / boss crown preview via `teamForSeatIndex()`, see `src/lib/game/state.ts`), "Start the Game" (disabled until everyone's connected). | Low |
+| `src/components/game/ActionBar.tsx` | The big "Fire" button (self vs. target framing). | Low |
+| `src/components/game/ItemCard.tsx` | One item in your hand — icon, name, tooltip description, click-to-use. | Low |
+| `src/components/game/ChamberBar.tsx` | Visual pip row for remaining shells + the peeked-shell reveal. | Low |
+| `src/components/game/EventLog.tsx` | Scrolling public + private log feed, titled "Table talk." Entries slide in on arrival (`table-talk-in`/`table-talk-in-private` keyframes, added 2026-08-06); only genuinely new lines animate (keyed by stable `entry.id`). | Low |
+| `src/components/game/HealthBar.tsx` | Simple proportional HP bar. | Low |
+| `src/components/game/DealerAvatar.tsx` | Hand-authored inline SVG bot avatar (hooded specter) with CSS-keyframe idle animation + prop-driven firing/recoil, via the shared `duel-avatar*` CSS classes (`src/app/globals.css`). | Low — purely cosmetic, self-contained. |
+| `src/components/game/PlayerAvatar.tsx` | Hand-authored inline SVG human-player avatar (bare-headed, jacketed — vs. the dealer's hooded look), sharing `DealerAvatar`'s `duel-avatar*` animation classes and firing/aim prop API. Added 2026-08-06. | Low — purely cosmetic, self-contained. |
+| `src/components/game/ShootScare.tsx` | Full-screen jump-scare overlay for a LIVE/damaging shot involving the local player — scaled-up avatar art, flash, screen-shake, auto-dismisses via `onDone`. Added 2026-08-06. | Low — purely cosmetic, self-contained; must call `onDone` or the overlay snaps back to fully visible after its CSS animation ends (no `fill-mode: forwards` set). |
+| `src/components/game/BotCard.tsx` | Career Mode roster grid card (locked/current/defeated states). | Low |
+| `src/components/game/ThemePicker.tsx` | Table-vibe picker dialog; writes `data-theme` + `localStorage`. | Low |
+| `src/components/game/Flourish.tsx` | Decorative divider. | Trivial |
+| `src/components/game/itemIcons.tsx` | `ItemId → LucideIcon` map. | Low — **must** get a new entry whenever a new `ItemId` is added, or that item renders with `undefined` as its icon component (a runtime error). |
 
 ## shadcn/ui primitives (`src/components/ui/`)
 
-`avatar.tsx`, `badge.tsx`, `button.tsx`, `card.tsx`, `dialog.tsx`,
-`input.tsx`, `progress.tsx`, `separator.tsx`, `tooltip.tsx` — standard
+`src/components/ui/avatar.tsx`, `src/components/ui/badge.tsx`, `src/components/ui/button.tsx`, `src/components/ui/card.tsx`, `src/components/ui/dialog.tsx`,
+`src/components/ui/input.tsx`, `src/components/ui/progress.tsx`, `src/components/ui/separator.tsx`, `src/components/ui/tooltip.tsx` — standard
 shadcn-generated components (style `radix-nova` per `components.json`).
 **Prefer regenerating/updating via the shadcn CLI over hand-editing**
 where possible, to stay compatible with future shadcn updates; hand-edits
@@ -276,31 +276,32 @@ generated code in this repo.
   header).
 - **Add a page:** create `src/app/<route>/page.tsx`. No shared layout
   wrapper beyond `src/app/layout.tsx` (fonts/theme-init) exists — copy an
-  existing simple page (e.g. `changelog/page.tsx`) for the header pattern.
-- **Add an API route:** none exist yet. If needed, create
-  `src/app/api/<name>/route.ts` following standard Next.js App Router
-  conventions — there is no existing example to mirror in this repo.
+  existing simple page (e.g. `src/app/changelog/page.tsx`) for the header pattern.
+- **Add an API route:** none exist yet. If needed, create a `route.ts`
+  file under a new subfolder of `src/app/api/` (which does not yet
+  exist) following standard Next.js App Router conventions — there is
+  no existing example in this repo to mirror.
 - **Modify authentication:** there isn't one to modify — see
   `SECURITY.md` before adding one; this would be a significant new
   architectural decision, not a small change.
 - **Change the database schema:** there is no schema — see `DATABASE.md`.
   To add a new stored field, add it to `RoomState` (or a new Durable
-  Object storage key) in `types.ts`/`state.ts`/`party/*.ts`; no migration
+  Object storage key) in `src/lib/game/types.ts`/`src/lib/game/state.ts`/`party/*.ts`; no migration
   tooling exists beyond `wrangler.jsonc`'s `new_sqlite_classes` tags
   (only relevant if adding a brand-new Durable Object *class*, not a new
   field on an existing one).
-- **Add a feature (new item):** `types.ts` (`ItemId` union) →
-  `items.ts` (`ITEM_POOL_WEIGHTS`, `ITEM_INFO`) → `state.ts`
-  (`applyItemEffect` case) → `itemIcons.tsx` (icon) → `colors.ts`
-  (`ITEM_CATEGORY`) → `career.ts` (`CAREER_ITEM_UNLOCK_ORDER`, if it
-  should be unlockable in Career Mode) → `changelog.ts` (new version
+- **Add a feature (new item):** `src/lib/game/types.ts` (`ItemId` union) →
+  `src/lib/game/items.ts` (`ITEM_POOL_WEIGHTS`, `ITEM_INFO`) → `src/lib/game/state.ts`
+  (`applyItemEffect` case) → `src/components/game/itemIcons.tsx` (icon) → `src/lib/game/colors.ts`
+  (`ITEM_CATEGORY`) → `src/lib/career.ts` (`CAREER_ITEM_UNLOCK_ORDER`, if it
+  should be unlockable in Career Mode) → `src/lib/changelog.ts` (new version
   entry).
 - **Add a feature (new game mode):** extend `TeamMode` (or introduce a
-  new settings dimension) in `types.ts`, wire it through
+  new settings dimension) in `src/lib/game/types.ts`, wire it through
   `clampSettings`/`assignTeams`/`roundOver`/targeting checks in
-  `state.ts`, add UI in `GameSettingsForm.tsx`, and surface any new
+  `src/lib/game/state.ts`, add UI in `src/components/game/GameSettingsForm.tsx`, and surface any new
   per-player state in `redact()` + `RedactedPlayer` + the relevant UI
-  components (`PlayerHud.tsx`, `TargetSelector.tsx`, `MatchEndView.tsx`).
+  components (`src/components/game/PlayerHud.tsx`, `src/components/game/TargetSelector.tsx`, `src/components/game/MatchEndView.tsx`).
   This is exactly the pattern the shipped v1.8 team-mode work followed
   — see `PROJECT_STATE.md` and `DECISIONS.md`.
 - **Change themes:** `src/lib/themePresets.ts` (add a preset entry) +
@@ -322,7 +323,7 @@ generated code in this repo.
 - **Update multiplayer behavior (turn order, elimination, reconnect):**
   `src/lib/game/state.ts` (turn/elimination logic) or `party/game.ts`
   (reconnect grace period, `RECONNECT_GRACE_MS`, imported from
-  `state.ts`).
+  `src/lib/game/state.ts`).
 - **Modify scoring:** `src/lib/game/state.ts`'s `endRound()`
   (`roundWins`) and the `Leaderboard` Durable Object
   (`party/leaderboard.ts`, `recordWin`/`getTop`) for cross-match wins.

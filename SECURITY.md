@@ -77,7 +77,7 @@ no-accounts design — there is nothing to protect a route *from*.
   skill) — a malformed or adversarial `settings` object sent directly
   over the WebSocket (bypassing the UI entirely) cannot push the room
   outside valid bounds. Game actions (`fire`, `use_item`) are validated
-  for phase/turn/target legality inside `state.ts` before any mutation.
+  for phase/turn/target legality inside `src/lib/game/state.ts` before any mutation.
 - **Display name:** `.slice(0, 20)` length-capped
   (`claimSeat()`/`Leaderboard.recordWin()`), but otherwise **entirely
   unvalidated** — no profanity filter, no character restriction, no HTML/
@@ -164,7 +164,7 @@ not enforced by any storage-layer policy.
   intentionally player-visible in-game — not a leak.
 - `PlayerState.token` is **never** written into any log message
   (confirmed by reading every `log()`/`privateLog()` call site in
-  `state.ts` — none reference `.token`).
+  `src/lib/game/state.ts` — none reference `.token`).
 - No server-side operational logging (e.g. `console.log` of request
   payloads) exists to leak anything to a Cloudflare dashboard log
   stream beyond wrangler's own default request logging.

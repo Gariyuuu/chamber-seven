@@ -143,7 +143,7 @@ commit message)**.
   looked at) — only the odds-based *guess* when nothing is known scales
   with skill.
 - **Reasoning:** **Verified (from code comment)** — the comment directly
-  above this logic in `state.ts` states: "it doesn't forget how the
+  above this logic in `src/lib/game/state.ts` states: "it doesn't forget how the
   items work, it's just worse at knowing when to use them" and "Already-
   known information (from a peek) is always honored ... Only the
   odds-based guess when nothing is known scales with skill."
@@ -189,7 +189,7 @@ commit message)**.
 - **Decision:** `bossSeatOf()` returns `activeSeats(room)[length - 1]` —
   always the last seat in player-count order (e.g. `p4` for a 4-player
   game).
-- **Reasoning:** **Verified (from code comment)** — `state.ts`: "In boss
+- **Reasoning:** **Verified (from code comment)** — `src/lib/game/state.ts`: "In boss
   mode, the boss is always the last active seat — the last bot filled, in
   vs-AI games." This deliberately makes "party vs. AI boss" work for
   free in vs-AI flows without any extra boss-selection UI, since
@@ -264,14 +264,14 @@ commit message)**.
 - **Context:** Teams weren't assigned until `beginRound()` actually ran
   (server-side, at match start), so the pre-game lobby had no way to
   show players which team they'd be on. The obvious naive fix — writing
-  separate preview logic in `Lobby.tsx` that guesses the same rule —
+  separate preview logic in `src/components/game/Lobby.tsx` that guesses the same rule —
   would risk silently drifting from the real `assignTeams()` rule if
   either one were changed later without updating the other.
 - **Decision:** Extracted the actual assignment rule into
   `teamForSeatIndex(teamMode, index, seatCount): 0 | 1 | null`, a pure
   function taking only the inputs that determine team placement (no
   `RoomState`, no hidden information). `assignTeams()` now calls this
-  same function per seat; `Lobby.tsx` calls it too, directly on
+  same function per seat; `src/components/game/Lobby.tsx` calls it too, directly on
   `state.settings.teamMode` and each player's index in the (already
   seat-ordered) `players` array.
 - **Reasoning:** Single source of truth for a rule now used in two

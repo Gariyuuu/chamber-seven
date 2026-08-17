@@ -37,11 +37,11 @@ None installed. If one is introduced in the future:
 
 ## Test directory structure
 
-None exists. If tests are added, no existing convention dictates where
-they should live — a reasonable default would be co-located
-`*.test.ts` files next to the modules they cover (e.g.
-`src/lib/game/state.test.ts`), consistent with the rest of the
-codebase's flat, colocated-by-concern organization.
+None exists. If tests are added in the future, no existing convention
+dictates where they should live — a reasonable default would be
+co-located `*.test.ts` files next to the modules they cover (e.g. a
+`src/lib/game/state.test.ts` file, which does not yet exist), consistent with the rest
+of the codebase's flat, colocated-by-concern organization.
 
 ## Existing tests
 
@@ -187,7 +187,7 @@ Before running `npx wrangler deploy` and/or `vercel deploy --prod`:
    npm run build` all pass.
 2. Walk the relevant subset of the manual smoke-test checklist above for
    whatever changed (don't re-test everything for a one-line UI tweak,
-   but do re-test the core loop for any `state.ts` change).
+   but do re-test the core loop for any `src/lib/game/state.ts` change).
 3. `npx wrangler deploy --dry-run` to confirm the Worker bundle builds
    and both Durable Object bindings resolve, without actually publishing
    — safe to run any time.

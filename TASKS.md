@@ -6,24 +6,89 @@ bloating `SESSION_LOG.md`).
 
 ## Current task
 
-**None queued.** As of the 2026-08-07 documentation checkpoint, the repo
-is at **v1.21** (`main` fully pushed to `origin/main`, 0 ahead/behind).
-Nine versions shipped since the last time this file was updated
-(v1.13–v1.21 — background art overhaul including PNG felt-table +
-10-style picker + custom upload, a subtitle-centering fix, Overdose
-removed from the item pool with Patch Kit capped, and a two-stage
-jump-scare animation upgrade). See `PROJECT_STATE.md`'s top section and
-`SESSION_LOG.md`'s top entry for the full catch-up record. **If
-background lighting/mood is touched again, do not re-introduce a soft
-glow element** — this user has twice rejected "dimmer" as still too
-bright; go straight to flat/no-glow (this rule from the v1.12 era still
-holds — the v1.14+ redesign kept it). Verify with `git status` before
-starting anything new.
+**Current task: `TASK-010` (alias `T-010`) — optional, not blocking,
+nothing else queued.** `TASK-009` (alias `T-009`, below) is **DONE**:
+while this 2026-08-17 checkpoint was in progress, a different concurrent
+Claude Code session sharing this checkout merged `chore/polish` into
+`main` (commit `5be92bc`) and deployed it — see `PROJECT_STATE.md`'s
+"2026-08-17, continued" section for the full re-verification. The repo
+is now on `main`, fully pushed (`5be92bc`, 0 ahead/behind `origin/main`).
+The one remaining open item is `TASK-010`: `src/lib/changelog.ts` still
+has no entry for any of the 3 commits shipped 2026-08-13–08-15 (all 3
+are now confirmed on `main`). Not urgent — no code work is in progress
+or required.
+
+As of the 2026-08-07 documentation checkpoint (superseded by the above,
+kept for history): the repo was at **v1.21** (`main` fully pushed to
+`origin/main`, 0 ahead/behind). Nine versions shipped since the last time
+this file was updated before that (v1.13–v1.21 — background art overhaul
+including PNG felt-table + 10-style picker + custom upload, a
+subtitle-centering fix, Overdose removed from the item pool with Patch
+Kit capped, and a two-stage jump-scare animation upgrade). See
+`PROJECT_STATE.md`'s 2026-08-07 section and `SESSION_LOG.md` for the full
+catch-up record. **If background lighting/mood is touched again, do not
+re-introduce a soft glow element** — this user has twice rejected
+"dimmer" as still too bright; go straight to flat/no-glow (this rule from
+the v1.12 era still holds — the v1.14+ redesign kept it). Verify with
+`git status` before starting anything new.
 
 Everything from the prior backlog (`TASK-001` through `TASK-008`, the
 2026-08-06 documentation audit) is complete, committed, deployed, and
 verified live in production — see "Recently completed" below for that
 record.
+
+### TASK-009 (`T-009`) — Decide whether to merge `chore/polish` into `main`
+- **Status:** **DONE (resolved 2026-08-17, mid-checkpoint, by a
+  concurrent session).** This task was opened by this checkpoint as
+  "needs the user," then resolved before the checkpoint finished: a
+  different Claude Code session sharing this same checkout merged
+  `chore/polish` into `main` (`5be92bc`) and deployed it (fresh
+  Production deploy confirmed via `vercel ls`). Not resolved by this
+  session, and not confirmed to have been the user directly either — see
+  `PROJECT_STATE.md`'s "2026-08-17, continued" section for the full
+  evidence trail and the shared-checkout lesson this surfaced (this
+  repo's checkout, like `~/Projects/yuuki-outreach`, is apparently
+  shared across concurrent sessions/windows).
+- **Priority:** N/A (closed)
+- **Exact objective (as originally opened):** Get an explicit yes/no on
+  whether `chore/polish` (`42c03f9`, "feat(ui): add neon/glitch
+  match-outcome headline effects") should be merged into `main` and
+  deployed. Answer: yes, and it happened.
+- **What has already been completed:** The feature itself (see
+  `FEATURES.md` → "Match-outcome neon/glitch headline effects") **and**
+  the merge/deploy.
+- **What remains:** A player-facing `src/lib/changelog.ts` entry — see
+  `TASK-010`. A real-browser confirmation that the merged effect renders
+  correctly on the live match-end screen has **not** been performed by
+  any session recorded in this memory system yet — optional follow-up,
+  not blocking.
+- **Relevant files:** `src/app/globals.css`,
+  `src/components/game/MatchEndView.tsx`.
+- **Blockers:** None (closed).
+- **Acceptance criteria:** Met — merged (`5be92bc`) and deployed
+  (confirmed via `vercel ls`, 2026-08-17).
+
+### TASK-010 (`T-010`) — Reconcile `src/lib/changelog.ts` with the 3 commits shipped 2026-08-13–08-15
+- **Status:** Open. `TASK-009` is now resolved (all 3 commits are on
+  `main`), so this can proceed whenever — no longer blocked on anything.
+- **Priority:** Medium
+- **Exact objective:** `src/lib/changelog.ts` (the player-facing patch
+  notes) still stops at `"1.21"` (re-confirmed 2026-08-17). Three real
+  commits, all now on `main`, have no changelog entry: `97185d3`
+  (reduced-motion fix), `5816555` (OG/robots/sitemap metadata), `42c03f9`
+  (neon/glitch match-outcome effect, merged via `5be92bc`). Decide on
+  version numbering (this session deliberately did not invent one — e.g.
+  one `v1.22` entry covering all three, or separate entries) and add the
+  entries.
+- **What has already been completed:** The underlying memory-doc
+  reconciliation (`PROJECT_STATE.md`, `CLAUDE.md`, `FEATURES.md`,
+  `UI_SYSTEM.md`, `HANDOFF.md`, `SESSION_LOG.md`, `CHANGELOG.md`) — done
+  this checkpoint (2026-08-17).
+- **What remains:** The `src/lib/changelog.ts` (in-app, player-facing)
+  entries only.
+- **Relevant files:** `src/lib/changelog.ts`.
+- **Blockers:** None strictly, but doing this after `TASK-009` avoids a
+  changelog entry for a feature that later gets un-merged or reworked.
 
 ## v1.8 ship — full record
 
@@ -58,11 +123,11 @@ record.
     players; any team mode forces `roundsToWin=1`) — all in
     `src/lib/game/state.ts`.
   - Bot AI: `runBotStep()` excludes teammates from targeting.
-  - Settings UI: Team Mode selector in `GameSettingsForm.tsx`.
-  - Client UI: team badge + boss crown in `PlayerHud.tsx`, teammate
-    exclusion in `TargetSelector.tsx`, team-aware win/loss framing and
-    standings in `MatchEndView.tsx`.
-  - `career.ts` fixed to supply `teamMode: "none"` in
+  - Settings UI: Team Mode selector in `src/components/game/GameSettingsForm.tsx`.
+  - Client UI: team badge + boss crown in `src/components/game/PlayerHud.tsx`, teammate
+    exclusion in `src/components/game/TargetSelector.tsx`, team-aware win/loss framing and
+    standings in `src/components/game/MatchEndView.tsx`.
+  - `src/lib/career.ts` fixed to supply `teamMode: "none"` in
     `careerMatchSettings()`.
   - A `v1.8` changelog entry drafted in `src/lib/changelog.ts`.
   - All of the above passes `npm run typecheck`,
@@ -177,7 +242,7 @@ record.
      document that conclusion in `PROJECT_STATE.md` and proceed to
      TASK-001's remaining steps.
   5. If either looks wrong by eye, that's a real bug — debug from there
-     (start by re-reading `assignTeams()` and `redact()` in `state.ts`,
+     (start by re-reading `assignTeams()` and `redact()` in `src/lib/game/state.ts`,
      both of which were manually reviewed and looked correct this
      session, so the bug, if real, may be in a component's conditional
      rendering rather than the engine).
@@ -222,13 +287,13 @@ Nothing outstanding.
   `nextOpponent(career)?.tier ?? 6`) into a layered venue backdrop
   behind the Career hub's hero banner (`src/app/career/page.tsx`), and
   gave `victory-burst.png` a job as a soft glow behind the level-up
-  panel on `MatchEndView.tsx`. Verified via screenshot, both locally and
+  panel on `src/components/game/MatchEndView.tsx`. Verified via screenshot, both locally and
   against production.
 - **Commit:** `51afb5e`.
 
 ### TASK-005 — Fix the inconsistent local-dev WebSocket host fallback
-- **Status:** **DONE.** `useGameRoom.ts`'s fallback now matches
-  `leaderboardApi.ts`'s (`127.0.0.1:8787`).
+- **Status:** **DONE.** `src/hooks/useGameRoom.ts`'s fallback now matches
+  `src/lib/leaderboardApi.ts`'s (`127.0.0.1:8787`).
 - **Commit:** `6d55991`.
 
 ### TASK-006 — Remove or use the `zustand` dependency
@@ -239,9 +304,9 @@ Nothing outstanding.
 
 ### TASK-007 — Show team assignments in the pre-game lobby
 - **Status:** **DONE.** Extracted a pure `teamForSeatIndex(teamMode,
-  index, seatCount)` helper in `state.ts` (also used by the real
+  index, seatCount)` helper in `src/lib/game/state.ts` (also used by the real
   `assignTeams()`, eliminating any risk of the preview drifting from
-  the real rule), and used it in `Lobby.tsx` to show the same team
+  the real rule), and used it in `src/components/game/Lobby.tsx` to show the same team
   badge / boss crown treatment as the in-game HUD, before the round
   starts. Verified via screenshot for both Duos and Boss Battle, both
   locally and against production.
@@ -275,9 +340,10 @@ below.
 - `src/lib/game/state.ts` is ~940 lines in one file. Intentionally kept
   together (shared verbatim between two runtimes, single source of
   truth) — see `DECISIONS.md` — but if it keeps growing, consider
-  splitting by concern (e.g. `state/items.ts` for `applyItemEffect`,
-  `state/bots.ts` for the AI) while keeping a single barrel export, so
-  both `tsconfig.json` projects still see one clean import surface.
+  splitting by concern (e.g. a `state/items.ts` file that does not yet
+  exist, for `applyItemEffect`, and `state/bots.ts`, also not yet
+  created, for the AI) while keeping a single barrel export, so both
+  `tsconfig.json` projects still see one clean import surface.
 - `npm audit` (run 2026-08-06 while regenerating the lockfile for
   TASK-006) reports 3 vulnerabilities (2 moderate, 1 high) in `undici`,
   transitively via `wrangler`'s bundled `miniflare` (local Worker dev
@@ -319,7 +385,7 @@ for the full v1.8 record)
   sequence + HUD animation polish. Full detail: `git log`, `CHANGELOG.md`,
   `src/lib/changelog.ts`.
 - v1.9 — `/tutorial` (rules + full 23-item glossary, generated from
-  `items.ts`/`itemIcons.tsx`/`colors.ts`) and `/lessons` (strategy tips
+  `src/lib/game/items.ts`/`src/components/game/itemIcons.tsx`/`src/lib/game/colors.ts`) and `/lessons` (strategy tips
   tied to the actual mechanics). Linked from the landing footer and
   in-game header. Committed (`ae1219c`), deployed to Vercel (no backend
   changes needed), verified live in production via screenshot.

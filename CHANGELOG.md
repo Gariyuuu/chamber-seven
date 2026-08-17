@@ -12,6 +12,29 @@ handoff memory system described in `CLAUDE.md`.
 
 ---
 
+## 2026-08-17 — Onboarding checkpoint (3-commit catch-up; a branch merged mid-checkpoint by a concurrent session)
+
+**Type:** Documentation only, no product code changed **by this
+session**. A repo-memory onboarding audit found 3 shipped commits
+(2026-08-13–08-15) that this memory system and `src/lib/changelog.ts`
+had never recorded: a `prefers-reduced-motion` accessibility fix and
+OpenGraph/robots.txt/sitemap metadata (both already merged to `main`,
+confirmed live via direct `curl`), and a neon/glitch match-outcome
+headline effect that was on an unmerged `chore/polish` branch — which
+was also what the repo was checked out on at the start of this
+checkpoint, instead of `main`. **While this checkpoint was still in
+progress, a different, concurrent Claude Code session sharing this
+checkout merged `chore/polish` into `main` (`5be92bc`) and deployed
+it** — this repo's checkout is apparently shared across concurrent
+sessions the same way `~/Projects/yuuki-outreach` is documented to be.
+This checkpoint re-verified the new state and updated the docs to match
+rather than leaving the stale "open decision" framing in place.
+Reconciled across `PROJECT_STATE.md`, `CLAUDE.md`, `TASKS.md` (new
+`TASK-009`, closed; `TASK-010`, open), `HANDOFF.md`, `FEATURES.md`,
+`UI_SYSTEM.md`, `SESSION_LOG.md`. Full detail in `SESSION_LOG.md`'s top
+entry. `src/lib/changelog.ts` (the player-facing patch notes) was still
+deliberately left unedited — see `TASK-010`.
+
 ## 2026-08-07 — Documentation checkpoint (v1.13–v1.21 catch-up, git state re-verified)
 
 **Type:** Documentation only, no product code changed. Re-verified git
@@ -91,20 +114,20 @@ live via `curl`.
 `SESSION_LOG.md` (top entry) for the full engineering detail.
 
 Six user-requested changes shipped in one pass: a generated site icon
-(`src/app/icon.tsx`/`apple-icon.tsx`), an animated avatar for human
-players (`PlayerAvatar.tsx`, previously only bots had one), a font swap
-(`Butcherman`/`Barlow`) that also fixed a genuine bug — `globals.css` had
+(`src/app/icon.tsx`/`src/app/apple-icon.tsx`), an animated avatar for human
+players (`src/components/game/PlayerAvatar.tsx`, previously only bots had one), a font swap
+(`Butcherman`/`Barlow`) that also fixed a genuine bug — `src/app/globals.css` had
 `--font-sans: var(--font-sans)`, a circular CSS custom property, so the
 site had silently never been rendering `Geist` at all — five new
 hand-drawn SVG theme backgrounds replacing the old PNGs (which shared one
 moon-and-light-streaks template just recolored), an entrance animation
 for the "Table talk" event log, and a full-screen jump-scare overlay
-(`ShootScare.tsx`) on live/damaging shots involving the local player.
+(`src/components/game/ShootScare.tsx`) on live/damaging shots involving the local player.
 
 No raster image-generation tool is available in this environment; the
 new backgrounds and jump-scare art are hand-authored SVG, generated via
 a throwaway (not committed) Python script for the backgrounds, matching
-the existing `DealerAvatar.tsx` inline-SVG convention.
+the existing `src/components/game/DealerAvatar.tsx` inline-SVG convention.
 
 Verified via `npm run typecheck`/`typecheck:party`/`lint`/`build` (all
 clean) plus a real headless-browser run (Playwright, installed ad hoc,
@@ -158,7 +181,7 @@ file for full detail on each):
   its runtime behavior could not be conclusively verified this session —
   see `PROJECT_STATE.md` for the full, contradictory test evidence.
 - `zustand` is an installed but entirely unused dependency.
-- `useGameRoom.ts` and `leaderboardApi.ts` have inconsistent local-dev
+- `src/hooks/useGameRoom.ts` and `src/lib/leaderboardApi.ts` have inconsistent local-dev
   WebSocket host fallbacks (`127.0.0.1:1999` vs `127.0.0.1:8787`).
 - `README.md` is stale (describes the game as strictly two-player,
   pre-dating the 2–4 player FFA, Career Mode, and team-mode work).
