@@ -52,7 +52,13 @@ export function MatchEndView({
     <div className="mx-auto flex max-w-lg flex-col items-center gap-6 px-4 py-24 text-center animate-in fade-in zoom-in-95 duration-500">
       <Crown className="size-10 text-accent drop-shadow-[0_0_16px_color-mix(in_oklch,var(--accent)_60%,transparent)]" />
       <div>
-        <p className="font-display text-4xl tracking-wide text-primary drop-shadow-[0_0_24px_color-mix(in_oklch,var(--primary)_50%,transparent)] sm:text-5xl md:text-6xl">
+        <p
+          className={cn(
+            "font-display text-4xl tracking-wide sm:text-5xl md:text-6xl",
+            youWon ? "match-outcome--win text-primary" : "match-outcome--lose",
+          )}
+          data-text={youWon ? undefined : "TABLE LOST"}
+        >
           {youWon ? "YOU SURVIVE" : "TABLE LOST"}
         </p>
         <p className="mt-2 text-muted-foreground">{outcomeText()}</p>

@@ -603,4 +603,96 @@
   .duel-avatar__gun-recoil {
     animation: none !important;
   }
+
+  /* Match-outcome headline effects: verified via computed styles (not just
+     reading the keyframes) that letting animation-duration collapse to
+     .01ms is NOT enough here — fill-mode defaults to none, so once the
+     (near-instant) animation finishes, .match-outcome--win's text-shadow
+     reverts to nothing (no glow at all) and .match-outcome--lose's glitch
+     ::before/::after pseudo-elements revert to their un-animated initial
+     opacity of 1 (permanently visible ghosted duplicates), not the 0
+     their own last keyframe implies. Explicit static overrides instead. */
+  .match-outcome--win {
+    animation: none !important;
+    opacity: 1 !important;
+    text-shadow:
+      0 0 4px var(--ink),
+      0 0 11px var(--ink-2),
+      0 0 24px var(--ink-2),
+      0 0 48px var(--ink-2) !important;
+  }
+  .match-outcome--lose::before,
+  .match-outcome--lose::after {
+    display: none !important;
+  }
+}
+
+/* Match-end headline effects (text-effects.colorion.co, MIT — adapted:
+   typography/sizing left to the existing Tailwind classes on the element,
+   only the color-token + animation mechanics are taken from the source).
+   Both resolve to a safe, legible static state under the blanket
+   prefers-reduced-motion rule above: fx-neon's last keyframe (100%) is
+   full steady glow; fx-glitch's ::before/::after last keyframe (100%) is
+   opacity 0, leaving the plain base text visible. Neither needs a
+   targeted override the way .shoot-scare did. */
+.match-outcome--win {
+  --ink: var(--primary);
+  --ink-2: var(--accent);
+  animation: fx-neon 3.2s linear infinite;
+}
+@keyframes fx-neon {
+  0%, 18%, 21%, 24%, 100% {
+    opacity: 1;
+    text-shadow:
+      0 0 4px var(--ink),
+      0 0 11px var(--ink-2),
+      0 0 24px var(--ink-2),
+      0 0 48px var(--ink-2);
+  }
+  19%, 22%, 62% {
+    opacity: .35;
+    text-shadow: none;
+  }
+  63%, 64.5% {
+    opacity: .6;
+    text-shadow: 0 0 4px var(--ink-2);
+  }
+}
+
+.match-outcome--lose {
+  --ink: var(--destructive);
+  --ink-2: var(--muted-foreground);
+  --ink-3: var(--accent);
+  position: relative;
+  color: var(--ink);
+}
+.match-outcome--lose::before,
+.match-outcome--lose::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+}
+.match-outcome--lose::before {
+  color: var(--ink-2);
+  clip-path: inset(0 0 55% 0);
+  animation: fx-glitch-a 2.6s steps(1) infinite;
+}
+.match-outcome--lose::after {
+  color: var(--ink-3);
+  clip-path: inset(45% 0 0 0);
+  animation: fx-glitch-b 2.6s steps(1) infinite;
+}
+@keyframes fx-glitch-a {
+  0%, 12%, 20%, 55%, 100% { transform: translate(0); opacity: 0; }
+  13% { transform: translate(-5px, -2px); opacity: .9; }
+  16% { transform: translate(4px, 1px);   opacity: .9; }
+  48% { transform: translate(-3px, 2px);  opacity: .9; }
+  51% { transform: translate(2px, -1px);  opacity: .9; }
+}
+@keyframes fx-glitch-b {
+  0%, 14%, 22%, 60%, 100% { transform: translate(0); opacity: 0; }
+  15% { transform: translate(5px, 2px);   opacity: .9; }
+  18% { transform: translate(-4px, -1px); opacity: .9; }
+  52% { transform: translate(3px, -2px);  opacity: .9; }
+  56% { transform: translate(-2px, 1px);  opacity: .9; }
 }
