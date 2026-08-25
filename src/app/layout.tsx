@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 const butcherman = Butcherman({
-  variable: "--font-display",
+  variable: "--font-butcherman",
   weight: "400",
   subsets: ["latin"],
 });
