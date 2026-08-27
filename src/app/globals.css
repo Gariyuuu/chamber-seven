@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./design-system/master.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -66,8 +67,20 @@
   --accent-foreground: oklch(0.15 0.01 30);
   --destructive: oklch(0.6 0.24 27);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: color-mix(in oklch, var(--primary) 60%, transparent);
+  --input: oklch(0.602 0 0);
+  /* C7 sweep: was color-mix(in oklch, var(--primary) 60%, transparent).
+   * Same defect as promptforge's --ring /60%: a static read said 3.04-5.00:1
+   * across the five themes, but composited against the real backdrop it
+   * RENDERED 1.78-2.58:1 -- a focus ring failing the 3:1 minimum in every
+   * theme. Made opaque; the authored ring-follows-primary coupling is kept
+   * exactly as written, only the transparency is dropped.
+   *
+   * DEFAULT THEME: 3.04:1 -- PASSING, THIN MARGIN, DELIBERATE.
+   * Reviewed and left alone. Widening the margin would mean re-tinting
+   * --primary, i.e. moving authored brand identity to buy headroom on a test
+   * that already passes. That is README rule 2 with extra steps. Do not
+   * "fix" this. The other four themes sit at 3.78-5.00:1. */
+  --ring: var(--primary);
   /* A qualitative 5-hue palette (red/amber/blue/green/purple), used for
      per-item categories and per-seat player colors throughout the game. */
   --chart-1: oklch(0.55 0.22 25);
@@ -83,7 +96,7 @@
   --sidebar-accent: oklch(0.24 0.02 55);
   --sidebar-accent-foreground: oklch(0.96 0.005 60);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.55 0.22 25 / 0.6);
+  --sidebar-ring: oklch(0.55 0.22 25);
   --bg-image: url("/backgrounds/bg-crimson.png");
 }
 
