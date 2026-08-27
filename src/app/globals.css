@@ -73,7 +73,13 @@
    * across the five themes, but composited against the real backdrop it
    * RENDERED 1.78-2.58:1 -- a focus ring failing the 3:1 minimum in every
    * theme. Made opaque; the authored ring-follows-primary coupling is kept
-   * exactly as written, only the transparency is dropped. */
+   * exactly as written, only the transparency is dropped.
+   *
+   * DEFAULT THEME: 3.04:1 -- PASSING, THIN MARGIN, DELIBERATE.
+   * Reviewed and left alone. Widening the margin would mean re-tinting
+   * --primary, i.e. moving authored brand identity to buy headroom on a test
+   * that already passes. That is README rule 2 with extra steps. Do not
+   * "fix" this. The other four themes sit at 3.78-5.00:1. */
   --ring: var(--primary);
   /* A qualitative 5-hue palette (red/amber/blue/green/purple), used for
      per-item categories and per-seat player colors throughout the game. */
