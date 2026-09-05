@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ItemId, RedactedState } from "@/lib/game/types";
-import { Crown, LogOut, RotateCcw, Sparkles, Swords, TrendingUp } from "lucide-react";
+import { Crown, LogOut, RotateCcw, Skull, Sparkles, Swords, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -50,14 +50,25 @@ export function MatchEndView({
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center gap-6 px-4 py-24 text-center animate-in fade-in zoom-in-95 duration-500">
-      <Crown className="size-10 text-accent drop-shadow-[0_0_16px_color-mix(in_oklch,var(--accent)_60%,transparent)]" />
+      {/* A Crown was drawn above BOTH outcomes — the loss screen congratulated
+          you with a gold crown. Win keeps the crown; a loss gets a skull. */}
+      {youWon ? (
+        <Crown className="size-10 text-accent drop-shadow-[0_0_16px_color-mix(in_oklch,var(--accent)_60%,transparent)]" />
+      ) : (
+        <Skull className="size-10 text-destructive drop-shadow-[0_0_16px_color-mix(in_oklch,var(--destructive)_50%,transparent)]" />
+      )}
       <div>
+        {/* .gl-outcome supplies the shared W4 arrival motion (win rises, loss
+            settles); the repo's own neon/glitch treatment supplies the look. */}
         <p
           className={cn(
-            "font-display text-4xl tracking-wide sm:text-5xl md:text-6xl",
+            "gl-outcome font-display text-4xl tracking-wide sm:text-5xl md:text-6xl",
             youWon ? "match-outcome--win text-primary" : "match-outcome--lose",
           )}
+          data-outcome={youWon ? "win" : "lose"}
           data-text={youWon ? undefined : "TABLE LOST"}
+          role="status"
+          aria-live="polite"
         >
           {youWon ? "YOU SURVIVE" : "TABLE LOST"}
         </p>
@@ -103,17 +114,20 @@ export function MatchEndView({
           {standings.map((p, i) => (
             <div
               key={p.seat}
+              data-you={p.seat === state.you ? "true" : undefined}
               className={cn(
-                "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
+                "gl-seat flex-row items-center justify-between text-sm",
                 p.seat === winnerSeat ? "border-accent/50 bg-accent/10" : "border-border bg-card",
               )}
             >
-              <span>
-                #{i + 1} {p.name}
-                {p.seat === state.you && <span className="text-muted-foreground"> (you)</span>}
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span className="gl-num text-muted-foreground">#{i + 1}</span>
+                {p.seat === winnerSeat && <Crown className="size-3.5 shrink-0 text-accent" aria-label="Winner" />}
+                <span className="truncate">{p.name}</span>
+                {p.seat === state.you && <span className="shrink-0 text-muted-foreground">(you)</span>}
               </span>
-              <span className="text-muted-foreground">
-                {state.roundWins[p.seat]} round win{state.roundWins[p.seat] === 1 ? "" : "s"}
+              <span className="shrink-0 text-muted-foreground">
+                <span className="gl-num">{state.roundWins[p.seat]}</span> round win{state.roundWins[p.seat] === 1 ? "" : "s"}
               </span>
             </div>
           ))}
@@ -125,17 +139,22 @@ export function MatchEndView({
           {state.players.map((p) => (
             <div
               key={p.seat}
+              data-you={p.seat === state.you ? "true" : undefined}
+              data-seat={p.eliminated ? "absent" : "present"}
               className={cn(
-                "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
+                "gl-seat flex-row items-center justify-between text-sm",
                 p.team === winner.team ? "border-accent/50 bg-accent/10" : "border-border bg-card",
               )}
             >
-              <span className="flex items-center gap-1.5">
+              <span className="flex min-w-0 items-center gap-1.5">
                 {p.isBoss && <Crown className="size-3.5 text-accent" />}
                 {p.name}
                 {p.seat === state.you && <span className="text-muted-foreground"> (you)</span>}
               </span>
-              <span className="text-muted-foreground">{p.eliminated ? "Eliminated" : "Survived"}</span>
+              <span className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
+                {p.eliminated && <Skull className="size-3.5" aria-hidden />}
+                {p.eliminated ? "Eliminated" : "Survived"}
+              </span>
             </div>
           ))}
         </div>

@@ -204,6 +204,20 @@ breakpoint values were found in any config file.
 
 ## Animations
 
+- **Shared W4 game-loop grammar** (`src/app/design-system/game-loop.css`,
+  vendored — never edit in place; re-vendor with
+  `~/Projects/.design-system/tools/vendor_game_loop.sh . src/app/design-system`).
+  Win / lose differ in the *shape* of the motion, not the hue: a win rises and
+  overshoots (820ms), a loss drops and settles (700ms), a draw converges
+  (620ms). `.gl-turn[data-turn="you"]` breathes; `[data-turn="them"]` does not.
+  Every keyframe rests on its visible state, so MASTER's reduce clamp cannot
+  resolve an outcome to invisible.
+  - The repo's own `.match-outcome--win` / `--lose` supply the *look* and are
+    composed with the shared grammar (two animations on one element). Both were
+    `infinite` before the W4 pass: `fx-neon` dropped the headline to opacity
+    `.35` several times per 3.2s cycle forever, so the match result was
+    unreadable a third of the time it was on screen. They now run **once** on
+    arrival and hold — `fx-neon` at 1.4s, the glitch layers at 1.3s.
 - **Tailwind/`tw-animate-css` utility animations:** `animate-in`,
   `fade-in`, `zoom-in-95`, `slide-in-from-*`, `duration-*` classes used
   throughout for entrance transitions (match-end screen, lobby player
@@ -378,6 +392,17 @@ checks) or delegated entirely to the server (`clampSettings()`).
 
 ## Empty states
 
+- **Open seat in the lobby** (`src/components/game/Lobby.tsx`). Every active
+  seat is always present in `state.players`; an unclaimed one arrives with
+  `connected: false`, so "open seat" is a *state of an existing row*, not a
+  missing row. It uses `.gl-seat[data-seat="empty"]`: dashed perimeter (a
+  non-colour channel, so it survives greyscale and CVD), a `UserPlus` glyph in
+  place of the avatar, the label "Open seat", and "share the code" as the hint.
+  Before the W4 pass this rendered as an ordinary solid row with the player's
+  placeholder name and the word "waiting..." — a 4-seat table with 2 people in
+  it looked complete, and the disabled Start button gave no reason. The card
+  header now counts *connected* players (`2 of 4`), and the Start button names
+  what it is waiting for.
 - Leaderboard: "No wins recorded yet — win a match to put your name up
   here." when the fetched array is empty.
 - Item hand: "No items" text when `itemCount === 0`

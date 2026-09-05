@@ -41,10 +41,18 @@ export function PlayerHud({
 
   return (
     <div
+      /* W4 turn feedback. Before this pass the local player's turn and an
+         opponent's turn drew the SAME accent ring and glow, differing only in
+         the two words at the far right — so at a glance you could not tell
+         whether the table was waiting on you. Your turn now gets the heavier
+         ring plus the breathing badge; an opponent's turn gets a flat neutral
+         ring and no motion. */
       className={cn(
         "flex items-center justify-between gap-3 rounded-lg border border-l-4 border-border bg-card px-4 py-3 transition-all",
         !player.eliminated && COLOR_BORDER_L[color],
-        isTurn && !player.eliminated && "bg-accent/10 shadow-[0_0_0_1px_var(--accent),0_0_16px_color-mix(in_oklch,var(--accent)_35%,transparent)]",
+        isTurn && !player.eliminated && isYou &&
+          "bg-accent/10 shadow-[0_0_0_2px_var(--accent),0_0_18px_color-mix(in_oklch,var(--accent)_35%,transparent)]",
+        isTurn && !player.eliminated && !isYou && "bg-muted/40 shadow-[0_0_0_1px_var(--muted-foreground)]",
         player.eliminated && "opacity-50",
         hit && "player-hud-hit",
       )}
@@ -90,12 +98,18 @@ export function PlayerHud({
           </div>
         </div>
       </div>
-      <div className="text-right text-sm text-muted-foreground">
+      <div className="flex shrink-0 flex-col items-end text-right text-sm text-muted-foreground">
         <p>
           {player.itemCount} item{player.itemCount === 1 ? "" : "s"}
         </p>
-        {isTurn && !player.eliminated && (
-          <p className="text-xs font-medium text-accent">{isYou ? "your turn" : "their turn"}</p>
+        {/* Only OTHER seats get the badge. Your own turn is already stated by
+            the readout strip at the top of the view plus this row's heavy ring,
+            and printing it a third time here just crowded the row. On a 3–4
+            seat table the badge is what tells you WHICH opponent is acting. */}
+        {isTurn && !player.eliminated && !isYou && (
+          <span className="gl-turn mt-1 ml-auto" data-turn="them">
+            Their turn
+          </span>
         )}
       </div>
     </div>

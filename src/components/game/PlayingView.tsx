@@ -9,7 +9,7 @@ import { ItemCard } from "./ItemCard";
 import { TargetSelector } from "./TargetSelector";
 import { DealerAim } from "./DealerAvatar";
 import { ShootScare, ScareKind } from "./ShootScare";
-import { LayoutGrid, Radiation, type LucideIcon } from "lucide-react";
+import { LayoutGrid, Loader2, Radiation, type LucideIcon } from "lucide-react";
 import { SEAT_COLOR, COLOR_TEXT } from "@/lib/game/colors";
 import { cn } from "@/lib/utils";
 
@@ -146,20 +146,38 @@ export function PlayingView({
         />
       )}
       <div className="mx-auto max-w-3xl px-4 py-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-y-1 text-sm text-muted-foreground">
-        <p>
-          Round {state.round} ·{" "}
-          {state.settings.roundsToWin === 1
-            ? "single round"
-            : `first to ${state.settings.roundsToWin} wins the table`}
-        </p>
-        <div className="flex gap-3">
+      {/* W4 spectator readout: phase, score, and whose turn, in one strip.
+          The scoreline used to be a run of coloured name:number pairs with no
+          turn information at all — you had to scan four HUD rows to find out
+          who the table was waiting on. Numerals are tabular so a score does not
+          shove its neighbours sideways when it ticks. */}
+      <div className="gl-readout mb-4 justify-between border-border text-sm text-muted-foreground">
+        <span className="gl-phase">
+          Round {state.round}
+          {state.settings.roundsToWin > 1 && ` · first to ${state.settings.roundsToWin}`}
+        </span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {state.players.map((p) => (
-            <span key={p.seat} className={cn("font-medium", COLOR_TEXT[SEAT_COLOR[p.seat]])}>
-              {p.seat === state.you ? "you" : p.name}: {state.roundWins[p.seat]}
+            <span
+              key={p.seat}
+              className={cn(
+                "flex items-center gap-1 font-medium",
+                COLOR_TEXT[SEAT_COLOR[p.seat]],
+                state.turn === p.seat && state.phase === "playing" && "underline decoration-2 underline-offset-4",
+              )}
+            >
+              {p.seat === state.you ? "you" : p.name}
+              <span key={state.roundWins[p.seat]} className="gl-score gl-num text-base" data-ticked="true">
+                {state.roundWins[p.seat]}
+              </span>
             </span>
           ))}
         </div>
+        {state.phase === "playing" && (
+          <span className="gl-turn" data-turn={isYourTurn ? "you" : "them"}>
+            {isYourTurn ? "Your turn" : `${state.players.find((p) => p.seat === state.turn)?.name ?? "Opponent"}'s turn`}
+          </span>
+        )}
       </div>
 
       <div className="felt-panel flex flex-col gap-4 rounded-2xl p-3 ring-1 ring-border/60 sm:p-5">
@@ -227,8 +245,9 @@ export function PlayingView({
         />
 
         {!isYourTurn && state.phase === "playing" && (
-          <p className="text-center text-sm text-muted-foreground">
-            Waiting on {state.players.find((p) => p.seat === state.turn)?.name}...
+          <p className="flex items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+            <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            Waiting on {state.players.find((p) => p.seat === state.turn)?.name}…
           </p>
         )}
       </div>

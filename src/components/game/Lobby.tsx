@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RedactedState } from "@/lib/game/types";
-import { Check, Copy, Crown, Loader2, Users } from "lucide-react";
+import { Check, Copy, Crown, Loader2, UserPlus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DealerAvatar } from "./DealerAvatar";
 import { PlayerAvatar } from "./PlayerAvatar";
@@ -17,6 +17,10 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
   const allConnected = players.every((p) => p.connected);
   const vsAI = players.some((p) => p.isBot);
   const teamMode = state.settings.teamMode;
+  // Every active seat is always present in `state.players` — an unclaimed one
+  // arrives with connected:false. So "open seat" is a state of an existing row,
+  // not a missing row; the list length never changes as people join.
+  const openSeats = players.filter((p) => !p.connected).length;
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.href);
@@ -48,7 +52,7 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
         <CardHeader>
           <CardTitle className="flex items-center justify-center gap-2 text-base">
             <Users className="size-4" />
-            Players ({players.length})
+            Players ({players.filter((p) => p.connected).length} of {state.settings.playerCount})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -59,20 +63,25 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
               <div
                 key={p.seat}
                 style={{ animationDelay: `${i * 60}ms` }}
-                className="flex animate-in fade-in slide-in-from-left-2 items-center justify-between rounded-md border border-border px-3 py-2 duration-300 fill-mode-both"
+                data-seat={p.connected ? "ready" : "empty"}
+                className="gl-seat animate-in fade-in slide-in-from-left-2 flex-row items-center justify-between bg-card duration-300 fill-mode-both"
               >
-                <span className="flex items-center gap-2">
-                  {p.isBot ? (
+                <span className="flex min-w-0 items-center gap-2">
+                  {!p.connected ? (
+                    <UserPlus className="size-6 shrink-0 p-0.5 text-muted-foreground/60" aria-hidden />
+                  ) : p.isBot ? (
                     <DealerAvatar color={`var(--${SEAT_COLOR[p.seat]})`} size={24} />
                   ) : (
                     <PlayerAvatar color={`var(--${SEAT_COLOR[p.seat]})`} size={24} />
                   )}
-                  {p.name}
-                  {previewIsBoss && <Crown className="size-3.5 text-accent" />}
+                  <span className={cn("gl-seat-name font-medium", !p.connected && "text-muted-foreground")}>
+                    {p.connected ? p.name : "Open seat"}
+                  </span>
+                  {previewIsBoss && <Crown className="size-3.5 shrink-0 text-accent" />}
                   {previewTeam !== null && (
                     <span
                       className={cn(
-                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
+                        "shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold tracking-wide uppercase",
                         previewTeam === 0 ? "bg-chart-3/20 text-chart-3" : "bg-chart-1/20 text-chart-1",
                       )}
                     >
@@ -80,24 +89,31 @@ export function Lobby({ state, onStart }: { state: RedactedState; onStart: () =>
                     </span>
                   )}
                 </span>
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
                   <span
                     className={cn(
-                      "size-1.5 rounded-full",
+                      "gl-pip",
                       p.connected ? "bg-[oklch(0.64_0.19_145)] shadow-[0_0_6px_oklch(0.64_0.19_145_/_70%)]" : "bg-muted-foreground/40",
                     )}
                   />
-                  {p.connected ? "ready" : "waiting..."}
+                  {p.connected ? "ready" : vsAI ? "unused" : "share the code"}
                 </span>
               </div>
             );
           })}
+
         </CardContent>
       </Card>
 
       <Button size="lg" disabled={!allConnected} onClick={onStart} className="w-full gap-2">
-        {allConnected ? "Start the Game" : <Loader2 className="size-4 animate-spin" />}
-        {!allConnected && "Waiting for players"}
+        {allConnected ? (
+          "Start the Game"
+        ) : (
+          <>
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+            {`Waiting for ${openSeats} more player${openSeats === 1 ? "" : "s"}`}
+          </>
+        )}
       </Button>
     </div>
   );

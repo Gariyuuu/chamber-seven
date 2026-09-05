@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./design-system/master.css";
+@import "./design-system/game-loop.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -81,6 +82,22 @@
    * that already passes. That is README rule 2 with extra steps. Do not
    * "fix" this. The other four themes sit at 3.78-5.00:1. */
   --ring: var(--primary);
+
+  /* ---- W4 GAME-LOOP LAYER v1.0 · project tint --------------------------
+   * Bound to the SEMANTIC tokens, not to literal oklch values, so all five
+   * :root[data-theme=...] palettes below re-tint the game-loop layer for
+   * free. Hard-coding hues here would have silently pinned every theme to
+   * the default red/gold — the same class of bug as a --font-sans that
+   * points at itself.
+   * A draw maps to --muted-foreground on purpose: neutral, so it cannot be
+   * misread as either result at a glance. */
+  --gl-win:  var(--primary);
+  --gl-lose: var(--destructive);
+  --gl-draw: var(--muted-foreground);
+  --gl-turn-you:  var(--accent);
+  --gl-turn-them: var(--muted-foreground);
+  --gl-outcome-ink: var(--primary-foreground);
+  --gl-seat-line: var(--border);
   /* A qualitative 5-hue palette (red/amber/blue/green/purple), used for
      per-item categories and per-seat player colors throughout the game. */
   --chart-1: oklch(0.55 0.22 25);
@@ -619,12 +636,19 @@
 
   /* Match-outcome headline effects: verified via computed styles (not just
      reading the keyframes) that letting animation-duration collapse to
-     .01ms is NOT enough here — fill-mode defaults to none, so once the
-     (near-instant) animation finishes, .match-outcome--win's text-shadow
-     reverts to nothing (no glow at all) and .match-outcome--lose's glitch
-     ::before/::after pseudo-elements revert to their un-animated initial
+     .01ms is NOT enough here — fill-mode defaulted to none, so once the
+     (near-instant) animation finished, .match-outcome--win's text-shadow
+     reverted to nothing (no glow at all) and .match-outcome--lose's glitch
+     ::before/::after pseudo-elements reverted to their un-animated initial
      opacity of 1 (permanently visible ghosted duplicates), not the 0
-     their own last keyframe implies. Explicit static overrides instead. */
+     their own last keyframe implies. Explicit static overrides instead.
+
+     The W4 pass added `both` to all three, so the fill-mode half of that
+     analysis no longer applies — but these overrides are KEPT, and are still
+     the right result: reduce should not run a flicker or a glitch at all, only
+     land on the steady glow / the clean base text. The win rule also has to
+     win against the shared layer's own reduce rule, which it does by being
+     declared later in this (later-imported) stylesheet. */
   .match-outcome--win {
     animation: none !important;
     opacity: 1 !important;
@@ -638,6 +662,8 @@
   .match-outcome--lose::after {
     display: none !important;
   }
+  /* The base element carries .gl-outcome, so the shared layer already gives it
+     a 140ms static fade under reduce — no override needed here. */
 }
 
 /* Match-end headline effects (text-effects.colorion.co, MIT — adapted:
@@ -648,10 +674,23 @@
    full steady glow; fx-glitch's ::before/::after last keyframe (100%) is
    opacity 0, leaving the plain base text visible. Neither needs a
    targeted override the way .shoot-scare did. */
+/* Composed with the shared W4 arrival motion. Two animations on one element:
+   .gl-outcome supplies the grammar (a win RISES; a loss SETTLES), these supply
+   the look. The element's own rule is UNLAYERED and would otherwise replace the
+   layer's `animation` shorthand outright, so the shared keyframe is named here
+   explicitly rather than left to the cascade.
+
+   Both were `infinite` before this pass. fx-neon drops the headline to
+   opacity .35 several times per 3.2s cycle, forever — so the result of the
+   match was unreadable a third of the time it was on screen, and the flicker
+   never stopped. One pass on arrival, then hold. fx-neon's 100% keyframe is
+   already full steady glow, so `1 both` rests correctly. */
 .match-outcome--win {
   --ink: var(--primary);
   --ink-2: var(--accent);
-  animation: fx-neon 3.2s linear infinite;
+  animation:
+    gl-outcome-win var(--gl-dur-win) var(--gl-ease-arrive) both,
+    fx-neon 1.4s linear 1 both;
 }
 @keyframes fx-neon {
   0%, 18%, 21%, 24%, 100% {
@@ -678,6 +717,7 @@
   --ink-3: var(--accent);
   position: relative;
   color: var(--ink);
+  animation: gl-outcome-lose var(--gl-dur-lose) var(--gl-ease-settle) both;
 }
 .match-outcome--lose::before,
 .match-outcome--lose::after {
@@ -688,12 +728,12 @@
 .match-outcome--lose::before {
   color: var(--ink-2);
   clip-path: inset(0 0 55% 0);
-  animation: fx-glitch-a 2.6s steps(1) infinite;
+  animation: fx-glitch-a 1.3s steps(1) 1 both;
 }
 .match-outcome--lose::after {
   color: var(--ink-3);
   clip-path: inset(45% 0 0 0);
-  animation: fx-glitch-b 2.6s steps(1) infinite;
+  animation: fx-glitch-b 1.3s steps(1) 1 both;
 }
 @keyframes fx-glitch-a {
   0%, 12%, 20%, 55%, 100% { transform: translate(0); opacity: 0; }
